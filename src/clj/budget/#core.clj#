@@ -1,0 +1,29 @@
+(ns budget.core
+  (:require
+
+   [compojure.route :as r]
+   [compojure.core :as c :refer [GET POST ANY]]
+   [hiccup.page :refer [html5]]
+   [ring.middleware
+    [defaults :refer [site-defaults wrap-defaults]]]
+   ,,,))
+
+(defn- all-routes
+  []
+
+  (c/routes
+
+   (GET "/" []
+        (html5
+         [:head
+          [:title "test"]]
+         [:body "Hello from clojure"]))
+
+   (r/resources "/")
+
+   (r/not-found
+    (html5 "not found"))))
+
+(defn site
+  [req]
+  (wrap-defaults handler site-defaults) )

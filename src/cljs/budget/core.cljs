@@ -6,13 +6,16 @@
 (println "text is printed from src/budget/core.cljs. Go ahead and edit it and see reloading in action.")
 
 (defonce app-state
-  (atom {:title "test"}))
+  (atom {:title "Budget!"}))
 
 
 (defn app
   []
   [:div {}
-   [:h1.title "hello"]
+   [:h1.title (:title @app-state)]
+
+   [:ul
+    [:li "Test!"]]
 
    [:div.debug app-state]
 
@@ -24,11 +27,8 @@
 
 (defn on-js-reload []
 
-  (println "hello")
+  ;; (swap! app-state assoc :title "Kuk")
 
-  (swap! app-state assoc :title "Kuk")
-
-  (println app-state)
   (mount!))
 
 (mount!)
