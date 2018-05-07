@@ -1,14 +1,22 @@
 (ns budget.core
-    (:require [reagent.core :as reagent :refer [atom]]))
+  (:require
+   [reagent.core :as reagent :refer [atom]]
+   [taoensso.sente  :as sente :refer (cb-success?)]))
 
 (enable-console-print!)
-
-(println "text is printed from src/budget/core.cljs. Go ahead and edit it and see reloading in action.")
 
 (defonce app-state
   (atom {:title "Budget!"}))
 
-(println "1")
+(let [{:keys [chsk ch-recv send-fn state]}
+      (sente/make-channel-socket! "/chsk" ; Note the same path as before
+       {:type :auto ; e/o #{:auto :ajax :ws}
+       })]
+  (def chsk       chsk)
+  (def ch-chsk    ch-recv) ; ChannelSocket's receive channel
+  (def chsk-send! send-fn) ; ChannelSocket's send API fn
+  (def chsk-state state)   ; Watchable, read-only atom
+  )
 
 (defn app
   []
@@ -16,22 +24,46 @@
    [:h1.title (:title @app-state)]
 
    [:ul
-    [:li "Hello from clojurescript!"]]
+    [:li "Hello from clojurescript"]]
+
+   [:button#btn1 {:type "button" :on-click (fn [e] (chsk-send! [:butget/click]))} "Test"]
 
    [:div.debug app-state]
 
    ,,,])
 
-(println "2")
+(defn test2 [] (println "hello world"))
 
 (defn mount!
   []
   (reagent/render [app] (js/document.querySelector "#cljs-target")))
 
-(defn on-js-reload []
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Event handling
 
-  ;; (swap! app-state assoc :title "Kuk")
+(defmulti event-msg-handler :id)
 
-  (mount!))
+(defn event-msg-handler* [{:as ev-msg :keys [id ?data event]}]
+  (println " Event: " event)
+  (event-msg-handler ev-msg))
+
+(defmethod event-msg-handler :default
+  [{:as ev-msg :keys [event]}]
+  (println " Unhandled event:" event))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Router
+(def router_ " Atom to store stop function for stopping the router " (atom nil))
+
+(defn stop-router!
+  " Stop the message router by calling the previously saved stop function "
+  [] (when-let [stop-f @router_] (stop-f)))
+
+(defn start-router! []
+  " Stop router first, then start and save the result (which is a stop callback)
+in `router_ `. "
+  (stop-router!)
+  (reset! router_ (sente/start-chsk-router! ch-chsk event-msg-handler*)))
 
 (mount!)
+(start-router!)
