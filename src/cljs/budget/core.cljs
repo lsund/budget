@@ -8,6 +8,7 @@
 (defonce app-state
   (atom {:title "Budget!"}))
 
+(println "1")
 
 (defn app
   []
@@ -15,11 +16,13 @@
    [:h1.title (:title @app-state)]
 
    [:ul
-    [:li "Test!"]]
+    [:li "Hello from clojurescript!"]]
 
    [:div.debug app-state]
 
    ,,,])
+
+(println "2")
 
 (defn mount!
   []

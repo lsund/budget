@@ -4,7 +4,7 @@
     [defaults :refer [site-defaults wrap-defaults]]]
    [compojure.core :as c :refer [defroutes GET POST ANY]]
    [compojure.route :as r]
-   [hiccup.page :refer [html5]]
+   [hiccup.page :refer [html5 include-css include-js]]
 
    ,,,))
 
@@ -13,8 +13,11 @@
   (GET "/" []
        (html5
         [:head
-         [:title "test"]]
-        [:body "Hello from clojure"]))
+         [:title "test"]
+         (apply include-js  ["/js/compiled/budget.js"])
+         (apply include-css ["/css/style.css"])]
+      [:body
+         [:div#cljs-target]]))
 
   (r/resources "/")
 
