@@ -1,8 +1,9 @@
 (ns budget.main
   (:require
-   [compojure.handler :refer [site]]
    [org.httpkit.server :refer [run-server]]
+   [compojure.handler :refer [site]]
    [budget.core :refer [my-app start-router!]]))
+
 
 (defn -main [& args]
   (start-router!)

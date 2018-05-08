@@ -1,6 +1,9 @@
 (ns user
   (:require
-   [figwheel-sidecar.repl-api :as f]))
+   [figwheel-sidecar.repl-api :as f]
+   [clojure.tools.namespace.repl :as tools]
+   [com.stuartsierra.component :as c]
+   [budget.core :refer [new-system]]))
 
 ;; user is a namespace that the Clojure runtime looks for and
 ;; loads if its available
@@ -40,3 +43,26 @@
   "Launch a ClojureScript REPL that is connected to your build and host environment."
   []
   (f/cljs-repl))
+
+(defn new-dev-system [] (new-system {}))
+
+(defonce system nil)
+
+(defn system-init! []
+  (alter-var-root #'system (constantly (new-dev-system))))
+
+(defn system-start! []
+  (alter-var-root #'system c/start))
+
+(defn system-stop! []
+  (alter-var-root #'system #(when % (c/stop %))))
+
+(defn system-go! []
+  (system-init!)
+  (system-start!))
+
+(defn system-restart! []
+  (system-stop!)
+  ;; (tools/refresh :after 'user/system-go!)
+  (system-go!)
+  )

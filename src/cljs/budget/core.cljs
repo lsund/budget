@@ -26,7 +26,7 @@
    [:ul
     [:li "Hello from clojurescript"]]
 
-   [:button#btn1 {:type "button" :on-click (fn [e] (chsk-send! [:butget/click]))} "Test"]
+   [:button#btn1 {:type "button" :on-click (fn [e] (chsk-send! [:butget/click "test-message"]))} "Test"]
 
    [:div.debug app-state]
 
