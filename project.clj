@@ -12,12 +12,12 @@
                  [org.clojure/tools.namespace "0.2.11"]
 
                  ;; Web
+                 [http-kit "2.2.0"]
+                 [ring/ring-defaults "0.3.0"]
+                 [compojure "1.6.1"]
                  [reagent "0.8.0"]
                  [com.taoensso/sente "1.12.0"]
-                 [http-kit "2.2.0"]
                  [hiccup "1.0.5"]
-                 [compojure "1.6.1"]
-                 [ring/ring-defaults "0.3.0"]
 
                  ,,,]
 
