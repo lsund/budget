@@ -5,15 +5,15 @@
 
   :min-lein-version "2.7.0"
 
-  :dependencies [[org.clojure/clojure "1.9.0"]
+  :dependencies [;; Commons
+                 [org.clojure/clojure "1.9.0"]
                  [org.clojure/clojurescript "1.9.946"]
                  [org.clojure/core.async  "0.4.474"]
                  [org.clojure/tools.namespace "0.2.11"]
 
+                 ;; Web
                  [reagent "0.8.0"]
-
                  [com.taoensso/sente "1.12.0"]
-
                  [http-kit "2.2.0"]
                  [hiccup "1.0.5"]
                  [compojure "1.6.1"]
