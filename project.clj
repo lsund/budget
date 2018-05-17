@@ -16,7 +16,6 @@
                  [ring/ring-defaults "0.3.0"]
                  [compojure "1.6.1"]
                  [reagent "0.8.0"]
-                 [com.taoensso/sente "1.12.0"]
                  [hiccup "1.0.5"]
 
                  ,,,]
