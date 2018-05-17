@@ -11,6 +11,8 @@
                  [org.clojure/core.async  "0.4.474"]
                  [org.clojure/tools.namespace "0.2.11"]
 
+                 [org.clojure/java.jdbc "0.7.6"]
+
                  ;; Web
                  [http-kit "2.2.0"]
                  [ring/ring-defaults "0.3.0"]

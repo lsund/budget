@@ -1,0 +1,1 @@
+psql -U lsund -d DATABASE -f FILE
