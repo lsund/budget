@@ -19,3 +19,7 @@
     (println ";; [App] Stopping")
     (println ";; comp: " component)
     (assoc component :handler nil)))
+
+(defn new-app
+  []
+  (map->App {}))

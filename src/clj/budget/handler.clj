@@ -8,16 +8,19 @@
     [keyword-params :refer [wrap-keyword-params]]
     [params :refer [wrap-params]]]))
 
-(defroutes all-routes
-
-  (GET "/" []
-       (html5
+(defn index
+  []
+  (html5
         [:head
          [:title "Budget"]]
       [:body
        [:div#cljs-target]
        (apply include-js ["/js/compiled/budget.js"])
        (apply include-css ["/css/style.css"])]))
+
+(defroutes all-routes
+
+  (GET "/" [] (index))
 
   (r/resources "/")
 

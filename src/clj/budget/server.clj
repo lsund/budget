@@ -22,3 +22,7 @@
         (println ";; comp: " component)
         (server :timeout 10)
         (assoc component :server nil)))))
+
+(defn new-server
+  [port]
+  (map->Server {:port port}))
