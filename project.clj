@@ -11,7 +11,9 @@
                  [org.clojure/core.async  "0.4.474"]
                  [org.clojure/tools.namespace "0.2.11"]
 
+                 ;; Database
                  [org.clojure/java.jdbc "0.7.6"]
+                 [org.postgresql/postgresql "42.2.2"]
 
                  ;; Web
                  [http-kit "2.2.0"]

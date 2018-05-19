@@ -1,9 +1,9 @@
 (ns budget.server
-  (:require [com.stuartsierra.component :as component]
+  (:require [com.stuartsierra.component :as c]
             [org.httpkit.server :refer [run-server]]))
 
 (defrecord Server [app port server]
-  component/Lifecycle
+  c/Lifecycle
 
   (start [component]
     (println ";; [Server] Starting HttpKit on port" port)

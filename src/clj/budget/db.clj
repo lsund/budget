@@ -1,21 +1,19 @@
 (ns budget.db
   (:require
    [clojure.java.jdbc :as j]
-   [com.stuartsierra.component :as component]))
+   [com.stuartsierra.component :as c]))
 
 
 (def pg-db {:dbtype "postgresql"
-            :dbname "chess"
-            :host "mydb.server.com"
-            :user "myuser"
-            :password "secret"
-            :ssl true
-            :sslfactory "org.postgresql.ssl.NonValidatingFactory"})
+            :dbname "budget"
+            :user "postgres"})
 
+(def test-q (j/query pg-db
+                     ["select * from asset"]))
 
 
 (defrecord Db [db]
-  component/Lifecycle
+  c/Lifecycle
 
   (start [component]
     (println ";; [Db] Starting database")
