@@ -3,6 +3,8 @@
    [compojure.route :as r]
    [compojure.core :refer [defroutes GET POST ANY]]
    [hiccup.page :refer [html5 include-css include-js]]
+   [hiccup.form :refer [form-to]]
+   [ring.util.response :refer [redirect]]
    [ring.middleware
     [defaults :refer [site-defaults wrap-defaults]]
     [keyword-params :refer [wrap-keyword-params]]
@@ -14,6 +16,14 @@
   [{:keys [name funds]}]
   (str name ":" funds))
 
+(defn parse-int [s] (Integer. (re-find  #"\d+" s )))
+
+
+(defn entry
+  [e]
+  (let [x (select-keys e [:name :funds])]
+    [:li (fmt-entry x)]))
+
 (defn index
   []
   (html5
@@ -21,9 +31,15 @@
     [:title "Budget"]]
    [:body
 
-    [:ul (map
-          #(let [x (select-keys % [:name :funds])] [:li (fmt-entry x)])
-          (db/get-categories))]
+    [:ul (map entry (db/get-categories))]
+
+
+    (form-to [:get "/add"]
+             [:label "Add category"]
+             [:input {:name "category-name" :type :text}]
+             [:input {:name "funds" :type :number}]
+             [:input {:type :submit}])
+
 
     [:div#cljs-target]
     (apply include-js ["/js/compiled/budget.js"])
@@ -32,6 +48,10 @@
 (defroutes all-routes
 
   (GET "/" [] (index))
+
+  (GET "/add" [category-name funds]
+       (db/add-category category-name (parse-int funds))
+       (redirect "/"))
 
   (r/resources "/")
 
