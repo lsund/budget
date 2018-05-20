@@ -31,7 +31,8 @@
 
 
 (defn update-funds
-  [x c op] (j/execute! pg-db [(update-q op) x (stringify c)]))
+  [c x op]
+  (j/execute! pg-db [(update-q op) x (stringify c)]))
 
 
 (defrecord Db [db]

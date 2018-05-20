@@ -16,13 +16,19 @@
   [{:keys [name funds]}]
   (str name ":" funds))
 
-(defn parse-int [s] (Integer. (re-find  #"\d+" s )))
+(defn parse-int [s] (Integer. (re-find  #"\d+" s)))
 
 
 (defn entry
   [e]
-  (let [x (select-keys e [:name :funds])]
-    [:li (fmt-entry x)]))
+  (let [label (-> e (select-keys [:name :funds]) fmt-entry)]
+    [:li
+     (form-to
+      [:get "/increment"]
+      [:label label]
+      [:input {:name "category-name" :type :hidden :value (:name e)}]
+      [:input {:name "inc-amount" :type :number}])]))
+
 
 (defn index
   []
@@ -32,7 +38,6 @@
    [:body
 
     [:ul (map entry (db/get-categories))]
-
 
     (form-to [:get "/add"]
              [:label "Add category"]
@@ -51,6 +56,10 @@
 
   (GET "/add" [category-name funds]
        (db/add-category category-name (parse-int funds))
+       (redirect "/"))
+
+  (GET "/increment" [category-name inc-amount]
+       (db/update-funds category-name (parse-int inc-amount) :increment)
        (redirect "/"))
 
   (r/resources "/")
