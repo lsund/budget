@@ -6,17 +6,28 @@
    [ring.middleware
     [defaults :refer [site-defaults wrap-defaults]]
     [keyword-params :refer [wrap-keyword-params]]
-    [params :refer [wrap-params]]]))
+    [params :refer [wrap-params]]]
+
+   [budget.db :as db]))
+
+(defn fmt-entry
+  [{:keys [name funds]}]
+  (str name ":" funds))
 
 (defn index
   []
   (html5
-        [:head
-         [:title "Budget"]]
-      [:body
-       [:div#cljs-target]
-       (apply include-js ["/js/compiled/budget.js"])
-       (apply include-css ["/css/style.css"])]))
+   [:head
+    [:title "Budget"]]
+   [:body
+
+    [:ul (map
+          #(let [x (select-keys % [:name :funds])] [:li (fmt-entry x)])
+          (db/get-categories))]
+
+    [:div#cljs-target]
+    (apply include-js ["/js/compiled/budget.js"])
+    (apply include-css ["/css/style.css"])]))
 
 (defroutes all-routes
 

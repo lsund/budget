@@ -15,13 +15,7 @@
 
 (defn app
   []
-  [:div {}
-   [:h1.title (:title @app-state)]
-
-   [:ul
-    [:li#app "Hello from clojurescript"]]
-
-   [:div.debug app-state]])
+  [:div "Hello from clojurescript"])
 
 
 (defn mount!

@@ -1,5 +1,6 @@
-CREATE TABLE Asset
+CREATE TABLE Category
 (
     id          SERIAL PRIMARY KEY,
-    description varchar(64) NOT NULL
+    name        varchar(64) NOT NULL,
+    funds       INT NOT NULL
 );

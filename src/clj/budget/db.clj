@@ -1,15 +1,37 @@
 (ns budget.db
   (:require
+   [clojure.string :as s]
    [clojure.java.jdbc :as j]
    [com.stuartsierra.component :as c]))
+
+
+(defn stringify [k] (-> k name s/capitalize))
 
 
 (def pg-db {:dbtype "postgresql"
             :dbname "budget"
             :user "postgres"})
 
-(def test-q (j/query pg-db
-                     ["select * from asset"]))
+
+(defn get-categories []
+  (j/query pg-db ["select * from category"]))
+
+
+(defn update-q
+  [op]
+  (case op
+    :increment "update category set funds=funds+? where name=?"
+    :decrement "update category set funds=funds-? where name=?"
+    (throw (Exception. "update-q: Illegal operation"))))
+
+
+(defn add-category
+  [c x]
+  (j/insert! pg-db :category {:name (stringify c) :funds x}))
+
+
+(defn update-funds
+  [x c op] (j/execute! pg-db [(update-q op) x (stringify c)]))
 
 
 (defrecord Db [db]

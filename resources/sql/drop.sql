@@ -1,1 +1,1 @@
-DROP TABLE Asset;
+DROP TABLE Category;
