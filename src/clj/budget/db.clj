@@ -30,6 +30,11 @@
   (j/insert! pg-db :category {:name (stringify c) :funds x}))
 
 
+(defn delete-category
+  [c]
+  (j/delete! pg-db :category ["name=?" (stringify c)]))
+
+
 (defn update-funds
   [c x op]
   (j/execute! pg-db [(update-q op) x (stringify c)]))

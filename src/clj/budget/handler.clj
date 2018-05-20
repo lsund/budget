@@ -27,7 +27,11 @@
       [:get "/increment"]
       [:label label]
       [:input {:name "category-name" :type :hidden :value (:name e)}]
-      [:input {:name "inc-amount" :type :number}])]))
+      [:input {:name "inc-amount" :type :number}])
+     (form-to
+      [:get "/delete"]
+      [:input {:name "category-name" :type :hidden :value (:name e)}]
+      [:input {:type :submit :value "Delete"}])]))
 
 
 (defn index
@@ -37,7 +41,7 @@
     [:title "Budget"]]
    [:body
 
-    [:ul (map entry (db/get-categories))]
+    [:ul (map entry (sort-by :name (db/get-categories)))]
 
     (form-to [:get "/add"]
              [:label "Add category"]
@@ -60,6 +64,10 @@
 
   (GET "/increment" [category-name inc-amount]
        (db/update-funds category-name (parse-int inc-amount) :increment)
+       (redirect "/"))
+
+  (GET "/delete" [category-name inc-amount]
+       (db/delete-category category-name)
        (redirect "/"))
 
   (r/resources "/")
