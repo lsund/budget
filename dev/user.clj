@@ -3,7 +3,9 @@
    [figwheel-sidecar.repl-api :as f]
    [clojure.tools.namespace.repl :as tools]
    [com.stuartsierra.component :as c]
-   [budget.core :refer [new-system]]))
+   [budget.config :as config]
+   [budget.core :refer [new-system]]
+   ,,,))
 
 (defn fig-start
   "This starts the figwheel server and watch based auto-compiler."
@@ -20,7 +22,7 @@
   []
   (f/cljs-repl))
 
-(defn new-dev-system [] (new-system {}))
+(defn new-dev-system [] (new-system (config/load)))
 
 (defonce system nil)
 

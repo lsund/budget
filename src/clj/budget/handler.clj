@@ -1,7 +1,7 @@
 (ns budget.handler
   (:require
    [compojure.route :as r]
-   [compojure.core :refer [defroutes GET POST ANY]]
+   [compojure.core :refer [routes GET POST ANY]]
    [hiccup.page :refer [html5 include-css include-js]]
    [hiccup.form :refer [form-to]]
    [ring.util.response :refer [redirect]]
@@ -18,21 +18,25 @@
 
 (defn parse-int [s] (Integer. (re-find  #"\d+" s)))
 
-
 (defn entry
   [e]
   (let [label (-> e (select-keys [:name :funds]) fmt-entry)]
     [:li
+     [:label label]
      (form-to
       [:get "/increment"]
-      [:label label]
       [:input {:name "category-name" :type :hidden :value (:name e)}]
+      [:label "Earn "]
       [:input {:name "inc-amount" :type :number}])
+     (form-to
+      [:get "/decrement"]
+      [:input {:name "category-name" :type :hidden :value (:name e)}]
+      [:label "Spend "]
+      [:input {:name "dec-amount" :type :number}])
      (form-to
       [:get "/delete"]
       [:input {:name "category-name" :type :hidden :value (:name e)}]
       [:input {:type :submit :value "Delete"}])]))
-
 
 (defn index
   []
@@ -44,36 +48,42 @@
     [:ul (map entry (sort-by :name (db/get-categories)))]
 
     (form-to [:get "/add"]
-             [:label "Add category"]
              [:input {:name "category-name" :type :text}]
              [:input {:name "funds" :type :number}]
-             [:input {:type :submit}])
-
-
-    [:div#cljs-target]
+             [:input {:type :submit :value "Add Category"}]) [:div#cljs-target]
     (apply include-js ["/js/compiled/budget.js"])
     (apply include-css ["/css/style.css"])]))
 
-(defroutes all-routes
+(defn- app-routes
+  []
+  (routes
 
-  (GET "/" [] (index))
+   (GET "/" [] (index))
 
-  (GET "/add" [category-name funds]
-       (db/add-category category-name (parse-int funds))
-       (redirect "/"))
+   (GET "/add" [category-name funds]
+     (db/add-category category-name (parse-int funds))
+     (redirect "/"))
 
-  (GET "/increment" [category-name inc-amount]
-       (db/update-funds category-name (parse-int inc-amount) :increment)
-       (redirect "/"))
+   (GET "/increment" [category-name inc-amount]
+     (db/update-funds category-name (parse-int inc-amount) :increment)
+     (redirect "/"))
 
-  (GET "/delete" [category-name inc-amount]
-       (db/delete-category category-name)
-       (redirect "/"))
+   (GET "/decrement" [category-name dec-amount]
+     (db/update-funds category-name (parse-int dec-amount) :decrement)
+     (redirect "/"))
 
-  (r/resources "/")
+   (GET "/delete" [category-name inc-amount]
+     (db/delete-category category-name)
+     (redirect "/"))
 
-  (r/not-found
-   (html5 "not found")))
+   (r/resources "/")
 
-(def my-app
-  (-> all-routes wrap-keyword-params wrap-params))
+   (r/not-found
+    (html5 "not found"))))
+
+(defn new-handler
+  [config]
+  (-> (app-routes)
+      (wrap-keyword-params)
+      (wrap-params)
+      (wrap-defaults (-> site-defaults (assoc-in [:security :anti-forgery] false)))))

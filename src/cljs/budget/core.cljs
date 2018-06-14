@@ -15,7 +15,7 @@
 
 (defn app
   []
-  [:div "Hello from clojurescript"])
+  [:div ""])
 
 
 (defn mount!
