@@ -1,4 +1,17 @@
 
-li {
-    color: blue;
+ul {
+    padding-top: 50px;
+    list-style: none;
+}
+
+.add {
+    padding-top: 100px;
+}
+
+.earn {
+    display: inline-block;
+}
+.spend {
+    display: inline-block;
+    padding-left: 25px;
 }

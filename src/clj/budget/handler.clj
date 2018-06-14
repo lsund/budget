@@ -14,29 +14,36 @@
 
 (defn fmt-entry
   [{:keys [name funds]}]
-  (str name ":" funds))
+  (format "%s %s" name funds))
 
 (defn parse-int [s] (Integer. (re-find  #"\d+" s)))
 
 (defn entry
   [e]
   (let [label (-> e (select-keys [:name :funds]) fmt-entry)]
+
     [:li
-     [:label label]
-     (form-to
-      [:get "/increment"]
-      [:input {:name "category-name" :type :hidden :value (:name e)}]
-      [:label "Earn "]
-      [:input {:name "inc-amount" :type :number}])
-     (form-to
-      [:get "/decrement"]
-      [:input {:name "category-name" :type :hidden :value (:name e)}]
-      [:label "Spend "]
-      [:input {:name "dec-amount" :type :number}])
+     [:div.title
+      (form-to {:class "mui-form--inline"} [:get "/update-name"]
+       [:div.mui-textfield
+        [:input {:name "category-name" :type :text :value (:name e)}]])]
+     [:div.earn
+      (form-to {:class "mui-form--inline"} [:get "/increment"]
+               [:div.mui-textfield
+                [:input {:name "category-name" :type :hidden :value (:name e)}]
+                [:label "Earn "]
+                [:input {:name "inc-amount" :type :number}]])]
+     [:div.spend
+      (form-to {:class "mui-form--inline"} [:get "/decrement"]
+               [:div.mui-textfield
+                [:input {:name "category-name" :type :hidden :value (:name e)}]
+                [:label "Spend "]
+                [:input {:name "dec-amount" :type :number}]])]
      (form-to
       [:get "/delete"]
       [:input {:name "category-name" :type :hidden :value (:name e)}]
-      [:input {:type :submit :value "Delete"}])]))
+      [:div
+       [:button.mui-btn.mui-btn--primary "Delete"]])]))
 
 (defn index
   [config]
@@ -47,10 +54,18 @@
 
     [:ul (map entry (sort-by :name (db/get-categories)))]
 
-    (form-to [:get "/add"]
-             [:input {:name "category-name" :type :text}]
-             [:input {:name "funds" :type :number}]
-             [:input {:type :submit :value "Add Category"}]) [:div#cljs-target]
+    (form-to {:class "add"} [:get "/add"]
+
+             [:div.mui-textfield
+              [:input
+               {:name "category-name" :type :text :placeholder "Category name"}]]
+
+             [:div
+              [:label "Value "]
+              [:input {:name "funds" :type :number}]
+              [:button.mui-btn.mui-btn--primary "Add category"]])
+
+    [:div#cljs-target]
     (apply include-js (:javascripts config))
     (apply include-css (:styles config))]))
 
