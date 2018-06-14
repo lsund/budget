@@ -14,3 +14,4 @@ pom.xml
 resources/public/js
 \#*
 *.edn
+/resources/public/css/mui.css

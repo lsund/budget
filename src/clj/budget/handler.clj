@@ -39,11 +39,11 @@
       [:input {:type :submit :value "Delete"}])]))
 
 (defn index
-  []
+  [config]
   (html5
    [:head
     [:title "Budget"]]
-   [:body
+   [:body.mui-container
 
     [:ul (map entry (sort-by :name (db/get-categories)))]
 
@@ -51,14 +51,14 @@
              [:input {:name "category-name" :type :text}]
              [:input {:name "funds" :type :number}]
              [:input {:type :submit :value "Add Category"}]) [:div#cljs-target]
-    (apply include-js ["/js/compiled/budget.js"])
-    (apply include-css ["/css/style.css"])]))
+    (apply include-js (:javascripts config))
+    (apply include-css (:styles config))]))
 
 (defn- app-routes
-  []
+  [config]
   (routes
 
-   (GET "/" [] (index))
+   (GET "/" [] (index config))
 
    (GET "/add" [category-name funds]
      (db/add-category category-name (parse-int funds))
@@ -83,7 +83,7 @@
 
 (defn new-handler
   [config]
-  (-> (app-routes)
+  (-> (app-routes config)
       (wrap-keyword-params)
       (wrap-params)
       (wrap-defaults (-> site-defaults (assoc-in [:security :anti-forgery] false)))))

@@ -13,7 +13,7 @@
       (do
         (println ";; [App] Starting, attaching handler")
         (println ";; comp: " component)
-        (assoc component :handler (handler/new-handler {})))))
+        (assoc component :handler (handler/new-handler app-config)))))
 
   (stop [component]
     (println ";; [App] Stopping")
