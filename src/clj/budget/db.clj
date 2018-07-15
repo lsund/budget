@@ -19,6 +19,10 @@
   (j/query pg-db ["select * from category"]))
 
 
+(defn get-transactions []
+  (j/query pg-db ["select * from transaction"]))
+
+
 (defn update-q
   [op]
   (case op
@@ -48,7 +52,7 @@
 
 (defn update-funds
   [c id x op]
-  (add-transaction id x)
+  (add-transaction id (case op :increment x :decrement (- x)))
   (j/execute! pg-db [(update-q op) x (stringify c)]))
 
 

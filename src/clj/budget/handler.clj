@@ -20,6 +20,15 @@
  {:appenders
   {:spit (appenders/spit-appender {:fname "data/budget.log"})}})
 
+
+
+(defn category-names
+  []
+  (let [cs (db/get-categories)
+        ids (map :id cs)
+        ns  (map :name cs)]
+    (zipmap ids ns)))
+
 (defn fmt-entry
   [{:keys [name funds]}]
   (format "%s %s" name funds))
@@ -59,6 +68,14 @@
       [:div
        [:button.mui-btn.mui-btn--primary "Delete"]])]))
 
+
+(defn transaction
+  [t]
+  (let [ns (category-names)]
+    [:li
+     (str (ns (:categoryid t)) ":" (:amount t))]))
+
+
 (defn index
   [config]
   (html5
@@ -67,6 +84,8 @@
    [:body.mui-container
 
     [:ul (map entry (sort-by :name (db/get-categories)))]
+
+    [:ul (map transaction (db/get-transactions))]
 
     (form-to {:class "add"} [:get "/add"]
 
@@ -97,14 +116,16 @@
         (db/update-funds
          category-name
          (parse-int category-id)
-         (parse-int inc-amount) :increment)
+         (parse-int inc-amount)
+         :increment)
         (redirect "/"))
 
    (GET "/decrement" [category-name category-id dec-amount]
         (db/update-funds
          category-name
          (parse-int category-id)
-         (parse-int dec-amount) :decrement)
+         (parse-int dec-amount)
+         :decrement)
         (redirect "/"))
 
    (GET "/delete" [category-name inc-amount]
