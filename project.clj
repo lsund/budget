@@ -22,6 +22,9 @@
                  [reagent "0.8.0"]
                  [hiccup "1.0.5"]
 
+                 ;; Other
+                 [com.taoensso/timbre "4.10.0"]
+
                  ,,,]
 
   :plugins [[lein-figwheel "0.5.15"]

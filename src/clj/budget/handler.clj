@@ -10,7 +10,15 @@
     [keyword-params :refer [wrap-keyword-params]]
     [params :refer [wrap-params]]]
 
+   ;; Logging
+   [taoensso.timbre :as timbre]
+   [taoensso.timbre.appenders.core :as appenders]
+
    [budget.db :as db]))
+
+(timbre/merge-config!
+ {:appenders
+  {:spit (appenders/spit-appender {:fname "data/budget.log"})}})
 
 (defn fmt-entry
   [{:keys [name funds]}]
@@ -21,21 +29,27 @@
 (defn entry
   [e]
   (let [label (-> e (select-keys [:name :funds]) fmt-entry)]
-
     [:li
      [:div.title
       (form-to {:class "mui-form--inline"} [:get "/update-name"]
-       [:div.mui-textfield
-        [:input {:name "category-name" :type :text :value (:name e)}]])]
+               [:div.mui-textfield
+                [:input {:name  "category-name"
+                         :type  :text
+                         :value (str (:name e))}]])]
+
+     [:div.funds (str "Current funds: " (:funds e))]
+
      [:div.earn
       (form-to {:class "mui-form--inline"} [:get "/increment"]
                [:div.mui-textfield
+                [:input {:name "category-id" :type :hidden :value (:id e)}]
                 [:input {:name "category-name" :type :hidden :value (:name e)}]
                 [:label "Earn "]
                 [:input {:name "inc-amount" :type :number}]])]
      [:div.spend
       (form-to {:class "mui-form--inline"} [:get "/decrement"]
                [:div.mui-textfield
+                [:input {:name "category-id" :type :hidden :value (:id e)}]
                 [:input {:name "category-name" :type :hidden :value (:name e)}]
                 [:label "Spend "]
                 [:input {:name "dec-amount" :type :number}]])]
@@ -76,20 +90,26 @@
    (GET "/" [] (index config))
 
    (GET "/add" [category-name funds]
-     (db/add-category category-name (parse-int funds))
-     (redirect "/"))
+        (db/add-category category-name (parse-int funds))
+        (redirect "/"))
 
-   (GET "/increment" [category-name inc-amount]
-     (db/update-funds category-name (parse-int inc-amount) :increment)
-     (redirect "/"))
+   (GET "/increment" [category-name category-id inc-amount]
+        (db/update-funds
+         category-name
+         (parse-int category-id)
+         (parse-int inc-amount) :increment)
+        (redirect "/"))
 
-   (GET "/decrement" [category-name dec-amount]
-     (db/update-funds category-name (parse-int dec-amount) :decrement)
-     (redirect "/"))
+   (GET "/decrement" [category-name category-id dec-amount]
+        (db/update-funds
+         category-name
+         (parse-int category-id)
+         (parse-int dec-amount) :decrement)
+        (redirect "/"))
 
    (GET "/delete" [category-name inc-amount]
-     (db/delete-category category-name)
-     (redirect "/"))
+        (db/delete-category category-name)
+        (redirect "/"))
 
    (r/resources "/")
 

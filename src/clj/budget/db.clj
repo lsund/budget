@@ -2,7 +2,9 @@
   (:require
    [clojure.string :as s]
    [clojure.java.jdbc :as j]
-   [com.stuartsierra.component :as c]))
+   [com.stuartsierra.component :as c]
+
+   [taoensso.timbre :as timbre]))
 
 
 (defn stringify [k] (-> k name s/capitalize))
@@ -30,13 +32,23 @@
   (j/insert! pg-db :category {:name (stringify c) :funds x}))
 
 
+(defn add-transaction
+  [id x]
+  (j/insert! pg-db
+             :transaction
+             {:categoryid id
+              :amount x
+              :ts (java.time.LocalDateTime/now)}))
+
+
 (defn delete-category
   [c]
   (j/delete! pg-db :category ["name=?" (stringify c)]))
 
 
 (defn update-funds
-  [c x op]
+  [c id x op]
+  (add-transaction id x)
   (j/execute! pg-db [(update-q op) x (stringify c)]))
 
 
