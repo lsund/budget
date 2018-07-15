@@ -38,7 +38,7 @@
 (defn entry
   [e]
   (let [label (-> e (select-keys [:name :funds]) fmt-entry)]
-    [:li
+    [:li.entry
      [:div.title
       (form-to {:class "mui-form--inline"} [:get "/update-name"]
                [:div.mui-textfield
@@ -64,16 +64,18 @@
                 [:input {:name "dec-amount" :type :number}]])]
      (form-to
       [:get "/delete"]
-      [:input {:name "category-name" :type :hidden :value (:name e)}]
-      [:div
+      [:div.delete
+       [:input {:name "category-name" :type :hidden :value (:name e)}]
        [:button.mui-btn.mui-btn--primary "Delete"]])]))
 
 
 (defn transaction
   [t]
-  (let [ns (category-names)]
-    [:li
-     (str (ns (:categoryid t)) ":" (:amount t))]))
+  (let [names (category-names)]
+    [:tr
+     [:td (names (:categoryid t))]
+     [:td (:amount t)]
+     [:td (:ts t)]]))
 
 
 (defn index
@@ -83,10 +85,18 @@
     [:title "Budget"]]
    [:body.mui-container
 
+    [:h3 "Budget"]
     [:ul (map entry (sort-by :name (db/get-categories)))]
 
-    [:ul (map transaction (db/get-transactions))]
+    [:h3 "Transactions"]
+    [:table.mui-table
+     [:thead
+      [:tr [:th "Name"] [:th "Amount"] [:th "Time"]]]
+     [:tbody
+      (for [t (db/get-transactions)]
+        (transaction t))]]
 
+    [:h3 "Add new category"]
     (form-to {:class "add"} [:get "/add"]
 
              [:div.mui-textfield

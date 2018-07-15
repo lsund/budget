@@ -1,11 +1,12 @@
 
 ul {
-    padding-top: 50px;
+    margin-left: -35px;
     list-style: none;
 }
 
 .add {
-    padding-top: 100px;
+    margin-top: 50px;
+    margin-bottom: 50px;
 }
 
 .earn {
@@ -19,4 +20,21 @@ ul {
 .funds {
     margin-top: 25px;
     margin-bottom: 25px;
+    font-size: 16px;
+}
+
+.entry {
+    margin-top:10px;
+    border: 1px solid grey;
+    padding: 10px;
+    height: 175px;
+}
+
+.title {
+    float: left;
+    margin-right: 40px;
+}
+
+.delete {
+    float: right;
 }
