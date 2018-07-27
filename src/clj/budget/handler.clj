@@ -88,6 +88,9 @@
     [:h3 "Budget"]
     [:ul (map entry (sort-by :name (db/get-categories)))]
 
+    [:h3 (str "Total: " (-> (db/get-sum) first :sum))]
+    [:h3 (str "Avail: " 1285)]
+
     [:h3 "Transactions"]
     [:table.mui-table
      [:thead
@@ -152,4 +155,5 @@
   (-> (app-routes config)
       (wrap-keyword-params)
       (wrap-params)
-      (wrap-defaults (-> site-defaults (assoc-in [:security :anti-forgery] false)))))
+      (wrap-defaults
+       (-> site-defaults (assoc-in [:security :anti-forgery] false)))))

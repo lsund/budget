@@ -15,6 +15,10 @@
             :user "postgres"})
 
 
+(defn get-sum []
+  (j/query pg-db ["select sum(funds) from category"]))
+
+
 (defn get-categories []
   (j/query pg-db ["select * from category"]))
 
