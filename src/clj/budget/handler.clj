@@ -21,6 +21,8 @@
   {:spit (appenders/spit-appender {:fname "data/budget.log"})}})
 
 
+(def avail 1035)
+
 
 (defn category-names
   []
@@ -38,35 +40,37 @@
 (defn entry
   [e]
   (let [label (-> e (select-keys [:name :funds]) fmt-entry)]
-    [:li.entry
-     [:div.title
-      (form-to {:class "mui-form--inline"} [:get "/update-name"]
-               [:div.mui-textfield
+    [:tr
+
+     [:td
+      (form-to  [:get "/update-name"]
                 [:input {:name  "category-name"
                          :type  :text
-                         :value (str (:name e))}]])]
+                         :value (str (:name e))}])]
 
-     [:div.funds (str "Current funds: " (:funds e))]
+     [:td (:funds e)]
 
-     [:div.earn
-      (form-to {:class "mui-form--inline"} [:get "/increment"]
-               [:div.mui-textfield
+     [:td
+      (form-to [:get "/increment"]
+               [:div
                 [:input {:name "category-id" :type :hidden :value (:id e)}]
                 [:input {:name "category-name" :type :hidden :value (:name e)}]
-                [:label "Earn "]
                 [:input {:name "inc-amount" :type :number}]])]
-     [:div.spend
-      (form-to {:class "mui-form--inline"} [:get "/decrement"]
-               [:div.mui-textfield
+
+     [:td
+      (form-to [:get "/decrement"]
+               [:div
                 [:input {:name "category-id" :type :hidden :value (:id e)}]
                 [:input {:name "category-name" :type :hidden :value (:name e)}]
-                [:label "Spend "]
                 [:input {:name "dec-amount" :type :number}]])]
-     (form-to
-      [:get "/delete"]
-      [:div.delete
+
+     [:td
+      (form-to
+       [:get "/delete"]
        [:input {:name "category-name" :type :hidden :value (:name e)}]
-       [:button.mui-btn.mui-btn--primary "Delete"]])]))
+       [:button "X"])]
+
+     ,,,]))
 
 
 (defn transaction
@@ -85,31 +89,42 @@
     [:title "Budget"]]
    [:body.mui-container
 
-    [:h3 "Budget"]
-    [:ul (map entry (sort-by :name (db/get-categories)))]
+    [:h1 "Budget"]
 
-    [:h3 (str "Total: " (-> (db/get-sum) first :sum))]
-    [:h3 (str "Avail: " 1285)]
-
-    [:h3 "Transactions"]
     [:table.mui-table
      [:thead
-      [:tr [:th "Name"] [:th "Amount"] [:th "Time"]]]
+      [:tr [:th "Name"] [:th "Current Funds"] [:th "Earn"] [:th "Spend"] [:th "Delete"]]]
      [:tbody
-      (for [t (db/get-transactions)]
-        (transaction t))]]
+      (for [e (sort-by :name (db/get-categories))]
+        (entry e))]]
 
-    [:h3 "Add new category"]
-    (form-to {:class "add"} [:get "/add"]
+    #_[:ul (map entry (sort-by :name (db/get-categories)))]
 
-             [:div.mui-textfield
-              [:input
-               {:name "category-name" :type :text :placeholder "Category name"}]]
+    [:h3 (str "Total: " (-> (db/get-sum) first :sum) " Avail: " avail)]
 
-             [:div
-              [:label "Value "]
-              [:input {:name "funds" :type :number}]
-              [:button.mui-btn.mui-btn--primary "Add category"]])
+
+
+    [:div
+     [:h2 "Add new category"]
+     (form-to {:class "add"} [:get "/add"]
+
+              [:div.mui-textfield
+               [:input
+                {:name "category-name" :type :text :placeholder "Category name"}]]
+
+              [:div
+               [:label "Value "]
+               [:input {:name "funds" :type :number}]
+               [:button.mui-btn.mui-btn--primary "Add category"]])]
+
+    [:div
+     [:h2 "Latest Transactions"]
+     [:table.mui-table
+      [:thead
+       [:tr [:th "Name"] [:th "Amount"] [:th "Time"]]]
+      [:tbody
+       (for [t (->> (db/get-transactions) (sort-by :ts) reverse (take 10))]
+         (transaction t))]]]
 
     [:div#cljs-target]
     (apply include-js (:javascripts config))
