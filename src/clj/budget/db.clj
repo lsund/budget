@@ -50,9 +50,13 @@
 
 
 (defn delete-category
-  [c]
-  (j/delete! pg-db :category ["name=?" (stringify c)]))
+  [id]
+  (j/delete! pg-db :category ["id=?" id]))
 
+
+(defn delete-transaction
+  [id]
+  (j/delete! pg-db :transaction ["id=?" id]))
 
 (defn update-funds
   [c id x op]

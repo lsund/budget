@@ -16,3 +16,4 @@ resources/public/js
 *.edn
 /resources/public/css/mui.css
 *.log
+/todo.md

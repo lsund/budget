@@ -21,7 +21,9 @@
   {:spit (appenders/spit-appender {:fname "data/budget.log"})}})
 
 
-(def avail 1035)
+(def avail 927)
+
+(def n-transactions 20)
 
 
 (defn category-names
@@ -67,7 +69,7 @@
      [:td
       (form-to
        [:get "/delete"]
-       [:input {:name "category-name" :type :hidden :value (:name e)}]
+       [:input {:name "id" :type :hidden :value (:id e)}]
        [:button "X"])]
 
      ,,,]))
@@ -79,7 +81,10 @@
     [:tr
      [:td (names (:categoryid t))]
      [:td (:amount t)]
-     [:td (:ts t)]]))
+     [:td (:ts t)]
+     [:td (form-to [:post "/delete-transaction"]
+                   [:input {:name "id" :type :hidden :value (:id t)}]
+                   [:button "X"])]]))
 
 
 (defn index
@@ -114,16 +119,16 @@
 
               [:div
                [:label "Value "]
-               [:input {:name "funds" :type :number}]
+               [:input {:name "funds" :type :number :value 0}]
                [:button.mui-btn.mui-btn--primary "Add category"]])]
 
     [:div
      [:h2 "Latest Transactions"]
      [:table.mui-table
       [:thead
-       [:tr [:th "Name"] [:th "Amount"] [:th "Time"]]]
+       [:tr [:th "Name"] [:th "Amount"] [:th "Time"] [:th "Remove"]]]
       [:tbody
-       (for [t (->> (db/get-transactions) (sort-by :ts) reverse (take 10))]
+       (for [t (->> (db/get-transactions) (sort-by :ts) reverse (take n-transactions))]
          (transaction t))]]]
 
     [:div#cljs-target]
@@ -156,8 +161,12 @@
          :decrement)
         (redirect "/"))
 
-   (GET "/delete" [category-name inc-amount]
-        (db/delete-category category-name)
+   (GET "/delete" [id]
+        (db/delete-category (parse-int id))
+        (redirect "/"))
+
+   (POST "/delete-transaction" [id]
+        (db/delete-transaction (parse-int id))
         (redirect "/"))
 
    (r/resources "/")
