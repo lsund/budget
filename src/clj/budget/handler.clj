@@ -14,7 +14,8 @@
    [taoensso.timbre :as timbre]
    [taoensso.timbre.appenders.core :as appenders]
 
-   [budget.db :as db]))
+   [budget.db :as db]
+   [budget.util :as u]))
 
 (timbre/merge-config!
  {:appenders
@@ -37,8 +38,6 @@
   [{:keys [name funds]}]
   (format "%s %s" name funds))
 
-(defn parse-int [s] (Integer. (re-find  #"\d+" s)))
-
 (defn entry
   [e]
   (let [label (-> e (select-keys [:name :funds]) fmt-entry)]
@@ -49,9 +48,7 @@
                 [:input {:name  "category-name"
                          :type  :text
                          :value (str (:name e))}])]
-
      [:td (:funds e)]
-
      [:td
       (form-to [:get "/increment"]
                [:div
@@ -68,7 +65,7 @@
 
      [:td
       (form-to
-       [:get "/delete"]
+       [:get "/delete-category"]
        [:input {:name "id" :type :hidden :value (:id e)}]
        [:button "X"])]
 
@@ -90,38 +87,26 @@
 (defn index
   [config]
   (html5
-   [:head
-    [:title "Budget"]]
+   [:head [:title "Budget"]]
    [:body.mui-container
-
     [:h1 "Budget"]
-
     [:table.mui-table
      [:thead
       [:tr [:th "Name"] [:th "Current Funds"] [:th "Earn"] [:th "Spend"] [:th "Delete"]]]
      [:tbody
       (for [e (sort-by :name (db/get-categories))]
         (entry e))]]
-
-    #_[:ul (map entry (sort-by :name (db/get-categories)))]
-
     [:h3 (str "Total: " (-> (db/get-sum) first :sum) " Avail: " avail)]
-
-
-
     [:div
      [:h2 "Add new category"]
-     (form-to {:class "add"} [:get "/add"]
-
+     (form-to {:class "add-category"} [:get "/add-category"]
               [:div.mui-textfield
                [:input
                 {:name "category-name" :type :text :placeholder "Category name"}]]
-
               [:div
                [:label "Value "]
                [:input {:name "funds" :type :number :value 0}]
                [:button.mui-btn.mui-btn--primary "Add category"]])]
-
     [:div
      [:h2 "Latest Transactions"]
      [:table.mui-table
@@ -130,7 +115,6 @@
       [:tbody
        (for [t (->> (db/get-transactions) (sort-by :ts) reverse (take n-transactions))]
          (transaction t))]]]
-
     [:div#cljs-target]
     (apply include-js (:javascripts config))
     (apply include-css (:styles config))]))
@@ -138,39 +122,31 @@
 (defn- app-routes
   [config]
   (routes
-
    (GET "/" [] (index config))
-
-   (GET "/add" [category-name funds]
-        (db/add-category category-name (parse-int funds))
+   (GET "/add-category" [category-name funds]
+        (db/add-category category-name (u/parse-int funds))
         (redirect "/"))
-
    (GET "/increment" [category-name category-id inc-amount]
         (db/update-funds
          category-name
-         (parse-int category-id)
-         (parse-int inc-amount)
+         (u/parse-int category-id)
+         (u/parse-int inc-amount)
          :increment)
         (redirect "/"))
-
    (GET "/decrement" [category-name category-id dec-amount]
         (db/update-funds
          category-name
-         (parse-int category-id)
-         (parse-int dec-amount)
+         (u/parse-int category-id)
+         (u/parse-int dec-amount)
          :decrement)
         (redirect "/"))
-
-   (GET "/delete" [id]
-        (db/delete-category (parse-int id))
+   (GET "/delete-category" [id]
+        (db/delete-category (u/parse-int id))
         (redirect "/"))
-
    (POST "/delete-transaction" [id]
-        (db/delete-transaction (parse-int id))
+        (db/delete-transaction (u/parse-int id))
         (redirect "/"))
-
    (r/resources "/")
-
    (r/not-found
     (html5 "not found"))))
 
