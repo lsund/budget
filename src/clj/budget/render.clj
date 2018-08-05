@@ -2,7 +2,8 @@
   (:require
    [budget.db :as db]
    [hiccup.form :refer [form-to]]
-   [hiccup.page :refer [html5 include-css include-js]]))
+   [hiccup.page :refer [html5 include-css include-js]]
+   [budget.util :as util]))
 
 
 (def avail 927)
@@ -70,7 +71,7 @@
   (html5
    [:head [:title "Budget"]]
    [:body.mui-container
-    [:h1 "Budget"]
+    [:h1 (util/get-current-date-header)]
     [:table.mui-table
      [:thead
       [:tr [:th "Name"] [:th "Current Funds"] [:th "Earn"] [:th "Spend"] [:th "Delete"]]]
@@ -80,7 +81,7 @@
     [:h3 (str "Total: " (-> (db/get-sum) first :sum) " Avail: " avail)]
     [:div
      [:h2 "Add new category"]
-     (form-to {:class "add-category"} [:get "/add-category"]
+     (form-to {:class "add-category"} [:post "/add-category"]
               [:div.mui-textfield
                [:input
                 {:name "cat-name" :type :text :placeholder "Category name"}]]

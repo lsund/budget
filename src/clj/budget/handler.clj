@@ -15,7 +15,7 @@
    [taoensso.timbre.appenders.core :as appenders]
 
    [budget.db :as db]
-   [budget.util :as u]
+   [budget.util :as util]
    [budget.render :as render]))
 
 
@@ -30,26 +30,26 @@
    (GET "/" [] (render/index config))
    (POST "/add-category" [cat-name funds]
          (db/add-category cat-name
-                          (u/parse-int funds))
+                          (util/parse-int funds))
          (redirect "/"))
    (POST "/increment" [cat-id inc-amount]
-         (db/update-funds (u/parse-int cat-id)
-                          (u/parse-int inc-amount)
+         (db/update-funds (util/parse-int cat-id)
+                          (util/parse-int inc-amount)
                           :increment)
          (redirect "/"))
    (POST "/decrement" [cat-id dec-amount]
-         (db/update-funds (u/parse-int cat-id)
-                          (u/parse-int dec-amount)
+         (db/update-funds (util/parse-int cat-id)
+                          (util/parse-int dec-amount)
                           :decrement)
          (redirect "/"))
    (POST "/delete-category" [cat-id]
-         (db/delete-category (u/parse-int cat-id))
+         (db/delete-category (util/parse-int cat-id))
          (redirect "/"))
    (POST "/delete-transaction" [tx-id]
-         (db/delete-transaction (u/parse-int tx-id))
+         (db/delete-transaction (util/parse-int tx-id))
          (redirect "/"))
    (POST "/update-name" [cat-id cat-name]
-         (db/update-name (u/parse-int cat-id) cat-name)
+         (db/update-name (util/parse-int cat-id) cat-name)
          (redirect "/"))
    (r/resources "/")
    (r/not-found render/not-found)))

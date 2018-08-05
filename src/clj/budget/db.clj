@@ -2,7 +2,7 @@
   (:require [clojure.java.jdbc :as j]
             [com.stuartsierra.component :as c]
             [taoensso.timbre :as timbre]
-            [budget.util :as u]))
+            [budget.util :as util]))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -54,7 +54,7 @@
 
 (defn add-category
   [cat-name funds]
-  (j/insert! pg-db :category {:name (u/stringify cat-name) :funds funds}))
+  (j/insert! pg-db :category {:name (util/stringify cat-name) :funds funds}))
 
 
 (defn add-transaction
