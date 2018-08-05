@@ -1,13 +1,10 @@
 (ns budget.render
   (:require
    [budget.db :as db]
+   [taoensso.timbre :as timbre]
    [hiccup.form :refer [form-to]]
    [hiccup.page :refer [html5 include-css include-js]]
    [budget.util :as util]))
-
-
-(def avail 927)
-(def n-transactions 20)
 
 
 (defn fmt-entry
@@ -78,7 +75,7 @@
      [:tbody
       (for [e (sort-by :name (db/get-categories))]
         (entry e))]]
-    [:h3 (str "Total: " (-> (db/get-sum) first :sum) " Avail: " avail)]
+    [:h3 (str "Total: " (-> (db/get-sum) first :sum) " Avail: " (:avail config))]
     [:div
      [:h2 "Add new category"]
      (form-to {:class "add-category"} [:post "/add-category"]
@@ -95,7 +92,10 @@
       [:thead
        [:tr [:th "Name"] [:th "Amount"] [:th "Time"] [:th "Remove"]]]
       [:tbody
-       (for [t (->> (db/get-transactions) (sort-by :ts) reverse (take n-transactions))]
+       (for [t (->> (db/get-transactions)
+                    (sort-by :ts)
+                    reverse
+                    (take (:n-transactions config)))]
          (transaction t))]]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))
