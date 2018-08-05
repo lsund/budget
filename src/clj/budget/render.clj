@@ -7,14 +7,14 @@
    [budget.util :as util]))
 
 
-(defn fmt-table-row
+(defn fmt-category-row
   [{:keys [name funds]}]
   (format "%s %s" name funds))
 
 
-(defn table-row
+(defn category-row
   [e]
-  (let [label (-> e (select-keys [:name :funds]) fmt-table-row)]
+  (let [label (-> e (select-keys [:name :funds]) fmt-category-row )]
     [:tr
 
      [:td
@@ -59,13 +59,13 @@
     (zipmap ids ns)))
 
 
-(defn transaction
+(defn transaction-row
   [t]
   (let [names (category-names)]
     [:tr
      [:td (names (:categoryid t))]
      [:td (:amount t)]
-     [:td (:ts t)]
+     [:td (util/fmt-date (:ts t))]
      [:td (form-to [:post "/delete-transaction"]
                    [:input {:name "tx-id" :type :hidden :value (:id t)}]
                    [:button "X"])]]))
@@ -87,8 +87,8 @@
        [:th "Spend"]
        [:th "Delete"]]]
      [:tbody
-      (for [e (sort-by :name (db/get-categories))]
-        (table-row e))]]
+      (for [c (sort-by :name (db/get-categories))]
+        (category-row c))]]
     [:h3 (str "Total: " (-> (db/get-sum) first :sum) " Avail: " (:avail config))]
     [:div
      [:h2 "Add new category"]
@@ -104,13 +104,13 @@
      [:h2 "Latest Transactions"]
      [:table
       [:thead
-       [:tr [:th "Name"] [:th "Amount"] [:th "Time"] [:th "Remove"]]]
+       [:tr [:th "Name"] [:th "Amount"] [:th "Date"] [:th "Remove"]]]
       [:tbody
        (for [t (->> (db/get-transactions)
                     (sort-by :ts)
                     reverse
                     (take (:n-transactions config)))]
-         (transaction t))]]]
+         (transaction-row t))]]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))
     (apply include-css (:styles config))]))
