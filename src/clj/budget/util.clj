@@ -7,7 +7,7 @@
 
 (defn get-current-date-header [day]
   (let [now (java.time.LocalDateTime/now)]
-    (format "%s %s -> %s %s %s"
+    (format "%s %s - %s %s %s"
             day
             (.getMonth (.plusMonths now -1))
             day

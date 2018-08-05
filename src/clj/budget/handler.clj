@@ -54,6 +54,7 @@
    (r/resources "/")
    (r/not-found render/not-found)))
 
+
 (defn new-handler
   [config]
   (-> (app-routes config)

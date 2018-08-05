@@ -7,32 +7,40 @@
    [budget.util :as util]))
 
 
-(defn fmt-entry
+(defn fmt-table-row
   [{:keys [name funds]}]
   (format "%s %s" name funds))
 
 
-(defn entry
+(defn table-row
   [e]
-  (let [label (-> e (select-keys [:name :funds]) fmt-entry)]
+  (let [label (-> e (select-keys [:name :funds]) fmt-table-row)]
     [:tr
 
      [:td
       (form-to  [:post "/update-name"]
                 [:input {:type :hidden :name "cat-id" :value (:id e)}]
                 [:input {:type :text :name "cat-name" :value (:name e)}])]
+     [:td
+      (form-to {:class "mui-form--inline"}
+               [:post "/update-monthly-limit"]
+               [:input {:type :hidden :name "cat-id" :value (:id e)}]
+               [:input {:class "limit"
+                        :type :text
+                        :name "limit"
+                        :value (:monthly_limit e)}])]
      [:td (:funds e)]
      [:td
       (form-to [:post "/increment"]
                [:div
                 [:input {:name "cat-id" :type :hidden :value (:id e)}]
-                [:input {:name "inc-amount" :type :number}]])]
+                [:input {:class "earn" :name "inc-amount" :type :number}]])]
 
      [:td
       (form-to [:post "/decrement"]
                [:div
                 [:input {:name "cat-id" :type :hidden :value (:id e)}]
-                [:input {:name "dec-amount" :type :number}]])]
+                [:input {:class "spend" :name "dec-amount" :type :number}]])]
 
      [:td
       (form-to
@@ -69,12 +77,18 @@
    [:head [:title "Budget"]]
    [:body.mui-container
     [:h1 (util/get-current-date-header (:start-day config))]
-    [:table.mui-table
+    [:table
      [:thead
-      [:tr [:th "Name"] [:th "Current Funds"] [:th "Earn"] [:th "Spend"] [:th "Delete"]]]
+      [:tr
+       [:th "Name"]
+       [:th "Limit"]
+       [:th "Current Funds"]
+       [:th "Earn"]
+       [:th "Spend"]
+       [:th "Delete"]]]
      [:tbody
       (for [e (sort-by :name (db/get-categories))]
-        (entry e))]]
+        (table-row e))]]
     [:h3 (str "Total: " (-> (db/get-sum) first :sum) " Avail: " (:avail config))]
     [:div
      [:h2 "Add new category"]
@@ -85,10 +99,10 @@
               [:div
                [:label "Value "]
                [:input {:name "funds" :type :number :value 0}]
-               [:button.mui-btn.mui-btn--primary "Add category"]])]
+               [:button.mui-btn "Add category"]])]
     [:div
      [:h2 "Latest Transactions"]
-     [:table.mui-table
+     [:table
       [:thead
        [:tr [:th "Name"] [:th "Amount"] [:th "Time"] [:th "Remove"]]]
       [:tbody
