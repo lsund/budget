@@ -53,42 +53,47 @@
 ;; Add
 
 (defn add-category
-  [c x]
-  (j/insert! pg-db :category {:name (u/stringify c) :funds x}))
+  [cat-name funds]
+  (j/insert! pg-db :category {:name (u/stringify cat-name) :funds funds}))
 
 
 (defn add-transaction
-  [id x]
+  [cat-id x]
   (j/insert! pg-db
              :transaction
-             {:categoryid id
+             {:categoryid cat-id
               :amount x
               :ts (java.time.LocalDateTime/now)}))
 
 
 ;; Update
 
-(defn update-q
+(defn update-funds-q
   [op]
   (case op
-    :increment "update category set funds=funds+? where name=?"
-    :decrement "update category set funds=funds-? where name=?"
-    (throw (Exception. "update-q: Illegal operation"))))
+    :increment "update category set funds=funds+? where id=?"
+    :decrement "update category set funds=funds-? where id=?"
+    (throw (Exception. "update-funds-q: Illegal operation"))))
 
 
 (defn update-funds
-  [c id x op]
-  (add-transaction id (case op :increment x :decrement (- x)))
-  (j/execute! pg-db [(update-q op) x (u/stringify c)]))
+  [cat-id x op]
+  (add-transaction cat-id (case op :increment x :decrement (- x)))
+  (j/execute! pg-db [(update-funds-q op) x cat-id]))
+
+
+(defn update-name
+  [cat-id cat-name]
+  (j/execute! pg-db ["update category set name=? where id=?" cat-name cat-id]))
 
 
 ;; Delete
 
 (defn delete-category
-  [id]
-  (j/delete! pg-db :category ["id=?" id]))
+  [cat-id]
+  (j/delete! pg-db :category ["id=?" cat-id]))
 
 
 (defn delete-transaction
-  [id]
-  (j/delete! pg-db :transaction ["id=?" id]))
+  [tx-id]
+  (j/delete! pg-db :transaction ["id=?" tx-id]))

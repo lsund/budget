@@ -27,7 +27,7 @@
 (def n-transactions 20)
 
 
-(defn category-names
+(defn cat-names
   []
   (let [cs (db/get-categories)
         ids (map :id cs)
@@ -44,29 +44,26 @@
     [:tr
 
      [:td
-      (form-to  [:get "/update-name"]
-                [:input {:name  "category-name"
-                         :type  :text
-                         :value (str (:name e))}])]
+      (form-to  [:post "/update-name"]
+                [:input {:type :hidden :name "cat-id" :value (:id e)}]
+                [:input {:type :text :name "cat-name" :value (:name e)}])]
      [:td (:funds e)]
      [:td
       (form-to [:get "/increment"]
                [:div
-                [:input {:name "category-id" :type :hidden :value (:id e)}]
-                [:input {:name "category-name" :type :hidden :value (:name e)}]
+                [:input {:name "cat-id" :type :hidden :value (:id e)}]
                 [:input {:name "inc-amount" :type :number}]])]
 
      [:td
       (form-to [:get "/decrement"]
                [:div
-                [:input {:name "category-id" :type :hidden :value (:id e)}]
-                [:input {:name "category-name" :type :hidden :value (:name e)}]
+                [:input {:name "cat-id" :type :hidden :value (:id e)}]
                 [:input {:name "dec-amount" :type :number}]])]
 
      [:td
       (form-to
        [:get "/delete-category"]
-       [:input {:name "id" :type :hidden :value (:id e)}]
+       [:input {:name "cat-id" :type :hidden :value (:id e)}]
        [:button "X"])]
 
      ,,,]))
@@ -74,13 +71,13 @@
 
 (defn transaction
   [t]
-  (let [names (category-names)]
+  (let [names (cat-names)]
     [:tr
      [:td (names (:categoryid t))]
      [:td (:amount t)]
      [:td (:ts t)]
      [:td (form-to [:post "/delete-transaction"]
-                   [:input {:name "id" :type :hidden :value (:id t)}]
+                   [:input {:name "tx-id" :type :hidden :value (:id t)}]
                    [:button "X"])]]))
 
 
@@ -102,7 +99,7 @@
      (form-to {:class "add-category"} [:get "/add-category"]
               [:div.mui-textfield
                [:input
-                {:name "category-name" :type :text :placeholder "Category name"}]]
+                {:name "cat-name" :type :text :placeholder "Category name"}]]
               [:div
                [:label "Value "]
                [:input {:name "funds" :type :number :value 0}]
@@ -123,29 +120,29 @@
   [config]
   (routes
    (GET "/" [] (index config))
-   (GET "/add-category" [category-name funds]
-        (db/add-category category-name (u/parse-int funds))
+   (GET "/add-category" [cat-name funds]
+        (db/add-category cat-name (u/parse-int funds))
         (redirect "/"))
-   (GET "/increment" [category-name category-id inc-amount]
+   (GET "/increment" [cat-id inc-amount]
         (db/update-funds
-         category-name
-         (u/parse-int category-id)
+         (u/parse-int cat-id)
          (u/parse-int inc-amount)
          :increment)
         (redirect "/"))
-   (GET "/decrement" [category-name category-id dec-amount]
+   (GET "/decrement" [cat-id dec-amount]
         (db/update-funds
-         category-name
-         (u/parse-int category-id)
+         (u/parse-int cat-id)
          (u/parse-int dec-amount)
          :decrement)
         (redirect "/"))
-   (GET "/delete-category" [id]
-        (db/delete-category (u/parse-int id))
+   (GET "/delete-category" [cat-id]
+        (db/delete-category (u/parse-int cat-id))
         (redirect "/"))
-   (POST "/delete-transaction" [id]
-        (db/delete-transaction (u/parse-int id))
+   (POST "/delete-transaction" [tx-id]
+        (db/delete-transaction (u/parse-int tx-id))
         (redirect "/"))
+   (POST "update-name" [cat-id cat-name]
+         (db/update-name (u/parse-int cat-id) cat-name))
    (r/resources "/")
    (r/not-found
     (html5 "not found"))))
