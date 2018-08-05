@@ -68,7 +68,7 @@
   (html5
    [:head [:title "Budget"]]
    [:body.mui-container
-    [:h1 (util/get-current-date-header)]
+    [:h1 (util/get-current-date-header (:start-day config))]
     [:table.mui-table
      [:thead
       [:tr [:th "Name"] [:th "Current Funds"] [:th "Earn"] [:th "Spend"] [:th "Delete"]]]
