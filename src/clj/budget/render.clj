@@ -13,33 +13,34 @@
 
 
 (defn category-row
-  [e]
-  (let [label (-> e (select-keys [:name :funds]) fmt-category-row )]
+  [c]
+  (let [label (-> c (select-keys [:name :funds]) fmt-category-row)]
     [:tr
 
      [:td
       (form-to  [:post "/update-name"]
-                [:input {:type :hidden :name "cat-id" :value (:id e)}]
-                [:input {:type :text :name "cat-name" :value (:name e)}])]
+                [:input {:type :hidden :name "cat-id" :value (:id c)}]
+                [:input {:type :text :name "cat-name" :value (:name c)}])]
      [:td
       (form-to {:class "mui-form--inline"}
                [:post "/update-monthly-limit"]
-               [:input {:type :hidden :name "cat-id" :value (:id e)}]
+               [:input {:type :hidden :name "cat-id" :value (:id c)}]
                [:input {:class "limit"
                         :type :text
                         :name "limit"
-                        :value (:monthly_limit e)}])]
-     [:td (:funds e)]
+                        :value (:monthly_limit c)}])]
+     [:td (:funds c)]
      [:td
       (form-to [:post "/spend"]
                [:div
-                [:input {:name "cat-id" :type :hidden :value (:id e)}]
+                [:input {:name "cat-id" :type :hidden :value (:id c)}]
                 [:input {:class "spend" :name "dec-amount" :type :number}]])]
+     [:td (:spent c)]
 
      [:td
       (form-to
        [:post "/delete-category"]
-       [:input {:name "cat-id" :type :hidden :value (:id e)}]
+       [:input {:name "cat-id" :type :hidden :value (:id c)}]
        [:button "X"])]
 
      ,,,]))
@@ -78,6 +79,7 @@
        [:th "Limit"]
        [:th "Current Funds"]
        [:th "Spend"]
+       [:th "Spent"]
        [:th "Delete"]]]
      [:tbody
       (for [c (sort-by :name (db/get-categories))]

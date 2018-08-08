@@ -74,18 +74,11 @@
 
 ;; Update
 
-(defn update-funds-q
-  [op]
-  (case op
-    :increment "update category set funds=funds+? where id=?"
-    :decrement "update category set funds=funds-? where id=?"
-    (throw (Exception. "update-funds-q: Illegal operation"))))
-
-
 (defn update-funds
   [cat-id x op]
   (add-transaction cat-id (case op :increment x :decrement (- x)))
-  (j/execute! pg-db [(update-funds-q op) x cat-id]))
+  (j/execute! pg-db ["update category set funds=funds-? where id=?" x cat-id])
+  (j/execute! pg-db ["update category set spent=spent+? where id =?" x cat-id]))
 
 
 (defn update-name
