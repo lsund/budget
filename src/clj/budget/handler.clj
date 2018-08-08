@@ -27,7 +27,10 @@
 (defn- app-routes
   [config]
   (routes
-   (GET "/" [] (render/index config))
+   (GET "/" []
+        (when (util/is-25th?)
+          :todo-generate-report)
+        (render/index config))
    (POST "/add-category" [cat-name funds]
          (db/add-category cat-name
                           (util/parse-int funds))

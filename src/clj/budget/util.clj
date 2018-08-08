@@ -35,3 +35,6 @@
 (defn fmt-date [d]
   (.format (java.time.format.DateTimeFormatter/ofPattern date-string)
            (localdate d)))
+
+
+(defn is-25th? [] (= 25 (.getDayOfMonth (java.time.LocalDateTime/now))))
