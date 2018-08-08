@@ -49,7 +49,12 @@
          (db/delete-transaction (util/parse-int tx-id))
          (redirect "/"))
    (POST "/update-name" [cat-id cat-name]
-         (db/update-name (util/parse-int cat-id) cat-name)
+         (db/update-name (util/parse-int cat-id)
+                         cat-name)
+         (redirect "/"))
+   (POST "/update-monthly-limit" [cat-id limit]
+         (db/update-monthly-limit (util/parse-int cat-id)
+                                  (util/parse-int limit))
          (redirect "/"))
    (r/resources "/")
    (r/not-found render/not-found)))

@@ -108,8 +108,7 @@
       [:tbody
        (for [t (->> (db/get-transactions)
                     (sort-by :ts)
-                    reverse
-                    (take (:n-transactions config)))]
+                    reverse)]
          (transaction-row t))]]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))

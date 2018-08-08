@@ -47,6 +47,12 @@
   (j/query pg-db ["select * from transaction"]))
 
 
+;; Get spent for all categories
+
+;; select categoryid,sum(amount) from transaction where amount < 0 group by categoryid;
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modify
 
@@ -85,6 +91,11 @@
 (defn update-name
   [cat-id cat-name]
   (j/execute! pg-db ["update category set name=? where id=?" cat-name cat-id]))
+
+
+(defn update-monthly-limit
+  [cat-id limit]
+  (j/execute! pg-db ["update category set monthly_limit=? where id=?"]))
 
 
 ;; Delete
