@@ -17,3 +17,5 @@ resources/public/js
 /resources/public/css/mui.css
 *.log
 /todo.md
+/data/reports/test.csv
+/data/reports/test.txt

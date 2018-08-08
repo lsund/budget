@@ -28,8 +28,14 @@
   [config]
   (routes
    (GET "/" []
-        (when (util/is-25th?)
-          :todo-generate-report)
+        (when #_(util/is-25th?) true
+              ;; TODO make this pretty
+              (spit  (format "%s/test.csv" (:report-output-dir config)) "")
+              (doseq [c (db/get-categories)]
+                (spit (format "%s/test.csv" (:report-output-dir config))
+                      (format "%s,%s,%s\n" (:name c) (:monthly_limit c) (:spent c)) :append true))
+              ;; TODO set all spent to 0
+              )
         (render/index config))
    (POST "/add-category" [cat-name funds]
          (db/add-category cat-name
