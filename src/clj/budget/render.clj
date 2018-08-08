@@ -31,13 +31,7 @@
                         :value (:monthly_limit e)}])]
      [:td (:funds e)]
      [:td
-      (form-to [:post "/increment"]
-               [:div
-                [:input {:name "cat-id" :type :hidden :value (:id e)}]
-                [:input {:class "earn" :name "inc-amount" :type :number}]])]
-
-     [:td
-      (form-to [:post "/decrement"]
+      (form-to [:post "/spend"]
                [:div
                 [:input {:name "cat-id" :type :hidden :value (:id e)}]
                 [:input {:class "spend" :name "dec-amount" :type :number}]])]
@@ -83,7 +77,6 @@
        [:th "Name"]
        [:th "Limit"]
        [:th "Current Funds"]
-       [:th "Earn"]
        [:th "Spend"]
        [:th "Delete"]]]
      [:tbody

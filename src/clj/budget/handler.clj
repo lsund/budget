@@ -32,12 +32,7 @@
          (db/add-category cat-name
                           (util/parse-int funds))
          (redirect "/"))
-   (POST "/increment" [cat-id inc-amount]
-         (db/update-funds (util/parse-int cat-id)
-                          (util/parse-int inc-amount)
-                          :increment)
-         (redirect "/"))
-   (POST "/decrement" [cat-id dec-amount]
+   (POST "/spend" [cat-id dec-amount]
          (db/update-funds (util/parse-int cat-id)
                           (util/parse-int dec-amount)
                           :decrement)
