@@ -97,6 +97,10 @@
   (j/execute! pg-db ["update category set monthly_limit=? where id=?" limit cat-id]))
 
 
+(defn reset-spent []
+  (j/execute! pg-db ["update category set spent=0"]))
+
+
 ;; Delete
 
 (defn delete-category

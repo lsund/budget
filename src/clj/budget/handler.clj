@@ -23,20 +23,25 @@
  {:appenders
   {:spit (appenders/spit-appender {:fname "data/budget.log"})}})
 
+(defn maybe-generate-report-and-reset [config]
+  (when (util/is-25th?)
+        (let [output-file (format "%s/test.csv" (:report-output-dir config))]
+          (spit  output-file "")
+          (doseq [c (db/get-categories)]
+            (spit output-file
+                  (format "%s,%s,%s\n"
+                          (:name c)
+                          (:monthly_limit c)
+                          (:spent c))
+                  :append true)))
+        (timbre/info "Generated Report")
+        (db/reset-spent)))
 
 (defn- app-routes
   [config]
   (routes
    (GET "/" []
-        (when #_(util/is-25th?) true
-              ;; TODO make this pretty
-              (timbre/info "Generated Report")
-              (spit  (format "%s/test.csv" (:report-output-dir config)) "")
-              (doseq [c (db/get-categories)]
-                (spit (format "%s/test.csv" (:report-output-dir config))
-                      (format "%s,%s,%s\n" (:name c) (:monthly_limit c) (:spent c)) :append true))
-              ;; TODO set all spent to 0
-              )
+        (maybe-generate-report-and-reset config)
         (render/index config))
    (POST "/add-category" [cat-name funds]
          (db/add-category cat-name
@@ -63,7 +68,6 @@
          (redirect "/"))
    (r/resources "/")
    (r/not-found render/not-found)))
-
 
 (defn new-handler
   [config]
