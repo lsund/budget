@@ -34,9 +34,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Query
 
+(defn get-total-spent []
+  (-> (j/query pg-db ["select sum(spent) from category"]) first :sum))
 
-(defn get-sum []
-  (j/query pg-db ["select sum(funds) from category"]))
+(defn get-total-budget []
+  (-> (j/query pg-db ["select sum(monthly_limit) from category"]) first :sum))
+
+
+(defn get-total-remaining []
+  (-> (j/query pg-db ["select sum(funds) from category"]) first :sum))
 
 
 (defn get-categories []
@@ -88,7 +94,7 @@
 
 (defn update-monthly-limit
   [cat-id limit]
-  (j/execute! pg-db ["update category set monthly_limit=? where id=?"]))
+  (j/execute! pg-db ["update category set monthly_limit=? where id=?" limit cat-id]))
 
 
 ;; Delete

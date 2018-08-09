@@ -30,6 +30,7 @@
    (GET "/" []
         (when #_(util/is-25th?) true
               ;; TODO make this pretty
+              (timbre/info "Generated Report")
               (spit  (format "%s/test.csv" (:report-output-dir config)) "")
               (doseq [c (db/get-categories)]
                 (spit (format "%s/test.csv" (:report-output-dir config))

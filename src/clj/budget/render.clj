@@ -83,8 +83,13 @@
        [:th "Delete"]]]
      [:tbody
       (for [c (sort-by :name (db/get-categories))]
-        (category-row c))]]
-    [:h3 (str "Total: " (-> (db/get-sum) first :sum) " Avail: " (:avail config))]
+        (category-row c))
+      [:row
+       [:td ""]
+       [:td (db/get-total-budget)]
+       [:td (db/get-total-remaining)]
+       [:td ""]
+       [:td (db/get-total-spent)]]]]
     [:div
      [:h2 "Add new category"]
      (form-to {:class "add-category"} [:post "/add-category"]
