@@ -1,7 +1,7 @@
 (ns budget.render
   (:require
    [budget.db :as db]
-   [taoensso.timbre :as timbre]
+   [taoensso.timbre :as logging]
    [hiccup.form :refer [form-to]]
    [hiccup.page :refer [html5 include-css include-js]]
    [budget.util :as util]))
@@ -46,24 +46,15 @@
      ,,,]))
 
 
-(defn category-names
-  []
-  (let [cs (db/get-categories)
-        ids (map :id cs)
-        ns  (map :name cs)]
-    (zipmap ids ns)))
-
-
 (defn transaction-row
-  [t]
-  (let [names (category-names)]
-    [:tr
-     [:td (names (:categoryid t))]
-     [:td (:amount t)]
-     [:td (util/fmt-date (:ts t))]
-     [:td (form-to [:post "/delete-transaction"]
-                   [:input {:name "tx-id" :type :hidden :value (:id t)}]
-                   [:button "X"])]]))
+  [t cat-ids->names]
+  [:tr
+   [:td (cat-ids->names (:categoryid t))]
+   [:td (:amount t)]
+   [:td (util/fmt-date (:ts t))]
+   [:td (form-to [:post "/delete-transaction"]
+                 [:input {:name "tx-id" :type :hidden :value (:id t)}]
+                 [:button "X"])]])
 
 
 (defn index
@@ -101,15 +92,16 @@
                [:input {:name "funds" :type :number :value 0}]
                [:button.mui-btn "Add category"]])]
     [:div
-     [:h2 "Latest Transactions"]
+     [:h2 "This months transactions"]
      [:table
       [:thead
        [:tr [:th "Name"] [:th "Amount"] [:th "Date"] [:th "Remove"]]]
       [:tbody
-       (for [t (->> (db/get-transactions)
-                    (sort-by :ts)
-                    reverse)]
-         (transaction-row t))]]]
+       (let [cat-ids->names (db/category-ids->names)]
+         (for [t (->> (db/get-monthly-transactions)
+                      (sort-by :ts)
+                      reverse)]
+           (transaction-row t cat-ids->names)))]]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))
     (apply include-css (:styles config))]))

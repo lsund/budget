@@ -44,20 +44,18 @@
 (defn get-total-remaining []
   (-> (j/query pg-db ["select sum(funds) from category"]) first :sum))
 
+(defn get-monthly-transactions []
+  (j/query pg-db ["select * from transaction where ts >= current_date - 30"]))
 
 (defn get-categories []
   (j/query pg-db ["select * from category"]))
 
-
-(defn get-transactions []
-  (j/query pg-db ["select * from transaction"]))
-
-
-;; Get spent for all categories
-
-;; select categoryid,sum(amount) from transaction where amount < 0 group by categoryid;
-
-
+(defn category-ids->names
+  []
+  (let [cats (get-categories)
+        ids (map :id cats)
+        ns  (map :name cats)]
+    (zipmap ids ns)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modify

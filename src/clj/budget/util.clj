@@ -16,11 +16,9 @@
             (.getMonth now)
             (.getYear now))))
 
-
 (defn string->localdate [s]
   (java.time.LocalDate/parse s
                              (java.time.format.DateTimeFormatter/ofPattern date-string)))
-
 
 (defn localdate
   [date]
@@ -30,7 +28,6 @@
         (= (type date) java.lang.String) (string->localdate date)
         (nil? date) (throw (Exception.  "Nil argument to localdate"))
         :default (throw (Exception. (str "Unknown date type: " (type date))))))
-
 
 (defn fmt-date [d]
   (.format (java.time.format.DateTimeFormatter/ofPattern date-string)
