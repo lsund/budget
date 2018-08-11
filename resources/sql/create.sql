@@ -16,3 +16,33 @@ CREATE TABLE Transaction
 
     FOREIGN KEY (categoryid) REFERENCES Category (id)
 );
+
+
+CREATE TABLE StockTransaction
+(
+    id          SERIAL PRIMARY KEY,
+    day         DATE NOT NULL,
+    name        VARCHAR(64) NOT NULL,
+    shortname   VARCHAR(16) NOT NULL,
+    buy         BOOLEAN NOT NULL,
+    shares      INT NOT NULL,
+    rate        FLOAT NOT NULL,
+    currency    VARCHAR(16) NOT NULL,
+    total       FLOAT NOT NULL,
+    courtage    FLOAT NOT NULL
+);
+
+
+CREATE TABLE FundTransaction
+(
+    id          SERIAL PRIMARY KEY,
+    day         DATE NOT NULL,
+    name        VARCHAR(64) NOT NULL,
+    shortname   VARCHAR(16) NOT NULL,
+    acc         VARCHAR(64) NOT NULL,
+    buy         BOOLEAN NOT NULL,
+    shares      INT NOT NULL,
+    rate        FLOAT NOT NULL,
+    currency    VARCHAR(16) NOT NULL,
+    total       FLOAT NOT NULL
+);

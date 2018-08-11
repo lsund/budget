@@ -50,6 +50,13 @@
 (defn get-categories []
   (j/query pg-db ["select * from category"]))
 
+
+(defn get-stock-transactions []
+  (j/query pg-db ["select * from stocktransaction"]))
+
+(defn get-fund-transactions []
+  (j/query pg-db ["select * from fundtransaction"]))
+
 (defn category-ids->names
   []
   (let [cats (get-categories)

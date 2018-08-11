@@ -53,6 +53,10 @@
          (db/update-monthly-limit (util/parse-int cat-id)
                                   (util/parse-int limit))
          (redirect "/"))
+
+   (GET "/investment" []
+        (render/investment config))
+
    (r/resources "/")
    (r/not-found render/not-found)))
 

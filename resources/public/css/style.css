@@ -29,3 +29,13 @@ button {
 .spend {
     width: 50px;
 }
+
+.stocks {
+    margin-left: 100px;
+    float: left;
+}
+
+.funds {
+    float: right;
+    margin-right: 100px;
+}

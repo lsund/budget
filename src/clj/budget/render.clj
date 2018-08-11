@@ -6,11 +6,9 @@
    [hiccup.page :refer [html5 include-css include-js]]
    [budget.util :as util]))
 
-
 (defn fmt-category-row
   [{:keys [name funds]}]
   (format "%s %s" name funds))
-
 
 (defn category-row
   [c]
@@ -106,5 +104,76 @@
     (apply include-js (:javascripts config))
     (apply include-css (:styles config))]))
 
+(defn stock-transaction-row [t]
+  [:tr
+   [:td (:day t)]
+   [:td (:shortname t)]
+   [:td (if (:buy t) "Buy" "Sell")]
+   [:td (:shares t)]
+   [:td (:rate t)]
+   [:td (:total t)]
+   [:td (:currency t)]
+   [:td (form-to [:post "/delete-stock-transaction"]
+                 [:input {:name "tx-id" :type :hidden :value (:id t)}]
+                 [:button "X"])]])
+
+(defn fund-transaction-row [t]
+  [:tr
+   [:td (:day t)]
+   [:td (:shortname t)]
+   [:td (if (:buy t) "Buy" "Sell")]
+   [:td (:shares t)]
+   [:td (:rate t)]
+   [:td (:total t)]
+   [:td (:currency t)]
+   [:td (form-to [:post "/delete-fund-transaction"]
+                 [:input {:name "tx-id" :type :hidden :value (:id t)}]
+                 [:button "X"])]])
+
+(defn investment
+  [config]
+  (html5
+   [:head [:title "Budget"]]
+   [:body
+    [:h1 "Investment"]
+
+    [:div.stocks
+     [:h2 "Stock transactions"]
+     [:table
+      [:thead
+       [:tr
+        [:th "Date"]
+        [:th "Name"]
+        [:th "Buy/Sell"]
+        [:th "Shares"]
+        [:th "Rate"]
+        [:th "Total"]
+        [:th "Currency"]
+        [:th "Delete"]]]
+      [:tbody
+       (for [t (->> (db/get-stock-transactions)
+                    (sort-by :ts))]
+         (stock-transaction-row t))]]]
+
+    [:div.funds
+     [:h2 "Fund transactions"]
+     [:table
+      [:thead
+       [:tr
+        [:th "Date"]
+        [:th "Name"]
+        [:th "Buy/Sell"]
+        [:th "Shares"]
+        [:th "Rate"]
+        [:th "Total"]
+        [:th "Currency"]
+        [:th "Delete"]]]
+      [:tbody
+       (for [t (->> (db/get-fund-transactions)
+                    (sort-by :ts))]
+         (fund-transaction-row t))]]]
+    [:div#cljs-target]
+    (apply include-js (:javascripts config))
+    (apply include-css (:styles config))]))
 
 (def not-found (html5 "not found"))
