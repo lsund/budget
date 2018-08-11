@@ -150,11 +150,23 @@
                  [:label "Buy?"
                   [:input {:name "stock-buy" :type :checkbox}]]
                  [:label "Shares"]
-                 [:input {:class "number-input" :name "stock-shares" :type :number :step "0.01"}]
+                 [:input {:class "number-input"
+                          :name  "stock-shares"
+                          :type :number
+                          :step "0.01"
+                          :min  "0"}]
                  [:label "Rate"]
-                 [:input {:class "number-input" :name "stock-rate" :type :number :step "0.01"}]
+                 [:input {:class "number-input"
+                          :name "stock-rate"
+                          :type :number
+                          :step "0.01"
+                          :min "0"}]
                  [:label "Total"]
-                 [:input {:class "number-input" :name "stock-total" :type :number :step "0.01"}]
+                 [:input {:class "number-input"
+                          :name "stock-total"
+                          :type :number
+                          :step "0.01"
+                          :min "0"}]
                  [:select {:name "stock-currency"}
                   [:option {:value "SEK"} "SEK"]]]
                 [:button.mui-btn "Add Transaction"])]

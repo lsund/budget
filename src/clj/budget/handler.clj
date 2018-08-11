@@ -57,9 +57,29 @@
    (GET "/investment" []
         (render/investment config))
 
-   (POST "/investment/stock-add-transaction" [stock-name stock-date stock-buy stock-shares
-                                              stock-rate stock-total stock-currency]
-         (logging/info stock-name stock-date stock-buy stock-shares stock-rate stock-total stock-currency)
+   (POST "/investment/stock-add-transaction" [stock-name stock-date
+                                              stock-buy stock-shares
+                                              stock-rate stock-total
+                                              stock-currency]
+         (logging/info stock-name
+                       stock-date
+                       stock-shares
+                       stock-buy
+                       stock-rate
+                       stock-total
+                       stock-currency)
+         (db/stock-transaction-add
+          {:name stock-name
+           ;; TODO
+           :shortname "TBI"
+           :day (util/->localdate stock-date)
+           :shares (util/parse-int stock-shares)
+           :buy (= stock-buy "on")
+           :rate (util/parse-int stock-rate)
+           :total (util/parse-int stock-total)
+           ;; TODO
+           :courtage 0
+           :currency stock-currency})
          (redirect "/investment"))
 
    (r/resources "/")

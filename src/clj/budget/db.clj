@@ -83,6 +83,11 @@
               :ts (java.time.LocalDateTime/now)}))
 
 
+(defn stock-transaction-add
+  [stock]
+  (j/insert! pg-db :stocktransaction stock))
+
+
 ;; Update
 
 (defn update-funds
