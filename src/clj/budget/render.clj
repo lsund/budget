@@ -86,7 +86,7 @@
                [:input
                 {:name "cat-name" :type :text :placeholder "Category name"}]]
               [:div
-               [:label "Value "]
+               [:label "Value"]
                [:input {:name "funds" :type :number :value 0}]
                [:button.mui-btn "Add category"]])]
     [:div
@@ -138,6 +138,26 @@
     [:h1 "Investment"]
 
     [:div.stocks
+     [:div
+      [:h2 "Add new Stock Transaction"]
+      (form-to  [:post "/investment/stock-add-transaction"]
+                [:div.mui-textfield
+                 [:input
+                  {:name "stock-name" :type :text :placeholder "Stock name"}]]
+                [:div
+                 [:label "Date"]
+                 [:input {:name "stock-date" :type :date}]
+                 [:label "Buy?"
+                  [:input {:name "stock-buy" :type :checkbox}]]
+                 [:label "Shares"]
+                 [:input {:class "number-input" :name "stock-shares" :type :number :step "0.01"}]
+                 [:label "Rate"]
+                 [:input {:class "number-input" :name "stock-rate" :type :number :step "0.01"}]
+                 [:label "Total"]
+                 [:input {:class "number-input" :name "stock-total" :type :number :step "0.01"}]
+                 [:select {:name "stock-currency"}
+                  [:option {:value "SEK"} "SEK"]]]
+                [:button.mui-btn "Add Transaction"])]
      [:h2 "Stock transactions"]
      [:table
       [:thead

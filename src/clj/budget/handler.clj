@@ -57,6 +57,11 @@
    (GET "/investment" []
         (render/investment config))
 
+   (POST "/investment/stock-add-transaction" [stock-name stock-date stock-buy stock-shares
+                                              stock-rate stock-total stock-currency]
+         (logging/info stock-name stock-date stock-buy stock-shares stock-rate stock-total stock-currency)
+         (redirect "/investment"))
+
    (r/resources "/")
    (r/not-found render/not-found)))
 

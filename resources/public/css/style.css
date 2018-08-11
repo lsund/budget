@@ -7,12 +7,6 @@ tr > td  {
     margin-bottom: 50px;
 }
 
-.funds {
-    margin-top: 25px;
-    margin-bottom: 25px;
-    font-size: 16px;
-}
-
 button {
     cursor: pointer;
     background-color: #eeeeee;
@@ -31,11 +25,19 @@ button {
 }
 
 .stocks {
-    margin-left: 100px;
+    margin-left: 200px;
     float: left;
 }
 
 .funds {
     float: right;
-    margin-right: 100px;
+    margin-right: 200px;
+}
+
+.number-input {
+    width: 70px;
+}
+
+.text-input {
+    width: 100px;
 }
