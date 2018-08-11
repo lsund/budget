@@ -16,48 +16,19 @@
 
    [budget.db :as db]
    [budget.util :as util]
-   [budget.render :as render]))
+   [budget.render :as render]
+   [budget.report :as report]))
 
 
 (logging/merge-config!
  {:appenders
   {:spit (appenders/spit-appender {:fname "data/budget.log"})}})
 
-(defn maybe-generate-report-and-reset [config]
-  (when (util/is-25th?)
-    (let [output-file (format "%s/test.txt" (:report-output-dir config))
-          cat-ids->names (db/category-ids->names)]
-      (spit  output-file "BUDGET:\n")
-      (doseq [c (db/get-categories)]
-        (spit output-file
-              (format "%s %s %s\n"
-                      (:name c)
-                      (:monthly_limit c)
-                      (:spent c))
-              :append true))
-      (spit output-file
-            (format "\nSUMMARY:\nBudget was: %s\nTotal Remaining: %s\nTotal Spent: %s\n"
-                    (db/get-total-budget)
-                    (db/get-total-remaining)
-                    (db/get-total-spent))
-            :append true)
-      (spit output-file "\nTRANSACTIONS:\n" :append true)
-      (doseq [t (db/get-monthly-transactions)]
-        (spit output-file
-              (format "%s %s %s\n"
-                      (cat-ids->names (:categoryid t))
-                      (:amount t)
-                      (util/fmt-date (:ts t)))
-              :append true)))
-    (logging/info "Generated Report")
-    (db/reset-spent)
-    (logging/info "Reset spent")))
-
 (defn- app-routes
   [config]
   (routes
    (GET "/" []
-        (maybe-generate-report-and-reset config)
+        (report/maybe-generate-and-reset config)
         (render/index config))
    (POST "/add-category" [cat-name funds]
          (db/add-category cat-name
