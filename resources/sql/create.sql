@@ -18,6 +18,9 @@ CREATE TABLE Transaction
 );
 
 
+/* Courtage for a transaction can be calculated by rate * shares - total */
+
+
 CREATE TABLE StockTransaction
 (
     id          SERIAL PRIMARY KEY,

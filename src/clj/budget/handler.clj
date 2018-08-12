@@ -77,8 +77,6 @@
            :buy (= stock-buy "on")
            :rate (util/parse-int stock-rate)
            :total (util/parse-int stock-total)
-           ;; TODO
-           :courtage 0
            :currency stock-currency})
          (redirect "/investment"))
 

@@ -24,11 +24,13 @@
 
                  ;; Other
                  [com.taoensso/timbre "4.10.0"]
+                 [io.aviso/pretty "0.1.34"]
 
                  ,,,]
 
   :plugins [[lein-figwheel "0.5.15"]
-            [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
+            [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]
+            [io.aviso/pretty "0.1.34"]]
 
   :source-paths ["src/clj src/cljs"]
 

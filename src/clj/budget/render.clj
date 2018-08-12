@@ -61,6 +61,14 @@
    [:head [:title "Budget"]]
    [:body.mui-container
     [:h1 (util/get-current-date-header (:start-day config))]
+    [:div
+     [:h3 "Add New Spend Category"]
+     (form-to {:class "add-category"} [:post "/add-category"]
+              [:input
+               {:name "cat-name" :type :text :placeholder "Category name"}]
+               [:label "Start Funds"]
+               [:input {:name "funds" :type :number :value 0}]
+               [:button.mui-btn "Add category"])]
     [:table
      [:thead
       [:tr
@@ -79,16 +87,6 @@
        [:td (db/get-total-remaining)]
        [:td ""]
        [:td (db/get-total-spent)]]]]
-    [:div
-     [:h2 "Add new category"]
-     (form-to {:class "add-category"} [:post "/add-category"]
-              [:div.mui-textfield
-               [:input
-                {:name "cat-name" :type :text :placeholder "Category name"}]]
-              [:div
-               [:label "Value"]
-               [:input {:name "funds" :type :number :value 0}]
-               [:button.mui-btn "Add category"]])]
     [:div
      [:h2 "This months transactions"]
      [:table
