@@ -129,7 +129,7 @@
       (form-to  [:post "/stocks/add-transaction"]
                 [:div.mui-textfield
                  [:input
-                  {:name "stock-name" :type :text :placeholder "Stock name"}]]
+                  {:name "stock-code" :type :text :placeholder "Stock Code"}]]
                 [:div
                  [:label "Date"]
                  [:input {:name "stock-date" :type :date}]
@@ -205,7 +205,7 @@
       (form-to  [:post "/funds/add-transaction"]
                 [:div.mui-textfield
                  [:input
-                  {:name "fund-name" :type :text :placeholder "Fund name"}]]
+                  {:name "fund-code" :type :text :placeholder "Fund Code"}]]
                 [:div
                  [:label "Date"]
                  [:input {:name "fund-date" :type :date}]
