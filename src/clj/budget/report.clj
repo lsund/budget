@@ -9,7 +9,7 @@
     (let [output-file (format "%s/%s.txt" (:report-output-dir config) (util/fmt-today))
           cat-ids->names (db/category-ids->names)]
       (spit  output-file "BUDGET:\n")
-      (doseq [c (db/get-categories)]
+      (doseq [c (db/get-all :category)]
         (spit output-file
               (format "%s %s %s\n"
                       (:name c)

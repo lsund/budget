@@ -46,18 +46,12 @@
 (defn get-monthly-transactions []
   (j/query pg-db ["select * from transaction where ts >= current_date - 30"]))
 
-(defn get-categories []
-  (j/query pg-db ["select * from category"]))
-
-(defn get-stock-transactions []
-  (j/query pg-db ["select * from stocktransaction"]))
-
-(defn get-fund-transactions []
-  (j/query pg-db ["select * from fundtransaction"]))
+(defn get-all [table]
+  (j/query pg-db [(str "select * from " (name table))]))
 
 (defn category-ids->names
   []
-  (let [cats (get-categories)
+  (let [cats (get-all :category)
         ids (map :id cats)
         ns  (map :name cats)]
     (zipmap ids ns)))

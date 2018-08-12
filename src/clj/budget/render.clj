@@ -79,7 +79,7 @@
        [:th "Spent"]
        [:th "Delete"]]]
      [:tbody
-      (for [c (sort-by :name (db/get-categories))]
+      (for [c (sort-by :name (db/get-all :category))]
         (category-row c))
       [:row
        [:td ""]
@@ -169,7 +169,7 @@
         [:th "Currency"]
         [:th "Delete"]]]
       [:tbody
-       (for [t (->> (db/get-stock-transactions)
+       (for [t (->> (db/get-all :stocktransaction)
                     (sort-by :day)
                     reverse)]
          (stock-transaction-row t))]]]
@@ -245,7 +245,7 @@
         [:th "Currency"]
         [:th "Delete"]]]
       [:tbody
-       (for [t (->> (db/get-fund-transactions)
+       (for [t (->> (db/get-all :fundtransaction)
                     (sort-by :day)
                     reverse)]
          (fund-transaction-row t))]]]
