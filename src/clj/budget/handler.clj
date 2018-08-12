@@ -60,6 +60,19 @@
    "SH" "Splitan Högräntefond"
    "SRS" "Splitan Räntefond Sverige"})
 
+(defn make-transaction [tx-type tx-code tx-date tx-buy
+                        tx-shares tx-rate tx-total tx-currency]
+  (db/transaction-add tx-type
+                      {:name (shortname->name tx-code)
+                       :acc "ISK"
+                       :shortname tx-code
+                       :day (util/->localdate tx-date)
+                       :shares (util/parse-int tx-shares)
+                       :buy (= tx-buy "on")
+                       :rate (util/parse-int tx-rate)
+                       :total (util/parse-int tx-total)
+                       :currency tx-currency}))
+
 (defn- app-routes
   [config]
   (routes
@@ -97,16 +110,9 @@
                                     stock-buy stock-shares
                                     stock-rate stock-total
                                     stock-currency]
-         (db/stock-transaction-add
-          {:name (shortname->name stock-code)
-           :acc "ISK"
-           :shortname stock-code
-           :day (util/->localdate stock-date)
-           :shares (util/parse-int stock-shares)
-           :buy (= stock-buy "on")
-           :rate (util/parse-int stock-rate)
-           :total (util/parse-int stock-total)
-           :currency stock-currency})
+         (make-transaction :stocktransaction
+                           stock-code stock-date stock-buy stock-shares
+                           stock-rate stock-total stock-currency)
          (redirect "/stocks"))
 
    (POST "/stocks/delete-transaction" [stock-id]
@@ -121,16 +127,9 @@
                                    fund-buy fund-shares
                                    fund-rate fund-total
                                    fund-currency]
-         (db/fund-transaction-add
-          {:name (shortname->name fund-code)
-           :acc "ISK"
-           :shortname fund-code
-           :day (util/->localdate fund-date)
-           :shares (util/parse-int fund-shares)
-           :buy (= fund-buy "on")
-           :rate (util/parse-int fund-rate)
-           :total (util/parse-int fund-total)
-           :currency fund-currency})
+         (make-transaction :fundtransaction
+                           fund-code fund-date fund-buy fund-shares
+                           fund-rate fund-total fund-currency)
          (redirect "/funds"))
 
    (POST "/funds/delete-transaction" [fund-id]

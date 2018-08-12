@@ -80,14 +80,9 @@
               :amount x
               :ts (java.time.LocalDateTime/now)}))
 
-
-(defn stock-transaction-add
-  [stock]
-  (j/insert! pg-db :stocktransaction stock))
-
-(defn fund-transaction-add
-  [fund]
-  (j/insert! pg-db :fundtransaction fund))
+(defn transaction-add
+  [table tx]
+  (j/insert! pg-db table tx))
 
 ;; Update
 
