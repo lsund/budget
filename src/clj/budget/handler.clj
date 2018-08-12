@@ -73,6 +73,11 @@
            :currency stock-currency})
          (redirect "/stocks"))
 
+   (POST "/stocks/delete-transaction" [stock-id]
+         (logging/info stock-id)
+         (db/stock-transaction-delete (util/parse-int stock-id))
+         (redirect "/stocks"))
+
    (GET "/funds" []
         (render/funds config))
 
@@ -90,6 +95,10 @@
            :rate (util/parse-int fund-rate)
            :total (util/parse-int fund-total)
            :currency fund-currency})
+         (redirect "/funds"))
+
+   (POST "/funds/delete-transaction" [fund-id]
+         (db/fund-transaction-delete (util/parse-int fund-id))
          (redirect "/funds"))
 
    (r/resources "/")

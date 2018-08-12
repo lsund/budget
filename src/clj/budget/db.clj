@@ -122,3 +122,11 @@
 (defn delete-transaction
   [tx-id]
   (j/delete! pg-db :transaction ["id=?" tx-id]))
+
+(defn stock-transaction-delete
+  [stock-id]
+  (j/delete! pg-db :stocktransaction ["id=?" stock-id]))
+
+(defn fund-transaction-delete
+  [stock-id]
+  (j/delete! pg-db :fundtransaction ["id=?" stock-id]))

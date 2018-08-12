@@ -111,8 +111,8 @@
    [:td (:rate t)]
    [:td (:total t)]
    [:td (:currency t)]
-   [:td (form-to [:post "/delete-stock-transaction"]
-                 [:input {:name "tx-id" :type :hidden :value (:id t)}]
+   [:td (form-to [:post "/stocks/delete-transaction"]
+                 [:input {:name "stock-id" :type :hidden :value (:id t)}]
                  [:button "X"])]])
 
 (defn stocks
@@ -187,8 +187,8 @@
    [:td (:rate t)]
    [:td (:total t)]
    [:td (:currency t)]
-   [:td (form-to [:post "/delete-fund-transaction"]
-                 [:input {:name "tx-id" :type :hidden :value (:id t)}]
+   [:td (form-to [:post "/funds/delete-transaction"]
+                 [:input {:name "fund-id" :type :hidden :value (:id t)}]
                  [:button "X"])]])
 
 (defn funds
