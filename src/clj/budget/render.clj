@@ -66,9 +66,9 @@
      (form-to {:class "add-category"} [:post "/add-category"]
               [:input
                {:name "cat-name" :type :text :placeholder "Category name"}]
-               [:label "Start Funds"]
-               [:input {:name "funds" :type :number :value 0}]
-               [:button.mui-btn "Add category"])]
+              [:label "Start Funds"]
+              [:input {:name "funds" :type :number :value 0}]
+              [:button.mui-btn "Add category"])]
     [:table
      [:thead
       [:tr
@@ -186,6 +186,38 @@
          (stock-transaction-row t))]]]
 
     [:div.funds
+     [:div
+      [:h2 "Add new Fund Transaction"]
+      (form-to  [:post "/investment/fund-add-transaction"]
+                [:div.mui-textfield
+                 [:input
+                  {:name "fund-name" :type :text :placeholder "Fund name"}]]
+                [:div
+                 [:label "Date"]
+                 [:input {:name "fund-date" :type :date}]
+                 [:label "Buy?"
+                  [:input {:name "fund-buy" :type :checkbox}]]
+                 [:label "Shares"]
+                 [:input {:class "number-input"
+                          :name  "fund-shares"
+                          :type :number
+                          :step "0.01"
+                          :min  "0"}]
+                 [:label "Rate"]
+                 [:input {:class "number-input"
+                          :name "fund-rate"
+                          :type :number
+                          :step "0.01"
+                          :min "0"}]
+                 [:label "Total"]
+                 [:input {:class "number-input"
+                          :name "fund-total"
+                          :type :number
+                          :step "0.01"
+                          :min "0"}]
+                 [:select {:name "fund-currency"}
+                  [:option {:value "SEK"} "SEK"]]]
+                [:button.mui-btn "Add Transaction"])]
      [:h2 "Fund transactions"]
      [:table
       [:thead
