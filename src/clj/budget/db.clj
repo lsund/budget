@@ -40,7 +40,6 @@
 (defn get-total-budget []
   (-> (j/query pg-db ["select sum(monthly_limit) from category"]) first :sum))
 
-
 (defn get-total-remaining []
   (-> (j/query pg-db ["select sum(funds) from category"]) first :sum))
 
@@ -49,7 +48,6 @@
 
 (defn get-categories []
   (j/query pg-db ["select * from category"]))
-
 
 (defn get-stock-transactions []
   (j/query pg-db ["select * from stocktransaction"]))
@@ -87,6 +85,9 @@
   [stock]
   (j/insert! pg-db :stocktransaction stock))
 
+(defn fund-transaction-add
+  [fund]
+  (j/insert! pg-db :fundtransaction fund))
 
 ;; Update
 

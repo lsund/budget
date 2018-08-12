@@ -1,3 +1,9 @@
+.center {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+}
+
 tr > td  {
     border-left: 25px solid transparent;
 }
@@ -25,13 +31,9 @@ button {
 }
 
 .stocks {
-    margin-left: 200px;
-    float: left;
 }
 
-.funds {
-    float: right;
-    margin-right: 200px;
+jfunds {
 }
 
 .number-input {

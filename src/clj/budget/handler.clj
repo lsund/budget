@@ -61,16 +61,9 @@
                                               stock-buy stock-shares
                                               stock-rate stock-total
                                               stock-currency]
-         (logging/info stock-name
-                       stock-date
-                       stock-shares
-                       stock-buy
-                       stock-rate
-                       stock-total
-                       stock-currency)
          (db/stock-transaction-add
           {:name stock-name
-           ;; TODO
+           :acc "ISK"
            :shortname "TBI"
            :day (util/->localdate stock-date)
            :shares (util/parse-int stock-shares)
@@ -78,6 +71,22 @@
            :rate (util/parse-int stock-rate)
            :total (util/parse-int stock-total)
            :currency stock-currency})
+         (redirect "/investment"))
+
+   (POST "/investment/fund-add-transaction" [fund-name fund-date
+                                             fund-buy fund-shares
+                                             fund-rate fund-total
+                                             fund-currency]
+         (db/fund-transaction-add
+          {:name fund-name
+           :acc "ISK"
+           :shortname "TBI"
+           :day (util/->localdate fund-date)
+           :shares (util/parse-int fund-shares)
+           :buy (= fund-buy "on")
+           :rate (util/parse-int fund-rate)
+           :total (util/parse-int fund-total)
+           :currency fund-currency})
          (redirect "/investment"))
 
    (r/resources "/")

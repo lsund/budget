@@ -4,7 +4,8 @@
    [taoensso.timbre :as logging]
    [hiccup.form :refer [form-to]]
    [hiccup.page :refer [html5 include-css include-js]]
-   [budget.util :as util]))
+   [budget.util :as util]
+   [budget.html :as html]))
 
 (defn fmt-category-row
   [{:keys [name funds]}]
@@ -58,6 +59,7 @@
 (defn index
   [config]
   (html5
+   (html/navbar)
    [:head [:title "Budget"]]
    [:body.mui-container
     [:h1 (util/get-current-date-header (:start-day config))]
@@ -132,8 +134,9 @@
   [config]
   (html5
    [:head [:title "Budget"]]
-   [:body
-    [:h1 "Investment"]
+   [:body.mui-container
+
+    (html/navbar)
 
     [:div.stocks
      [:div
@@ -182,9 +185,9 @@
         [:th "Delete"]]]
       [:tbody
        (for [t (->> (db/get-stock-transactions)
-                    (sort-by :ts))]
+                    (sort-by :day)
+                    reverse)]
          (stock-transaction-row t))]]]
-
     [:div.funds
      [:div
       [:h2 "Add new Fund Transaction"]
@@ -232,7 +235,8 @@
         [:th "Delete"]]]
       [:tbody
        (for [t (->> (db/get-fund-transactions)
-                    (sort-by :ts))]
+                    (sort-by :day)
+                    reverse)]
          (fund-transaction-row t))]]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))
