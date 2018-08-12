@@ -31,8 +31,7 @@ CREATE TABLE StockTransaction
     shares      INT NOT NULL,
     rate        FLOAT NOT NULL,
     currency    VARCHAR(16) NOT NULL,
-    total       FLOAT NOT NULL,
-    courtage    FLOAT NOT NULL
+    total       FLOAT NOT NULL
 );
 
 
