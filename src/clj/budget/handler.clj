@@ -89,10 +89,10 @@
                           :decrement)
          (redirect "/"))
    (POST "/delete-category" [cat-id]
-         (db/delete-category (util/parse-int cat-id))
+         (db/delete :category (util/parse-int cat-id))
          (redirect "/"))
    (POST "/delete-transaction" [tx-id]
-         (db/delete-transaction (util/parse-int tx-id))
+         (db/delete :transaction (util/parse-int tx-id))
          (redirect "/"))
    (POST "/update-name" [cat-id cat-name]
          (db/update-name (util/parse-int cat-id)
@@ -117,7 +117,7 @@
 
    (POST "/stocks/delete-transaction" [stock-id]
          (logging/info stock-id)
-         (db/stock-transaction-delete (util/parse-int stock-id))
+         (db/delete :stocktransaction (util/parse-int stock-id))
          (redirect "/stocks"))
 
    (GET "/funds" []
@@ -133,7 +133,7 @@
          (redirect "/funds"))
 
    (POST "/funds/delete-transaction" [fund-id]
-         (db/fund-transaction-delete (util/parse-int fund-id))
+         (db/delete :fundtransaction (util/parse-int fund-id))
          (redirect "/funds"))
 
    (r/resources "/")

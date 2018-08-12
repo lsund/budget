@@ -109,19 +109,6 @@
 
 ;; Delete
 
-(defn delete-category
-  [cat-id]
-  (j/delete! pg-db :category ["id=?" cat-id]))
-
-
-(defn delete-transaction
-  [tx-id]
-  (j/delete! pg-db :transaction ["id=?" tx-id]))
-
-(defn stock-transaction-delete
-  [stock-id]
-  (j/delete! pg-db :stocktransaction ["id=?" stock-id]))
-
-(defn fund-transaction-delete
-  [stock-id]
-  (j/delete! pg-db :fundtransaction ["id=?" stock-id]))
+(defn delete
+  [table tx-id]
+  (j/delete! pg-db table ["id=?" tx-id]))
