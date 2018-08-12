@@ -54,13 +54,13 @@
                                   (util/parse-int limit))
          (redirect "/"))
 
-   (GET "/investment" []
-        (render/investment config))
+   (GET "/stocks" []
+        (render/stocks config))
 
-   (POST "/investment/stock-add-transaction" [stock-name stock-date
-                                              stock-buy stock-shares
-                                              stock-rate stock-total
-                                              stock-currency]
+   (POST "/stocks/add-transaction" [stock-name stock-date
+                                    stock-buy stock-shares
+                                    stock-rate stock-total
+                                    stock-currency]
          (db/stock-transaction-add
           {:name stock-name
            :acc "ISK"
@@ -71,12 +71,15 @@
            :rate (util/parse-int stock-rate)
            :total (util/parse-int stock-total)
            :currency stock-currency})
-         (redirect "/investment"))
+         (redirect "/stocks"))
 
-   (POST "/investment/fund-add-transaction" [fund-name fund-date
-                                             fund-buy fund-shares
-                                             fund-rate fund-total
-                                             fund-currency]
+   (GET "/funds" []
+        (render/funds config))
+
+   (POST "/funds/add-transaction" [fund-name fund-date
+                                   fund-buy fund-shares
+                                   fund-rate fund-total
+                                   fund-currency]
          (db/fund-transaction-add
           {:name fund-name
            :acc "ISK"
@@ -87,7 +90,7 @@
            :rate (util/parse-int fund-rate)
            :total (util/parse-int fund-total)
            :currency fund-currency})
-         (redirect "/investment"))
+         (redirect "/funds"))
 
    (r/resources "/")
    (r/not-found render/not-found)))

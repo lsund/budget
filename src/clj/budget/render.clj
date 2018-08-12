@@ -44,7 +44,6 @@
 
      ,,,]))
 
-
 (defn transaction-row
   [t cat-ids->names]
   [:tr
@@ -54,7 +53,6 @@
    [:td (form-to [:post "/delete-transaction"]
                  [:input {:name "tx-id" :type :hidden :value (:id t)}]
                  [:button "X"])]])
-
 
 (defn index
   [config]
@@ -117,20 +115,7 @@
                  [:input {:name "tx-id" :type :hidden :value (:id t)}]
                  [:button "X"])]])
 
-(defn fund-transaction-row [t]
-  [:tr
-   [:td (:day t)]
-   [:td (:shortname t)]
-   [:td (if (:buy t) "Buy" "Sell")]
-   [:td (:shares t)]
-   [:td (:rate t)]
-   [:td (:total t)]
-   [:td (:currency t)]
-   [:td (form-to [:post "/delete-fund-transaction"]
-                 [:input {:name "tx-id" :type :hidden :value (:id t)}]
-                 [:button "X"])]])
-
-(defn investment
+(defn stocks
   [config]
   (html5
    [:head [:title "Budget"]]
@@ -141,7 +126,7 @@
     [:div.stocks
      [:div
       [:h2 "Add new Stock Transaction"]
-      (form-to  [:post "/investment/stock-add-transaction"]
+      (form-to  [:post "/stocks/add-transaction"]
                 [:div.mui-textfield
                  [:input
                   {:name "stock-name" :type :text :placeholder "Stock name"}]]
@@ -188,10 +173,36 @@
                     (sort-by :day)
                     reverse)]
          (stock-transaction-row t))]]]
+
+    [:div#cljs-target]
+    (apply include-js (:javascripts config))
+    (apply include-css (:styles config))]))
+
+(defn fund-transaction-row [t]
+  [:tr
+   [:td (:day t)]
+   [:td (:shortname t)]
+   [:td (if (:buy t) "Buy" "Sell")]
+   [:td (:shares t)]
+   [:td (:rate t)]
+   [:td (:total t)]
+   [:td (:currency t)]
+   [:td (form-to [:post "/delete-fund-transaction"]
+                 [:input {:name "tx-id" :type :hidden :value (:id t)}]
+                 [:button "X"])]])
+
+(defn funds
+  [config]
+  (html5
+   [:head [:title "Budget"]]
+   [:body.mui-container
+
+    (html/navbar)
+
     [:div.funds
      [:div
       [:h2 "Add new Fund Transaction"]
-      (form-to  [:post "/investment/fund-add-transaction"]
+      (form-to  [:post "/funds/add-transaction"]
                 [:div.mui-textfield
                  [:input
                   {:name "fund-name" :type :text :placeholder "Fund name"}]]

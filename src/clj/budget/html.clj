@@ -10,5 +10,8 @@
       (form-to [:get "/"]
                [:input {:type :submit :value "Index"}])]
      [:td.mui--appbar-height
-      (form-to [:get "/investment"]
-               [:input {:type :submit :value "Stocks"}])]]]])
+      (form-to [:get "/stocks"]
+               [:input {:type :submit :value "Stocks"}])]
+     [:td.mui--appbar-height
+      (form-to [:get "/funds"]
+               [:input {:type :submit :value "Funds"}])]]]])
