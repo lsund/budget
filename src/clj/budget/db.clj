@@ -63,7 +63,12 @@
 
 (defn add-category
   [cat-name funds]
-  (j/insert! pg-db :category {:name (util/stringify cat-name) :funds funds}))
+  (j/insert! pg-db
+             :category
+             {:name (util/stringify cat-name)
+              :funds funds
+              :monthly_limit 0
+              :spent 0}))
 
 
 (defn add-transaction

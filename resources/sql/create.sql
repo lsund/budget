@@ -27,6 +27,7 @@ CREATE TABLE StockTransaction
     day         DATE NOT NULL,
     name        VARCHAR(64) NOT NULL,
     shortname   VARCHAR(16) NOT NULL,
+    acc         VARCHAR(64) NOT NULL,
     buy         BOOLEAN NOT NULL,
     shares      INT NOT NULL,
     rate        FLOAT NOT NULL,
@@ -43,7 +44,7 @@ CREATE TABLE FundTransaction
     shortname   VARCHAR(16) NOT NULL,
     acc         VARCHAR(64) NOT NULL,
     buy         BOOLEAN NOT NULL,
-    shares      INT NOT NULL,
+    shares      FLOAT NOT NULL,
     rate        FLOAT NOT NULL,
     currency    VARCHAR(16) NOT NULL,
     total       FLOAT NOT NULL
