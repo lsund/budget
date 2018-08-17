@@ -60,9 +60,10 @@
    "SH" "Splitan Högräntefond"
    "SRS" "Splitan Räntefond Sverige"})
 
-(defn make-transaction [tx-type tx-code tx-date tx-buy
+(defn make-transaction [db tx-type tx-code tx-date tx-buy
                         tx-shares tx-rate tx-total tx-currency]
-  (db/transaction-add tx-type
+  (db/transaction-add db
+                      tx-type
                       {:name (shortname->name tx-code)
                        :acc "ISK"
                        :shortname tx-code
@@ -74,32 +75,40 @@
                        :currency tx-currency}))
 
 (defn- app-routes
-  [config]
+  [{:keys [db] :as config}]
   (routes
    (GET "/" []
         (report/maybe-generate-and-reset config)
         (render/index config))
    (POST "/add-category" [cat-name funds]
-         (db/add-category cat-name
+         (db/add-category db
+                          cat-name
                           (util/parse-int funds))
          (redirect "/"))
    (POST "/spend" [cat-id dec-amount]
-         (db/update-funds (util/parse-int cat-id)
+         (db/update-funds db
+                          (util/parse-int cat-id)
                           (util/parse-int dec-amount)
                           :decrement)
          (redirect "/"))
    (POST "/delete-category" [cat-id]
-         (db/delete :category (util/parse-int cat-id))
+         (db/delete db
+                    :category
+                    (util/parse-int cat-id))
          (redirect "/"))
    (POST "/delete-transaction" [tx-id]
-         (db/delete :transaction (util/parse-int tx-id))
+         (db/delete db
+                    :transaction
+                    (util/parse-int tx-id))
          (redirect "/"))
    (POST "/update-name" [cat-id cat-name]
-         (db/update-name (util/parse-int cat-id)
+         (db/update-name db
+                         (util/parse-int cat-id)
                          cat-name)
          (redirect "/"))
    (POST "/update-monthly-limit" [cat-id limit]
-         (db/update-monthly-limit (util/parse-int cat-id)
+         (db/update-monthly-limit db
+                                  (util/parse-int cat-id)
                                   (util/parse-int limit))
          (redirect "/"))
 
@@ -110,14 +119,17 @@
                                     stock-buy stock-shares
                                     stock-rate stock-total
                                     stock-currency]
-         (make-transaction :stocktransaction
+         (make-transaction db
+                           :stocktransaction
                            stock-code stock-date stock-buy stock-shares
                            stock-rate stock-total stock-currency)
          (redirect "/stocks"))
 
    (POST "/stocks/delete-transaction" [stock-id]
          (logging/info stock-id)
-         (db/delete :stocktransaction (util/parse-int stock-id))
+         (db/delete db
+                    :stocktransaction
+                    (util/parse-int stock-id))
          (redirect "/stocks"))
 
    (GET "/funds" []
@@ -133,7 +145,9 @@
          (redirect "/funds"))
 
    (POST "/funds/delete-transaction" [fund-id]
-         (db/delete :fundtransaction (util/parse-int fund-id))
+         (db/delete db
+                    :fundtransaction
+                    (util/parse-int fund-id))
          (redirect "/funds"))
 
    (r/resources "/")

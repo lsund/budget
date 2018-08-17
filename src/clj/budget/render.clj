@@ -55,7 +55,7 @@
                  [:button "X"])]])
 
 (defn index
-  [config]
+  [{:keys [db] :as config}]
   (html5
    (html/navbar)
    [:head [:title "Budget"]]
@@ -66,8 +66,7 @@
      (form-to {:class "add-category"} [:post "/add-category"]
               [:input
                {:name "cat-name" :type :text :placeholder "Category name"}]
-              [:label "Start Funds"]
-              [:input {:name "funds" :type :number :value 0}]
+              [:div [:input {:name "funds" :type :number :value 0}]]
               [:button.mui-btn "Add category"])]
     [:table
      [:thead
@@ -79,22 +78,22 @@
        [:th "Spent"]
        [:th "Delete"]]]
      [:tbody
-      (for [c (sort-by :name (db/get-all :category))]
+      (for [c (sort-by :name (db/get-all db :category))]
         (category-row c))
       [:row
        [:td ""]
-       [:td (db/get-total-budget)]
-       [:td (db/get-total-remaining)]
+       [:td (db/get-total-budget db)]
+       [:td (db/get-total-remaining db)]
        [:td ""]
-       [:td (db/get-total-spent)]]]]
+       [:td (db/get-total-spent db)]]]]
     [:div
      [:h2 "This months transactions"]
      [:table
       [:thead
        [:tr [:th "Name"] [:th "Amount"] [:th "Date"] [:th "Remove"]]]
       [:tbody
-       (let [cat-ids->names (db/category-ids->names)]
-         (for [t (->> (db/get-monthly-transactions)
+       (let [cat-ids->names (db/category-ids->names db)]
+         (for [t (->> (db/get-monthly-transactions db)
                       (sort-by :ts)
                       reverse)]
            (transaction-row t cat-ids->names)))]]]
@@ -116,7 +115,7 @@
                  [:button "X"])]])
 
 (defn stocks
-  [config]
+  [{:keys [db] :as config}]
   (html5
    [:head [:title "Budget"]]
    [:body.mui-container
@@ -169,7 +168,7 @@
         [:th "Currency"]
         [:th "Delete"]]]
       [:tbody
-       (for [t (->> (db/get-all :stocktransaction)
+       (for [t (->> (db/get-all db :stocktransaction)
                     (sort-by :day)
                     reverse)]
          (stock-transaction-row t))]]]

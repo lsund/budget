@@ -4,7 +4,7 @@
    [compojure.handler :refer [site]]
    [budget.handler :as handler]))
 
-(defrecord App [handler app-config]
+(defrecord App [handler app-config db]
   c/Lifecycle
 
   (start [component]
@@ -13,7 +13,9 @@
       (do
         (println ";; [App] Starting, attaching handler")
         (println ";; comp: " component)
-        (assoc component :handler (handler/new-handler app-config)))))
+        (assoc component
+               :handler
+               (handler/new-handler (merge app-config db))))))
 
   (stop [component]
     (println ";; [App] Stopping")

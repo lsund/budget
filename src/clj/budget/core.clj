@@ -11,5 +11,5 @@
                                  [:app])
                 :app (c/using (app/new-app (:app config))
                               [:db])
-                :db (c/using (db/new-db)
+                :db (c/using (db/new-db (:db config))
                              [])))
