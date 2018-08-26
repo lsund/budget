@@ -25,6 +25,7 @@
                  ;; Other
                  [com.taoensso/timbre "4.10.0"]
                  [io.aviso/pretty "0.1.34"]
+                 [com.stuartsierra/component "0.3.2"]
 
                  ,,,]
 
@@ -32,7 +33,7 @@
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]
             [io.aviso/pretty "0.1.34"]]
 
-  :source-paths ["src/clj src/cljs"]
+  :source-paths ["src/clj" "src/cljs"]
 
   :ring
   {:handler budget.core/new-handler}

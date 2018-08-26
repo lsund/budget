@@ -191,7 +191,7 @@
                  [:button "X"])]])
 
 (defn funds
-  [config]
+  [{:keys [db] :as config}]
   (html5
    [:head [:title "Budget"]]
    [:body.mui-container
@@ -244,7 +244,7 @@
         [:th "Currency"]
         [:th "Delete"]]]
       [:tbody
-       (for [t (->> (db/get-all :fundtransaction)
+       (for [t (->> (db/get-all db :fundtransaction)
                     (sort-by :day)
                     reverse)]
          (fund-transaction-row t))]]]

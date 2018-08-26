@@ -4,32 +4,35 @@
    [budget.db :as db]
    [budget.util :as util]))
 
-(defn maybe-generate-and-reset [config]
-  (when (util/is-25th?)
-    (let [output-file (format "%s/%s.txt" (:report-output-dir config) (util/fmt-today))
-          cat-ids->names (db/category-ids->names)]
-      (spit  output-file "BUDGET:\n")
-      (doseq [c (db/get-all :category)]
-        (spit output-file
+(defn maybe-generate-and-reset [{:keys [db report-output-dir]}]
+  (when (util/past-25th?)
+    (let [filename (format "%s/%s.txt" report-output-dir (util/fmt-today))
+          cat-ids->names (db/category-ids->names db)]
+      (spit  filename "BUDGET:\n")
+      (doseq [c (db/get-all db :category)]
+        (spit filename
               (format "%s %s %s\n"
                       (:name c)
                       (:monthly_limit c)
                       (:spent c))
               :append true))
-      (spit output-file
+      (spit filename
             (format "\nSUMMARY:\nBudget was: %s\nTotal Remaining: %s\nTotal Spent: %s\n"
-                    (db/get-total-budget)
-                    (db/get-total-remaining)
-                    (db/get-total-spent))
+                    (db/get-total-budget db)
+                    (db/get-total-remaining db)
+                    (db/get-total-spent db))
             :append true)
-      (spit output-file "\nTRANSACTIONS:\n" :append true)
-      (doseq [t (db/get-monthly-transactions)]
-        (spit output-file
+      (spit filename "\nTRANSACTIONS:\n" :append true)
+      (doseq [t (db/get-monthly-transactions db)]
+        (spit filename
               (format "%s %s %s\n"
                       (cat-ids->names (:categoryid t))
                       (:amount t)
                       (util/fmt-date (:ts t)))
-              :append true)))
+              :append true))
+      (let [file (slurp filename)]
+        (db/add-report db file)
+        (logging/info file)))
     (logging/info "Generated Report")
-    (db/reset-spent)
+    #_(db/reset-spent db)
     (logging/info "Reset spent")))

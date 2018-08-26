@@ -49,3 +49,10 @@ CREATE TABLE FundTransaction
     currency    VARCHAR(16) NOT NULL,
     total       FLOAT NOT NULL
 );
+
+CREATE TABLE Report
+(
+    id          SERIAL PRIMARY KEY,
+    day         DATE NOT NULL,
+    file        TEXT
+);

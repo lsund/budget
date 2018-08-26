@@ -73,22 +73,24 @@
 
 
 (defn add-transaction
-  [db cat-id x]
-  (j/insert! db
-             :transaction
-             {:categoryid cat-id
-              :amount x
-              :ts (java.time.LocalDateTime/now)}))
-
-(defn transaction-add
   [db table tx]
   (j/insert! db table tx))
+
+
+(defn add-report
+  [db file]
+  (j/insert! db :report {:file file
+                         :day (util/today)}))
 
 ;; Update
 
 (defn update-funds
   [db cat-id x op]
-  (add-transaction cat-id (case op :increment x :decrement (- x)))
+  (add-transaction cat-id
+                   :transaction
+                   {:categoryid cat-id
+                    :amount (case op :increment x :decrement (- x))
+                    :ts (java.time.LocalDateTime/now)})
   (j/execute! db ["update category set funds=funds-? where id=?" x cat-id])
   (j/execute! db ["update category set spent=spent+? where id =?" x cat-id]))
 

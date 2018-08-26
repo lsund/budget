@@ -62,7 +62,7 @@
 
 (defn make-transaction [db tx-type tx-code tx-date tx-buy
                         tx-shares tx-rate tx-total tx-currency]
-  (db/transaction-add db
+  (db/add-transaction db
                       tx-type
                       {:name (shortname->name tx-code)
                        :acc "ISK"

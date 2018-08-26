@@ -37,4 +37,6 @@
 (defn fmt-today [] (fmt-date (java.time.LocalDateTime/now)))
 
 
-(defn is-25th? [] (= 25 (.getDayOfMonth (java.time.LocalDateTime/now))))
+(defn past-25th? [] (>= (.getDayOfMonth (java.time.LocalDateTime/now)) 25))
+
+(defn today [] (java.time.LocalDateTime/now))
