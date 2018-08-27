@@ -35,4 +35,5 @@
         (logging/info file)))
     (logging/info "Generated Report")
     #_(db/reset-spent db)
-    (logging/info "Reset spent")))
+    (logging/info "Reset spent")
+    #_(db/reinitialize-monthly-budget db)))

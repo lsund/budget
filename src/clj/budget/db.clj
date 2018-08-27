@@ -45,7 +45,12 @@
   (-> (j/query db ["select sum(funds) from category"]) first :sum))
 
 (defn get-monthly-transactions [db]
-  (j/query db ["select * from transaction where ts >= current_date - 30"]))
+  (j/query db [(str "select * from transaction where extract(month from ts) = ?"
+                    " and extract(day from ts) >= ?"
+                    " union all"
+                    " select * from transaction where extract(month from ts) = ?"
+                    " and extract(day from ts) <= ?") 8 25 9 25])
+  )
 
 (defn get-all [db table]
   (j/query db [(str "select * from " (name table))]))
@@ -56,6 +61,11 @@
         ids (map :id cats)
         ns  (map :name cats)]
     (zipmap ids ns)))
+
+;; TODO
+(defn monthly-report-existing?
+  [db month]
+  (j/query db ["select id from report where extract(month from day) = ?" month]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modify
@@ -86,7 +96,7 @@
 
 (defn update-funds
   [db cat-id x op]
-  (add-transaction cat-id
+  (add-transaction db
                    :transaction
                    {:categoryid cat-id
                     :amount (case op :increment x :decrement (- x))
@@ -107,6 +117,9 @@
 
 (defn reset-spent [db]
   (j/execute! db ["update category set spent=0"]))
+
+(defn reinitialize-monthly-budget [db]
+  (j/execute! db ["update category set funds=monthly_limit"]))
 
 
 ;; Delete
