@@ -4,8 +4,8 @@
    [budget.db :as db]
    [budget.util :as util]))
 
-(defn maybe-generate-and-reset [{:keys [db report-output-dir]}]
-  (when (util/past-25th?)
+(defn maybe-generate-and-reset [{:keys [salary-day db report-output-dir] :as config}]
+  (when (and (util/past? salary-day) (db/monthly-report-missing? db salary-day))
     (let [filename (format "%s/%s.txt" report-output-dir (util/fmt-today))
           cat-ids->names (db/category-ids->names db)]
       (spit  filename "BUDGET:\n")
@@ -34,6 +34,6 @@
         (db/add-report db file)
         (logging/info file)))
     (logging/info "Generated Report")
-    #_(db/reset-spent db)
+    (db/reset-spent db)
     (logging/info "Reset spent")
-    #_(db/reinitialize-monthly-budget db)))
+    (db/reinitialize-monthly-budget db)))

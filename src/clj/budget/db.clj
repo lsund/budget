@@ -63,9 +63,11 @@
     (zipmap ids ns)))
 
 ;; TODO
-(defn monthly-report-existing?
-  [db month]
-  (j/query db ["select id from report where extract(month from day) = ?" month]))
+(defn monthly-report-missing?
+  ([db salary-day] (monthly-report-missing? db salary-day (.getValue (util/budget-month salary-day))))
+  ([db salary-day month]
+   (-> (j/query db ["select id from report where extract(month from day) = ? - 1" month])
+       empty?)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modify

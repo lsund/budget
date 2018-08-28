@@ -60,7 +60,7 @@
    (html/navbar)
    [:head [:title "Budget"]]
    [:body.mui-container
-    [:h1 (util/get-current-date-header (:start-day config))]
+    [:h1 (util/get-current-date-header (:salary-day config))]
     [:div
      [:h3 "Add New Spend Category"]
      (form-to {:class "add-category"} [:post "/add-category"]

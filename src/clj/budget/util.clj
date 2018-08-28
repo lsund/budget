@@ -7,16 +7,6 @@
 
 (defn parse-int [s] (Integer. (re-find  #"\d+" s)))
 
-(defn get-current-date-header [day]
-  (let [now (java.time.LocalDateTime/now)
-        month (budget-month)]
-    (format "%s %s - %s %s %s"
-            day
-            (.plus month -1)
-            day
-            month
-            (.getYear now))))
-
 (defn string->localdate [s]
   (java.time.LocalDate/parse s (java.time.format.DateTimeFormatter/ofPattern date-string)))
 
@@ -37,20 +27,32 @@
 
 (defn fmt-today [] (fmt-date (java.time.LocalDateTime/now)))
 
-(defn past-25th?
-  ([]
-   (past-25th? (java.time.LocalDateTime/now)))
+(defn past?
   ([d]
-   (>= (.getDayOfMonth d) 25)))
+   (past? d (java.time.LocalDateTime/now)))
+  ([d date]
+   (>= (.getDayOfMonth date) d)))
 
 (defn today [] (java.time.LocalDateTime/now))
 
-(defn budget-month []
+(defn budget-month [day]
   (let [now (java.time.LocalDateTime/now)]
-    (if (past-25th? now)
+    (if (past? day now)
       (.getMonth (.plusMonths now 1))
       (.getMonth now))))
 
+
 (defn budget-period [day]
-  (let [n (.getValue (budget-month))]
+  (let [n (.getValue (budget-month day))]
     [(java.time.LocalDate/of 2018 (- n 1) day) (java.time.LocalDate/of 2018 n day)]))
+
+
+(defn get-current-date-header [day]
+  (let [now (java.time.LocalDateTime/now)
+        month (budget-month day)]
+    (format "%s %s - %s %s %s"
+            day
+            (.plus month -1)
+            day
+            month
+            (.getYear now))))
