@@ -80,7 +80,7 @@
              :category
              {:name (util/stringify cat-name)
               :funds funds
-              :monthly_limit 0
+              :monthly_limit funds
               :spent 0}))
 
 

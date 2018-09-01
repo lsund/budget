@@ -12,13 +12,14 @@
 
 (defn ->localdate
   [date]
-  (cond (= (type date) java.sql.Timestamp) (.. date toLocalDateTime toLocalDate)
-        (= (type date) java.sql.Date) (.toLocalDate date)
-        (= (type date) java.time.LocalDate) date
-        (= (type date) java.time.LocalDateTime) date
-        (= (type date) java.lang.String) (string->localdate date)
-        (nil? date) (throw (Exception.  "Nil argument to localdate"))
-        :default (throw (Exception. (str "Unknown date type: " (type date))))))
+  {:pre [(not (nil? date))]}
+  (condp = (type date)
+    java.sql.Timestamp (.. date toLocalDateTime toLocalDate)
+    java.sql.Date (.toLocalDate date)
+    java.time.LocalDate date
+    java.time.LocalDateTime date
+    java.lang.String (string->localdate date)
+    (throw (Exception. (str "Unknown date type: " (type date))))))
 
 (defn fmt-date [d]
   (.format (java.time.format.DateTimeFormatter/ofPattern date-string)
