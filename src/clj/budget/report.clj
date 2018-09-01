@@ -4,8 +4,7 @@
    [budget.db :as db]
    [budget.util :as util]))
 
-(defn maybe-generate-and-reset [{:keys [salary-day db report-output-dir] :as config}]
-  (when (and (util/past? salary-day) (db/monthly-report-missing? db salary-day))
+(defn generate [{:keys [salary-day db report-output-dir] :as config}]
     (let [filename (format "%s/%s.txt" report-output-dir (util/fmt-today))
           cat-ids->names (db/category-ids->names db)]
       (spit  filename "BUDGET:\n")
@@ -32,8 +31,4 @@
               :append true))
       (let [file (slurp filename)]
         (db/add-report db file)
-        (logging/info file)))
-    (logging/info "Generated Report")
-    (db/reset-spent db)
-    (logging/info "Reset spent")
-    (db/reinitialize-monthly-budget db)))
+        (logging/info file))))

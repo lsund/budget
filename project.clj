@@ -26,6 +26,7 @@
                  [com.taoensso/timbre "4.10.0"]
                  [io.aviso/pretty "0.1.34"]
                  [com.stuartsierra/component "0.3.2"]
+                 [slingshot "0.12.2"]
 
                  ,,,]
 

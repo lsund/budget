@@ -14,6 +14,8 @@
    [taoensso.timbre :as logging]
    [taoensso.timbre.appenders.core :as appenders]
 
+   [slingshot.slingshot :refer [throw+]]
+
    [budget.db :as db]
    [budget.util :as util]
    [budget.render :as render]
@@ -58,28 +60,41 @@
    "SAI" "Splitan Aktiefond Investmentbolag"
    "SGI" "Splitan Globalfond Investmentbolag"
    "SH" "Splitan Högräntefond"
-   "SRS" "Splitan Räntefond Sverige"})
+   "SRS" "Splitan Räntefond Sverige"
+   "BITCOIN XBT" "Bitcoin XBT"})
 
 (defn make-transaction [db tx-type tx-code tx-date tx-buy
                         tx-shares tx-rate tx-total tx-currency]
-  (db/add-transaction db
-                      tx-type
-                      {:name (shortname->name tx-code)
-                       :acc "ISK"
-                       :shortname tx-code
-                       :day (util/->localdate tx-date)
-                       :shares (util/parse-int tx-shares)
-                       :buy (= tx-buy "on")
-                       :rate (util/parse-int tx-rate)
-                       :total (util/parse-int tx-total)
-                       :currency tx-currency}))
+  (let [name (shortname->name tx-code)]
+    (when-not name
+      (throw+ {:message "Could not deduce name from shortname"
+               :shortname tx-code}))
+    (db/add-transaction db
+                        tx-type
+                        {:name (shortname->name tx-code)
+                         :acc "ISK"
+                         :shortname tx-code
+                         :day (util/->localdate tx-date)
+                         :shares (util/parse-int tx-shares)
+                         :buy (= tx-buy "on")
+                         :rate (util/parse-int tx-rate)
+                         :total (util/parse-int tx-total)
+                         :currency tx-currency})))
+
+(defn should-generate-report
+  [{:keys [db salary-day]}]
+  (db/monthly-report-missing? db salary-day))
 
 (defn- app-routes
   [{:keys [db] :as config}]
   (routes
    (GET "/" []
-        (report/maybe-generate-and-reset config)
-        (render/index config))
+        (let [extra (when (should-generate-report config)
+                      {:generate-report-div true})]
+          (render/index (merge config extra))))
+   (POST "generate-report" []
+         (report/generate)
+         (db/reset-month))
    (POST "/add-category" [cat-name funds]
          (db/add-category db
                           cat-name

@@ -43,3 +43,7 @@ button {
 .text-input {
     width: 100px;
 }
+
+.generate-report-div {
+    background-color: #ffe6ff
+}

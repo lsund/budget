@@ -62,9 +62,9 @@
         ns  (map :name cats)]
     (zipmap ids ns)))
 
-;; TODO
 (defn monthly-report-missing?
-  ([db salary-day] (monthly-report-missing? db salary-day (.getValue (util/budget-month salary-day))))
+  ([db salary-day]
+   (monthly-report-missing? db salary-day (.getValue (util/budget-month salary-day))))
   ([db salary-day month]
    (-> (j/query db ["select id from report where extract(month from day) = ? - 1" month])
        empty?)))
@@ -117,11 +117,17 @@
   (j/execute! db ["update category set monthly_limit=? where id=?" limit cat-id]))
 
 
-(defn reset-spent [db]
+(defn reset-spent
+  [db]
   (j/execute! db ["update category set spent=0"]))
 
-(defn reinitialize-monthly-budget [db]
+(defn reinitialize-monthly-budget
+  [db]
   (j/execute! db ["update category set funds=monthly_limit"]))
+
+(defn reset-month [db]
+  (reset-spent db)
+  (reinitialize-monthly-budget))
 
 
 ;; Delete

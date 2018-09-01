@@ -56,10 +56,17 @@
 
 (defn index
   [{:keys [db] :as config}]
+  (logging/info (:extra config))
   (html5
    (html/navbar)
    [:head [:title "Budget"]]
    [:body.mui-container
+    (when (:generate-report-div config)
+      (do
+        [:div.generate-report-div
+         (form-to [:post "/generate-report"]
+                  [:label "I don't see a report for last month. Generate one now?"]
+                  [:button "Yes"])]))
     [:h1 (util/get-current-date-header (:salary-day config))]
     [:div
      [:h3 "Add New Spend Category"]
