@@ -81,20 +81,16 @@
                          :total (util/parse-int tx-total)
                          :currency tx-currency})))
 
-(defn should-generate-report
-  [{:keys [db salary-day]}]
-  (db/monthly-report-missing? db salary-day))
-
 (defn- app-routes
   [{:keys [db] :as config}]
   (routes
    (GET "/" []
-        (let [extra (when (should-generate-report config)
+        (let [extra (when (db/monthly-report-missing? config)
                       {:generate-report-div true})]
           (render/index (merge config extra))))
-   (POST "generate-report" []
-         (report/generate)
-         (db/reset-month))
+   (POST "/generate-report" []
+         (report/generate config)
+         (db/reset-month db))
    (POST "/add-category" [cat-name funds]
          (db/add-category db
                           cat-name

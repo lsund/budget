@@ -1,7 +1,7 @@
 (ns budget.db
   (:require [clojure.java.jdbc :as j]
             [com.stuartsierra.component :as c]
-            [taoensso.timbre :as timbre]
+            [taoensso.timbre :as logging]
             [budget.util :as util]))
 
 
@@ -44,13 +44,17 @@
 (defn get-total-remaining [db]
   (-> (j/query db ["select sum(funds) from category"]) first :sum))
 
-(defn get-monthly-transactions [db]
-  (j/query db [(str "select * from transaction where extract(month from ts) = ?"
-                    " and extract(day from ts) >= ?"
-                    " union all"
-                    " select * from transaction where extract(month from ts) = ?"
-                    " and extract(day from ts) <= ?") 8 25 9 25])
-  )
+(defn get-monthly-transactions [{:keys [db salary-day]}]
+  (let [month-number (.getValue (util/budget-month salary-day))]
+    (j/query db [(str "select * from transaction where extract(month from ts) = ?"
+                      " and extract(day from ts) >= ?"
+                      " union all"
+                      " select * from transaction where extract(month from ts) = ?"
+                      " and extract(day from ts) <= ?")
+                 (dec month-number)
+                 salary-day
+                 month-number
+                 salary-day])))
 
 (defn get-all [db table]
   (j/query db [(str "select * from " (name table))]))
@@ -63,10 +67,11 @@
     (zipmap ids ns)))
 
 (defn monthly-report-missing?
-  ([db salary-day]
-   (monthly-report-missing? db salary-day (.getValue (util/budget-month salary-day))))
-  ([db salary-day month]
-   (-> (j/query db ["select id from report where extract(month from day) = ? - 1" month])
+  ([config]
+   (monthly-report-missing? config (.getValue (util/budget-month (:salary-day config)))))
+  ([config month]
+   (logging/info config)
+   (-> (j/query (:db config) ["select id from report where extract(month from day) = ? - 1" month])
        empty?)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

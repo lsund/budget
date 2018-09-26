@@ -4,7 +4,7 @@
    [budget.db :as db]
    [budget.util :as util]))
 
-(defn generate [{:keys [salary-day db report-output-dir] :as config}]
+(defn generate [{:keys [db report-output-dir] :as config}]
     (let [filename (format "%s/%s.txt" report-output-dir (util/fmt-today))
           cat-ids->names (db/category-ids->names db)]
       (spit  filename "BUDGET:\n")
@@ -22,7 +22,7 @@
                     (db/get-total-spent db))
             :append true)
       (spit filename "\nTRANSACTIONS:\n" :append true)
-      (doseq [t (db/get-monthly-transactions db)]
+      (doseq [t (db/get-monthly-transactions config)]
         (spit filename
               (format "%s %s %s\n"
                       (cat-ids->names (:categoryid t))

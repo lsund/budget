@@ -56,7 +56,6 @@
 
 (defn index
   [{:keys [db] :as config}]
-  (logging/info (:extra config))
   (html5
    (html/navbar)
    [:head [:title "Budget"]]
@@ -85,7 +84,7 @@
        [:th "Spent"]
        [:th "Delete"]]]
      [:tbody
-      (for [c (sort-by :name (db/get-all db :category))]
+      (for [c (sort-by :funds > (db/get-all db :category))]
         (category-row c))
       [:row
        [:td ""]
@@ -100,7 +99,7 @@
        [:tr [:th "Name"] [:th "Amount"] [:th "Date"] [:th "Remove"]]]
       [:tbody
        (let [cat-ids->names (db/category-ids->names db)]
-         (for [t (->> (db/get-monthly-transactions db)
+         (for [t (->> (db/get-monthly-transactions config)
                       (sort-by :ts)
                       reverse)]
            (transaction-row t cat-ids->names)))]]]
