@@ -30,18 +30,25 @@ button {
     width: 50px;
 }
 
-.stocks {
-}
-
-.funds {
-}
-
 .number-input {
     width: 70px;
 }
 
 .text-input {
     width: 100px;
+}
+
+.short-input {
+    width: 50px;
+}
+
+.hidden {
+    visibility: hidden;
+    position: absolute;
+}
+
+select {
+    width: 150px;
 }
 
 .generate-report-div {

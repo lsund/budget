@@ -96,6 +96,12 @@
                           cat-name
                           (util/parse-int funds))
          (redirect "/"))
+   (POST "/transfer" [from to amount]
+         (db/transfer-funds db
+                            (util/parse-int from)
+                            (util/parse-int to)
+                            (util/parse-int amount))
+         (redirect "/"))
    (POST "/spend" [cat-id dec-amount]
          (db/update-funds db
                           (util/parse-int cat-id)

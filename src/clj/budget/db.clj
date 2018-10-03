@@ -102,14 +102,14 @@
 ;; Update
 
 (defn update-funds
-  [db cat-id x op]
+  [db cat-id amount op]
   (add-transaction db
                    :transaction
                    {:categoryid cat-id
-                    :amount (case op :increment x :decrement (- x))
+                    :amount (case op :increment amount :decrement (- amount))
                     :ts (java.time.LocalDateTime/now)})
-  (j/execute! db ["update category set funds=funds-? where id=?" x cat-id])
-  (j/execute! db ["update category set spent=spent+? where id =?" x cat-id]))
+  (j/execute! db ["update category set funds=funds-? where id=?" amount cat-id])
+  (j/execute! db ["update category set spent=spent+? where id =?" amount cat-id]))
 
 
 (defn update-name
@@ -126,13 +126,20 @@
   [db]
   (j/execute! db ["update category set spent=0"]))
 
+
 (defn reinitialize-monthly-budget
   [db]
   (j/execute! db ["update category set funds=monthly_limit"]))
 
+
 (defn reset-month [db]
   (reset-spent db)
   (reinitialize-monthly-budget))
+
+
+(defn transfer-funds [db from to amount]
+  (j/execute! db ["update category set funds=funds-? where id=?" amount from])
+  (j/execute! db ["update category set funds=funds+? where id=?" amount to]))
 
 
 ;; Delete
