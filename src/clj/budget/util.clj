@@ -7,6 +7,8 @@
 
 (defn parse-int [s] (Integer. (re-find  #"\d+" s)))
 
+(defn parse-float [s] (Double. (re-find  #"\d+\.\d+" s)))
+
 (defn string->localdate [s]
   (java.time.LocalDate/parse s (java.time.format.DateTimeFormatter/ofPattern date-string)))
 

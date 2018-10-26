@@ -77,8 +77,8 @@
                          :day (util/->localdate tx-date)
                          :shares (util/parse-int tx-shares)
                          :buy (= tx-buy "on")
-                         :rate (util/parse-int tx-rate)
-                         :total (util/parse-int tx-total)
+                         :rate (util/parse-float tx-rate)
+                         :total (util/parse-float tx-total)
                          :currency tx-currency})))
 
 (defn- app-routes

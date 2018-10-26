@@ -208,9 +208,7 @@
   (html5
    [:head [:title "Budget"]]
    [:body.mui-container
-
     (html/navbar)
-
     [:div.funds
      [:div
       [:h2 "Add new Fund Transaction"]
