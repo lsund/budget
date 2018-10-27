@@ -1,3 +1,3 @@
-# budget
+# Budget
 
-This is a budgeting app, intended for personal use.
+Personal finances software.
