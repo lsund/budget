@@ -134,7 +134,7 @@
 
 (defn reset-month [db]
   (reset-spent db)
-  (reinitialize-monthly-budget))
+  (reinitialize-monthly-budget db))
 
 
 (defn transfer-funds [db from to amount]
