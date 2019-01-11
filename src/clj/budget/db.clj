@@ -71,11 +71,13 @@
     (zipmap ids ns)))
 
 (defn monthly-report-missing?
-  ([config]
-   (monthly-report-missing? config (.getValue (util/budget-month (:salary-day config)))))
-  ([config month]
-   (logging/info config)
-   (-> (j/query (:db config) ["select id from report where extract(month from day) = ? - 1" month])
+  ([db config]
+   (monthly-report-missing? db config (.getValue (util/budget-month (:salary-day config)))))
+  ([db config month]
+   (println month)
+
+   (-> (j/query db ["select id from report where extract(month from day) = ?"
+                    (if (= month 1) 12 (dec month))])
        empty?)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

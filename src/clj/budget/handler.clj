@@ -35,7 +35,7 @@
   [{:keys [db] :as config}]
   (routes
    (GET "/" []
-        (let [extra (when (db/monthly-report-missing? config)
+        (let [extra (when (db/monthly-report-missing? db config)
                       {:generate-report-div true})]
           (render/index (merge config extra))))
    (POST "/generate-report" []
