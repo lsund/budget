@@ -1,17 +1,6 @@
-(ns budget.util
-  (:require [clojure.string :as s]))
+(ns budget.util.date)
 
-(def date-string "yyyy-MM-dd")
-
-(defn stringify [k] (-> k name s/capitalize))
-
-(defn parse-int [s] (Integer. (re-find  #"\d+" s)))
-
-(defn parse-float [s]
-  (try
-    (Double. (re-find #"\d+\.\d+" s))
-    (catch Exception _
-      (parse-int s))))
+(def ^{:private true} date-string "yyyy-MM-dd")
 
 (defn string->localdate [s]
   (java.time.LocalDate/parse s (java.time.format.DateTimeFormatter/ofPattern date-string)))

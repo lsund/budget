@@ -2,7 +2,8 @@
   (:require [taoensso.timbre :as logging]
             [hiccup.form :refer [form-to]]
             [hiccup.page :refer [html5 include-css include-js]]
-            [budget.util :as util]
+            [budget.util.core :as util]
+            [budget.util.date :as util.date]
             [budget.html :as html]))
 
 (defn fmt-category-row
@@ -52,7 +53,7 @@
   [:tr
    [:td (cat-ids->names (:categoryid t))]
    [:td (:amount t)]
-   [:td (util/fmt-date (:ts t))]
+   [:td (util.date/fmt-date (:ts t))]
    [:td (form-to [:post "/delete-transaction"]
                  [:input {:name "tx-id" :type :hidden :value (:id t)}]
                  [:button "X"])]])
@@ -68,7 +69,7 @@
          (form-to [:post "/generate-report"]
                   [:label "I don't see a report for last month. Generate one now?"]
                   [:button "Yes"])]))
-    [:h1 (util/get-current-date-header (:salary-day config))]
+    [:h1 (util.date/get-current-date-header (:salary-day config))]
     [:div
      [:h3 "Add New Spend Category"]
      (form-to {:class "add-category"} [:post "/add-category"]

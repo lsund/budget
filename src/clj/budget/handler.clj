@@ -2,7 +2,8 @@
   (:require [budget.db :as db]
             [budget.render :as render]
             [budget.report :as report]
-            [budget.util :as util]
+            [budget.util.core :as util]
+            [budget.util.date :as util.date]
             [compojure.core :refer [GET POST routes]]
             [compojure.route :as r]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
@@ -24,7 +25,7 @@
                       tx-type
                       {(if (= tx-type :stocktransaction) :stockid :fundid) id
                        :acc "ISK"
-                       :day (util/->localdate tx-date)
+                       :day (util.date/->localdate tx-date)
                        :shares (util/parse-int tx-shares)
                        :buy (= tx-buy "on")
                        :rate (util/parse-float tx-rate)

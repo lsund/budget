@@ -2,10 +2,11 @@
   (:require
    [taoensso.timbre :as logging]
    [budget.db :as db]
-   [budget.util :as util]))
+   [budget.util.core :as util]
+   [budget.util.date :as util.date]))
 
 (defn generate [{:keys [db report-output-dir] :as config}]
-    (let [filename (format "%s/%s.txt" report-output-dir (util/fmt-today))
+    (let [filename (format "%s/%s.txt" report-output-dir (util.date/fmt-today))
           cat-ids->names (db/category-ids->names db)]
       (spit  filename "BUDGET:\n")
       (doseq [c (db/get-all db :category)]
@@ -27,7 +28,7 @@
               (format "%s %s %s\n"
                       (cat-ids->names (:categoryid t))
                       (:amount t)
-                      (util/fmt-date (:ts t)))
+                      (util.date/fmt-date (:ts t)))
               :append true))
       (let [file (slurp filename)]
         (db/add-report db file)

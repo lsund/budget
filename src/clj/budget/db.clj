@@ -2,7 +2,8 @@
   (:require [clojure.java.jdbc :as j]
             [com.stuartsierra.component :as c]
             [taoensso.timbre :as logging]
-            [budget.util :as util]))
+            [budget.util.core :as util]
+            [budget.util.date :as util.date]))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -49,7 +50,7 @@
   (if (= current-month 1) 12 (dec current-month)))
 
 (defn get-monthly-transactions [db {:keys [salary-day]}]
-  (let [month (.getValue (util/budget-month salary-day))]
+  (let [month (.getValue (util.date/budget-month salary-day))]
     (j/query db [(str "select * from transaction where extract(month from ts) = ?"
                       " and extract(day from ts) >= ?"
                       " union all"
@@ -75,7 +76,7 @@
 
 (defn monthly-report-missing?
   ([db config]
-   (monthly-report-missing? db config (.getValue (util/budget-month (:salary-day config)))))
+   (monthly-report-missing? db config (.getValue (util.date/budget-month (:salary-day config)))))
   ([db config month]
    (-> (j/query db ["select id from report where extract(month from day) = ?"
                     (previous-month month)])
@@ -104,7 +105,7 @@
 (defn add-report
   [db file]
   (j/insert! db :report {:file file
-                         :day (util/today)}))
+                         :day (util.date/today)}))
 
 ;; Update
 
