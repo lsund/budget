@@ -24,30 +24,46 @@ CREATE TABLE Transaction
 CREATE TABLE StockTransaction
 (
     id          SERIAL PRIMARY KEY,
+    stockid     INT NOT NULL,
     day         DATE NOT NULL,
-    name        VARCHAR(64) NOT NULL,
-    shortname   VARCHAR(16) NOT NULL,
     acc         VARCHAR(64) NOT NULL,
     buy         BOOLEAN NOT NULL,
     shares      INT NOT NULL,
     rate        FLOAT NOT NULL,
     currency    VARCHAR(16) NOT NULL,
-    total       FLOAT NOT NULL
+    total       FLOAT NOT NULL,
+
+    FOREIGN KEY (stockid) REFERENCES Stock (id)
+);
+
+CREATE TABLE Stock
+(
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(64) NOT NULL,
+    shortname   VARCHAR(16) NOT NULL
 );
 
 
 CREATE TABLE FundTransaction
 (
     id          SERIAL PRIMARY KEY,
+    fundid      INT NOT NULL,
     day         DATE NOT NULL,
-    name        VARCHAR(64) NOT NULL,
-    shortname   VARCHAR(16) NOT NULL,
     acc         VARCHAR(64) NOT NULL,
     buy         BOOLEAN NOT NULL,
     shares      FLOAT NOT NULL,
     rate        FLOAT NOT NULL,
     currency    VARCHAR(16) NOT NULL,
-    total       FLOAT NOT NULL
+    total       FLOAT NOT NULL,
+
+    FOREIGN KEY (stockid) REFERENCES Stock (id)
+);
+
+CREATE TABLE Fund
+(
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(64) NOT NULL,
+    shortname   VARCHAR(16) NOT NULL
 );
 
 CREATE TABLE Report

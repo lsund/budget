@@ -4,7 +4,6 @@
 
 (defrecord Server [app port server]
   c/Lifecycle
-
   (start [component]
     (println ";; [Server] Starting HttpKit on port" port)
     (if server
@@ -13,7 +12,6 @@
         (println ";; comp: " component)
         (->> (run-server (:handler app) {:port port})
              (assoc component :server)))))
-
   (stop [component]
     (if-not server
       component

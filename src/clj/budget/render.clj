@@ -1,11 +1,10 @@
 (ns budget.render
-  (:require
-   [budget.db :as db]
-   [taoensso.timbre :as logging]
-   [hiccup.form :refer [form-to]]
-   [hiccup.page :refer [html5 include-css include-js]]
-   [budget.util :as util]
-   [budget.html :as html]))
+  (:require [budget.db :as db]
+            [taoensso.timbre :as logging]
+            [hiccup.form :refer [form-to]]
+            [hiccup.page :refer [html5 include-css include-js]]
+            [budget.util :as util]
+            [budget.html :as html]))
 
 (defn fmt-category-row
   [{:keys [name funds]}]
@@ -128,20 +127,18 @@
                  [:button "X"])]])
 
 (defn stocks
-  [{:keys [db] :as config}]
+  [{:keys [db] :as config} stocks]
   (html5
    [:head [:title "Budget"]]
    [:body.mui-container
-
     (html/navbar)
-
     [:div.stocks
      [:div
       [:h2 "Add new Stock Transaction"]
       (form-to  [:post "/stocks/add-transaction"]
-                [:div.mui-textfield
-                 [:input
-                  {:name "stock-code" :type :text :placeholder "Stock Code"}]]
+                [:select {:name "stock-id"}
+                 (for [stock stocks]
+                   [:option {:value (:id stock)} (:shortname stock)])]
                 [:div
                  [:label "Date"]
                  [:input {:name "stock-date" :type :date}]
@@ -204,7 +201,7 @@
                  [:button "X"])]])
 
 (defn funds
-  [{:keys [db] :as config}]
+  [{:keys [db] :as config} funds]
   (html5
    [:head [:title "Budget"]]
    [:body.mui-container
@@ -213,9 +210,9 @@
      [:div
       [:h2 "Add new Fund Transaction"]
       (form-to  [:post "/funds/add-transaction"]
-                [:div.mui-textfield
-                 [:input
-                  {:name "fund-code" :type :text :placeholder "Fund Code"}]]
+                [:select {:name "fund-id"}
+                 (for [fund funds]
+                   [:option {:value (:id fund)} (:shortname fund)])]
                 [:div
                  [:label "Date"]
                  [:input {:name "fund-date" :type :date}]

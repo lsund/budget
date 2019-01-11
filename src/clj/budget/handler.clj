@@ -1,85 +1,35 @@
 (ns budget.handler
-  (:require
-   [compojure.route :as r]
-   [compojure.core :refer [routes GET POST ANY]]
-
-
-   [ring.util.response :refer [redirect]]
-   [ring.middleware
-    [defaults :refer [site-defaults wrap-defaults]]
-    [keyword-params :refer [wrap-keyword-params]]
-    [params :refer [wrap-params]]]
-
-   ;; Logging
-   [taoensso.timbre :as logging]
-   [taoensso.timbre.appenders.core :as appenders]
-
-   [slingshot.slingshot :refer [throw+]]
-
-   [budget.db :as db]
-   [budget.util :as util]
-   [budget.render :as render]
-   [budget.report :as report]))
+  (:require [budget.db :as db]
+            [budget.render :as render]
+            [budget.report :as report]
+            [budget.util :as util]
+            [compojure.core :refer [GET POST routes]]
+            [compojure.route :as r]
+            [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
+            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+            [ring.middleware.params :refer [wrap-params]]
+            [ring.util.response :refer [redirect]]
+            [slingshot.slingshot :refer [throw+]]
+            [taoensso.timbre :as logging]
+            [taoensso.timbre.appenders.core :as appenders]))
 
 (logging/merge-config!
  {:appenders
   {:spit (appenders/spit-appender {:fname "data/budget.log"})}})
 
-(def shortname->name
-  {"HEXA B" "Hexagon B"
-   "LATO B" "Latour B"
-   "SWOL B" "Swedol B"
-   "INVE B" "Investor B"
-   "ALIG" "Alimak Group"
-   "AXFO" "AXFOOD"
-   "ELUX B" "Electrolux B"
-   "MSON B" "Midsona B"
-   "BAHN B" "Bahnhof B"
-   "KIND SDB" "Kindred Group"
-   "OP" "Oscar Properties"
-   "WIHL" "Wihlborgs Fastigheter"
-   "BOL" "Boliden"
-   "NOKIA SEK" "Nokia Oyj"
-   "NCC B" "NCC B"
-   "VOLV B" "Volvo B"
-   "DVMT" "Dell Technologies"
-   "TSLA" "Tesla Inc"
-   "SPWR" "Sunpower Corp"
-   "AMZN" "Amazon.com Inc"
-   "NOVO B" "Novo Nordisk B"
-   "FING B" "Fingerprint Cards B"
-   "TOBII" "Tobii"
-   "SOLT" "Soltech Energy Sweden"
-   "CLAS B" "Clas Ohlson B"
-   "MACK B" "Mackmyra Svensk Whiskey B"
-   "ATT" "Attendo"
-   "WALL B" "Wallenstam B"
-   "ERIC B" "Ericsson B"
-   "AVZ" "Avanza Zero"
-   "SAS" "Splitan Aktiefond Stabil"
-   "SAI" "Splitan Aktiefond Investmentbolag"
-   "SGI" "Splitan Globalfond Investmentbolag"
-   "SH" "Splitan Högräntefond"
-   "SRS" "Splitan Räntefond Sverige"
-   "BITCOIN XBT" "Bitcoin XBT"})
-
-(defn make-transaction [db tx-type tx-code tx-date tx-buy
+(defn make-transaction [db tx-type id tx-date tx-buy
                         tx-shares tx-rate tx-total tx-currency]
-  (let [name (shortname->name tx-code)]
-    (when-not name
-      (throw+ {:message "Could not deduce name from shortname"
-               :shortname tx-code}))
-    (db/add-transaction db
-                        tx-type
-                        {:name (shortname->name tx-code)
-                         :acc "ISK"
-                         :shortname tx-code
-                         :day (util/->localdate tx-date)
-                         :shares (util/parse-int tx-shares)
-                         :buy (= tx-buy "on")
-                         :rate (util/parse-float tx-rate)
-                         :total (util/parse-float tx-total)
-                         :currency tx-currency})))
+  (println tx-shares tx-rate tx-total)
+  (db/add-transaction db
+                      tx-type
+                      {(if (= tx-type :stocktransaction) :stockid :fundid) id
+                       :acc "ISK"
+                       :day (util/->localdate tx-date)
+                       :shares (util/parse-int tx-shares)
+                       :buy (= tx-buy "on")
+                       :rate (util/parse-float tx-rate)
+                       :total (util/parse-float tx-total)
+                       :currency tx-currency}))
 
 (defn- app-routes
   [{:keys [db] :as config}]
@@ -90,7 +40,8 @@
           (render/index (merge config extra))))
    (POST "/generate-report" []
          (report/generate config)
-         (db/reset-month db))
+         (db/reset-month db)
+         (redirect "/"))
    (POST "/add-category" [cat-name funds]
          (db/add-category db
                           cat-name
@@ -128,39 +79,34 @@
                                   (util/parse-int cat-id)
                                   (util/parse-int limit))
          (redirect "/"))
-
    (GET "/stocks" []
-        (render/stocks config))
-
-   (POST "/stocks/add-transaction" [stock-code stock-date
+        (render/stocks config (db/get-all db :stock)))
+   (POST "/stocks/add-transaction" [stock-id stock-date
                                     stock-buy stock-shares
                                     stock-rate stock-total
                                     stock-currency]
          (make-transaction db
                            :stocktransaction
-                           stock-code stock-date stock-buy stock-shares
+                           (util/parse-int stock-id) stock-date stock-buy stock-shares
                            stock-rate stock-total stock-currency)
          (redirect "/stocks"))
-
    (POST "/stocks/delete-transaction" [stock-id]
          (logging/info stock-id)
          (db/delete db
                     :stocktransaction
                     (util/parse-int stock-id))
          (redirect "/stocks"))
-
    (GET "/funds" []
-        (render/funds config))
-
-   (POST "/funds/add-transaction" [fund-code fund-date
+        (render/funds config (db/get-all db :fund)))
+   (POST "/funds/add-transaction" [fund-id fund-date
                                    fund-buy fund-shares
                                    fund-rate fund-total
                                    fund-currency]
-         (make-transaction :fundtransaction
-                           fund-code fund-date fund-buy fund-shares
+         (make-transaction db
+                           :fundtransaction
+                           (util/parse-int fund-id) fund-date fund-buy fund-shares
                            fund-rate fund-total fund-currency)
          (redirect "/funds"))
-
    (POST "/funds/delete-transaction" [fund-id]
          (db/delete db
                     :fundtransaction

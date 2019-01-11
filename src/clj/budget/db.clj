@@ -9,18 +9,19 @@
 ;; Config
 
 
-(defn make-db [config]
+(defn pg-db [config]
   {:dbtype "postgresql"
    :dbname (:name config)
    :user "postgres"})
 
+(def pg-db-val (pg-db {:name "budget"}))
 
 (defrecord Db [db db-config]
   c/Lifecycle
 
   (start [component]
     (println ";; [Db] Starting database")
-    (assoc component :db (make-db db-config)))
+    (assoc component :db (pg-db db-config)))
 
   (stop [component]
     (println ";; [Db] Stopping database")
@@ -55,6 +56,9 @@
                  salary-day
                  month-number
                  salary-day])))
+
+(defn row [db table id]
+  (first (j/query db [(str "SELECT * FROM " (name table) " WHERE id=?") id])))
 
 (defn get-all [db table]
   (j/query db [(str "select * from " (name table))]))

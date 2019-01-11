@@ -7,7 +7,11 @@
 
 (defn parse-int [s] (Integer. (re-find  #"\d+" s)))
 
-(defn parse-float [s] (Double. (re-find  #"\d+\.\d+" s)))
+(defn parse-float [s]
+  (try
+    (Double. (re-find #"\d+\.\d+" s))
+    (catch Exception _
+      (parse-int s))))
 
 (defn string->localdate [s]
   (java.time.LocalDate/parse s (java.time.format.DateTimeFormatter/ofPattern date-string)))
