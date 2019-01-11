@@ -45,16 +45,19 @@
 (defn get-total-remaining [db]
   (-> (j/query db ["select sum(funds) from category"]) first :sum))
 
+(defn- previous-month [current-month]
+  (if (= current-month 1) 12 (dec current-month)))
+
 (defn get-monthly-transactions [db {:keys [salary-day]}]
-  (let [month-number (.getValue (util/budget-month salary-day))]
+  (let [month (.getValue (util/budget-month salary-day))]
     (j/query db [(str "select * from transaction where extract(month from ts) = ?"
                       " and extract(day from ts) >= ?"
                       " union all"
                       " select * from transaction where extract(month from ts) = ?"
                       " and extract(day from ts) <= ?")
-                 (dec month-number)
+                 (previous-month month)
                  salary-day
-                 month-number
+                 month
                  salary-day])))
 
 (defn row [db table id]
@@ -74,10 +77,8 @@
   ([db config]
    (monthly-report-missing? db config (.getValue (util/budget-month (:salary-day config)))))
   ([db config month]
-   (println month)
-
    (-> (j/query db ["select id from report where extract(month from day) = ?"
-                    (if (= month 1) 12 (dec month))])
+                    (previous-month month)])
        empty?)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
