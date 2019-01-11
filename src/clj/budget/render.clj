@@ -1,6 +1,5 @@
 (ns budget.render
-  (:require [budget.db :as db]
-            [taoensso.timbre :as logging]
+  (:require [taoensso.timbre :as logging]
             [hiccup.form :refer [form-to]]
             [hiccup.page :refer [html5 include-css include-js]]
             [budget.util :as util]
@@ -58,8 +57,7 @@
                  [:input {:name "tx-id" :type :hidden :value (:id t)}]
                  [:button "X"])]])
 
-(defn index
-  [{:keys [db] :as config}]
+(defn index [config db-data]
   (html5
    (html/navbar)
    [:head [:title "Budget"]]
@@ -89,26 +87,26 @@
        [:th "Transfer to"]
        [:th "Delete"]]]
      [:tbody
-      (let [categories (db/get-all db :category)]
-        (for [c (sort-by :funds > categories)]
-          (category-row c categories)))
+      (let [cs (:categories db-data)]
+        (for [c cs]
+          (category-row c cs)))
       [:row
        [:td ""]
-       [:td (db/get-total-budget db)]
-       [:td (db/get-total-remaining db)]
+       [:td (:total-budget db-data)]
+       [:td (:total-remaining db-data)]
        [:td ""]
-       [:td (db/get-total-spent db)]]]]
+       [:td (:total-spent db-data)]]]]
     [:div
      [:h2 "This months transactions"]
      [:table
       [:thead
        [:tr [:th "Name"] [:th "Amount"] [:th "Date"] [:th "Remove"]]]
       [:tbody
-       (let [cat-ids->names (db/category-ids->names db)]
-         (for [t (->> (db/get-monthly-transactions config)
-                      (sort-by :ts)
-                      reverse)]
-           (transaction-row t cat-ids->names)))]]]
+       (for [t (->> db-data
+                    :monthly-transactions
+                    (sort-by :ts)
+                    reverse)]
+         (transaction-row t (:category-ids->names db-data)))]]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))
     (apply include-css (:styles config))]))
@@ -127,7 +125,7 @@
                  [:button "X"])]])
 
 (defn stocks
-  [{:keys [db] :as config} stocks]
+  [config {:keys [stocks stocktransactions]}]
   (html5
    [:head [:title "Budget"]]
    [:body.mui-container
@@ -178,7 +176,7 @@
         [:th "Currency"]
         [:th "Delete"]]]
       [:tbody
-       (for [t (->> (db/get-all db :stocktransaction)
+       (for [t (->> stocktransactions
                     (sort-by :day)
                     reverse)]
          (stock-transaction-row t))]]]
@@ -201,7 +199,7 @@
                  [:button "X"])]])
 
 (defn funds
-  [{:keys [db] :as config} funds]
+  [config {:keys [funds fundtransactions]}]
   (html5
    [:head [:title "Budget"]]
    [:body.mui-container
@@ -252,7 +250,7 @@
         [:th "Currency"]
         [:th "Delete"]]]
       [:tbody
-       (for [t (->> (db/get-all db :fundtransaction)
+       (for [t (->> fundtransactions
                     (sort-by :day)
                     reverse)]
          (fund-transaction-row t))]]]

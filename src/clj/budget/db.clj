@@ -45,7 +45,7 @@
 (defn get-total-remaining [db]
   (-> (j/query db ["select sum(funds) from category"]) first :sum))
 
-(defn get-monthly-transactions [{:keys [db salary-day]}]
+(defn get-monthly-transactions [db {:keys [salary-day]}]
   (let [month-number (.getValue (util/budget-month salary-day))]
     (j/query db [(str "select * from transaction where extract(month from ts) = ?"
                       " and extract(day from ts) >= ?"

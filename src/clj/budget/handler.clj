@@ -37,7 +37,13 @@
    (GET "/" []
         (let [extra (when (db/monthly-report-missing? db config)
                       {:generate-report-div true})]
-          (render/index (merge config extra))))
+          (render/index (merge config extra)
+                        {:total-budget (db/get-total-budget db)
+                         :total-remaining (db/get-total-remaining db)
+                         :total-spent (db/get-total-spent db)
+                         :categories (sort-by :funds > (db/get-all db :category))
+                         :category-ids->names (db/category-ids->names db)
+                         :monthly-transactions (db/get-monthly-transactions db config)})))
    (POST "/generate-report" []
          (report/generate config)
          (db/reset-month db)
@@ -80,7 +86,8 @@
                                   (util/parse-int limit))
          (redirect "/"))
    (GET "/stocks" []
-        (render/stocks config (db/get-all db :stock)))
+        (render/stocks config {:stocks (db/get-all db :stock)
+                               :stocktransactions (db/get-all db :stocktransaction)}))
    (POST "/stocks/add-transaction" [stock-id stock-date
                                     stock-buy stock-shares
                                     stock-rate stock-total
@@ -97,7 +104,8 @@
                     (util/parse-int stock-id))
          (redirect "/stocks"))
    (GET "/funds" []
-        (render/funds config (db/get-all db :fund)))
+        (render/funds config {:funds (db/get-all db :fund)
+                              :fundtransactions (db/get-all db :fundtransaction)}))
    (POST "/funds/add-transaction" [fund-id fund-date
                                    fund-buy fund-shares
                                    fund-rate fund-total
