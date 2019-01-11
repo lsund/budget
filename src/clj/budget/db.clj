@@ -145,8 +145,9 @@
 
 
 (defn transfer-funds [db from to amount]
-  (j/execute! db ["update category set funds=funds-? where id=?" amount from])
-  (j/execute! db ["update category set funds=funds+? where id=?" amount to]))
+  (j/with-db-transaction [t-db db]
+    (j/execute! t-db ["update category set funds=funds-? where id=?" amount from])
+    (j/execute! t-db ["update category set funds=funds+? where id=?" amount to])))
 
 
 ;; Delete

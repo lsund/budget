@@ -30,14 +30,14 @@
       (form-to [:post "/spend"]
                [:div
                 [:input {:name "cat-id" :type :hidden :value (:id c)}]
-                [:input {:class "spend" :name "dec-amount" :type :number}]])]
+                [:input {:class "spend" :name "dec-amount" :type :number :placeholder "$"}]])]
      [:td (:spent c)]
      [:td (form-to [:post "/transfer"]
                    [:input {:name "from" :type :hidden :value (:id c)}]
+                   [:input.short-input {:type :text :name "amount" :placeholder "$"}]
                    [:select {:name "to"}
                     (for [cat categories]
                       [:option {:value (:id cat)} (:name cat)])]
-                   [:input.short-input {:type :text :name "amount" :placeholder "Amount"}]
                    [:input.hidden {:type :submit}])]
      [:td
       (form-to
