@@ -70,13 +70,6 @@
                   [:label "I don't see a report for last month. Generate one now?"]
                   [:button "Yes"])]))
     [:h1 (util.date/get-current-date-header (:salary-day config))]
-    [:div
-     [:h3 "Add New Spend Category"]
-     (form-to {:class "add-category"} [:post "/add-category"]
-              [:input
-               {:name "cat-name" :type :text :placeholder "Category name"}]
-              [:div [:input {:name "funds" :type :number :value 0}]]
-              [:button.mui-btn "Add category"])]
     [:table
      [:thead
       [:tr
@@ -97,6 +90,13 @@
        [:td (:total-remaining db-data)]
        [:td ""]
        [:td (:total-spent db-data)]]]]
+    [:div
+     [:h3 "Add New Spend Category"]
+     (form-to {:class "add-category"} [:post "/add-category"]
+              [:input
+               {:name "cat-name" :type :text :placeholder "Category name"}]
+              [:input {:name "funds" :type :number :value 0}]
+              [:button.mui-btn "Add category"])]
     [:div
      [:h2 "This months transactions"]
      [:table

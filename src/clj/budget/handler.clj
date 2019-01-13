@@ -5,12 +5,11 @@
             [budget.util.core :as util]
             [budget.util.date :as util.date]
             [compojure.core :refer [GET POST routes]]
-            [compojure.route :as r]
+            [compojure.route :as route]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.util.response :refer [redirect]]
-            [slingshot.slingshot :refer [throw+]]
             [taoensso.timbre :as logging]
             [taoensso.timbre.appenders.core :as appenders]))
 
@@ -122,8 +121,8 @@
                     (util/parse-int fund-id))
          (redirect "/funds"))
 
-   (r/resources "/")
-   (r/not-found render/not-found)))
+   (route/resources "/")
+   (route/not-found render/not-found)))
 
 (defn new-handler
   [config]
