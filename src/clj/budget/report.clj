@@ -23,7 +23,7 @@
                     (db/get-total-spent db))
             :append true)
       (spit filename "\nTRANSACTIONS:\n" :append true)
-      (doseq [t (db/get-monthly-transactions config)]
+      (doseq [t (db/get-monthly-transactions db config)]
         (spit filename
               (format "%s %s %s\n"
                       (cat-ids->names (:categoryid t))
