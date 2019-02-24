@@ -19,7 +19,6 @@
 
 (defn make-transaction [db tx-type id tx-date tx-buy
                         tx-shares tx-rate tx-total tx-currency]
-  (println tx-shares tx-rate tx-total)
   (db/add-transaction db
                       tx-type
                       {(if (= tx-type :stocktransaction) :stockid :fundid) id
