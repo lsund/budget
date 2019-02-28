@@ -5,7 +5,6 @@
    [compojure.handler :refer [site]]
    [budget.handler :refer [my-app]]))
 
-
 (defn -main [& args]
-  (run-server (site #'my-app) {:port (:port (config/load))})
-  (println "Server up and running, port 2000."))
+  (c/start (new-system (config/load)))
+  (println "Server up and running"))

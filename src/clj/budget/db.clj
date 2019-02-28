@@ -5,10 +5,8 @@
             [budget.util.core :as util]
             [budget.util.date :as util.date]))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Config
-
 
 (defn pg-db [config]
   {:dbtype "postgresql"
@@ -32,7 +30,6 @@
 (defn new-db
   [config]
   (map->Db {:db-config config}))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Query
