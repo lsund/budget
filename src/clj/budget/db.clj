@@ -94,43 +94,49 @@
               :spent 0}))
 
 
-(defn add-transaction
-  [db table tx]
-  (j/insert! db table tx))
-
-
 (defn add-report
   [db file]
   (j/insert! db :report {:file file
                          :day (util.date/today)}))
 
+;; Delete
+
+(defn delete
+  [db table tx-id]
+  (j/delete! db table ["id=?" tx-id]))
+
 ;; Update
 
-(defn update-funds
-  [db cat-id amount op]
-  (add-transaction db
-                   :transaction
-                   {:categoryid cat-id
-                    :amount (case op :increment amount :decrement (- amount))
-                    :ts (java.time.LocalDateTime/now)})
+(defn- decrease-funds [db amount cat-id]
   (j/execute! db ["update category set funds=funds-? where id=?" amount cat-id])
   (j/execute! db ["update category set spent=spent+? where id =?" amount cat-id]))
 
+(defn- increase-funds [db amount cat-id]
+  (j/execute! db ["update category set funds=funds+? where id=?" amount cat-id])
+  (j/execute! db ["update category set spent=spent-? where id =?" amount cat-id]))
 
-(defn update-name
-  [db cat-id cat-name]
+(defn add-transaction [db cat-id amount op]
+  (j/insert! db :transaction {:categoryid cat-id
+                    :amount (case op :increment amount :decrement (- amount))
+                    :ts (java.time.LocalDateTime/now)})
+  (decrease-funds db amount cat-id))
+
+(defn remove-transaction [db tx-id]
+  (let [{:keys [categoryid amount]} (row db :transaction tx-id)]
+    (increase-funds db (- amount) categoryid)
+    (delete db :transaction tx-id)))
+
+
+(defn update-name [db cat-id cat-name]
   (j/execute! db ["update category set name=? where id=?" cat-name cat-id]))
 
-(defn update-monthly-limit
-  [db cat-id limit]
+(defn update-monthly-limit [db cat-id limit]
   (j/execute! db ["update category set monthly_limit=? where id=?" limit cat-id]))
 
-(defn reset-spent
-  [db]
+(defn reset-spent [db]
   (j/execute! db ["update category set spent=0"]))
 
-(defn reinitialize-monthly-budget
-  [db]
+(defn reinitialize-monthly-budget [db]
   (j/execute! db ["update category set funds=monthly_limit"]))
 
 (defn reset-month [db]
@@ -141,9 +147,3 @@
   (j/with-db-transaction [t-db db]
     (j/execute! t-db ["update category set funds=funds-? where id=?" amount from])
     (j/execute! t-db ["update category set funds=funds+? where id=?" amount to])))
-
-;; Delete
-
-(defn delete
-  [db table tx-id]
-  (j/delete! db table ["id=?" tx-id]))

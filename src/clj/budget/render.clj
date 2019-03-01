@@ -106,7 +106,8 @@
                     :monthly-transactions
                     (sort-by :ts)
                     reverse)]
-         (transaction-row t (:category-ids->names db-data)))]]]
+         (transaction-row t (:category-ids->names db-data)))]]
+     [:p (str "Total: " (apply + (map :amount (:monthly-transactions db-data))))]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))
     (apply include-css (:styles config))]))

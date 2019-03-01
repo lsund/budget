@@ -74,10 +74,10 @@
                                    (util/parse-int amount))
                 (redirect "/"))
     (post-route :spend [cat-id dec-amount]
-                (db/update-funds db
-                                 (util/parse-int cat-id)
-                                 (util/parse-int dec-amount)
-                                 :decrement)
+                (db/add-transaction db
+                                    (util/parse-int cat-id)
+                                    (util/parse-int dec-amount)
+                                    :decrement)
                 (redirect "/"))
     (post-route [:category :delete] [cat-id]
                 (db/delete db
@@ -85,9 +85,7 @@
                            (util/parse-int cat-id))
                 (redirect "/"))
     (post-route [:transaction :delete] [tx-id]
-                (db/delete db
-                           :transaction
-                           (util/parse-int tx-id))
+                (db/remove-transaction db (util/parse-int tx-id))
                 (redirect "/"))
     (post-route [:category :update :name] [cat-id cat-name]
                 (db/update-name db
