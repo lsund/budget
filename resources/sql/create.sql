@@ -12,6 +12,7 @@ CREATE TABLE Transaction
     id          SERIAL PRIMARY KEY,
     categoryid  INT NOT NULL,
     amount      INT NOT NULL,
+    note        TEXT,
     ts          TIMESTAMP,
 
     FOREIGN KEY (categoryid) REFERENCES Category (id)

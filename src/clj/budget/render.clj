@@ -44,9 +44,7 @@
       (form-to
        [:post "/delete-category"]
        [:input {:name "cat-id" :type :hidden :value (:id c)}]
-       [:button "X"])]
-
-     ,,,]))
+       [:button "X"])]]))
 
 (defn transaction-row
   [t cat-ids->names]
@@ -54,6 +52,7 @@
    [:td (cat-ids->names (:categoryid t))]
    [:td (:amount t)]
    [:td (util.date/fmt-date (:ts t))]
+   [:td (:note t)]
    [:td (form-to [:post "/delete-transaction"]
                  [:input {:name "tx-id" :type :hidden :value (:id t)}]
                  [:button "X"])]])
@@ -101,7 +100,7 @@
      [:h2 "This months transactions"]
      [:table
       [:thead
-       [:tr [:th "Name"] [:th "Amount"] [:th "Date"] [:th "Remove"]]]
+       [:tr [:th "Name"] [:th "Amount"] [:th "Date"] [:th "Note"] [:th "Remove"]]]
       [:tbody
        (for [t (->> db-data
                     :monthly-transactions
