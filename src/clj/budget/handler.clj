@@ -46,8 +46,8 @@
     (merge (apply hash-map (interleave missing-keys (cycle [nil])))
            present-keys)))
 
-(defmacro generate-routes [xs#]
-  (let [route-spec# (edn/read-string (slurp "resources/edn/routes.edn"))]
+(defmacro generate-routes [routes-file & xs#]
+  (let [route-spec# (edn/read-string (slurp routes-file))]
     `(routes
       ~@(for [[method path args & body] xs#]
           (case method
@@ -57,117 +57,118 @@
                             request-map#
                             (do
                               ((fn [{:keys ~args}] ~@body)
-                                     (select-keys-with-nil (:params request-map#)
-                                                           ~(mapv keyword args)))))
+                               (select-keys-with-nil (:params request-map#)
+                                                     ~(mapv keyword args)))))
             post-route `(POST ~(if (keyword path)
                                  (get (:post route-spec#) path)
                                  (get-in (:post route-spec#) path))
                               request-map#
                               ((fn [{:keys ~args}] ~@body)
-                                     (select-keys-with-nil (:params request-map#)
-                                                           ~(mapv keyword args)))))))))
+                               (select-keys-with-nil (:params request-map#)
+                                                     ~(mapv keyword args)))))))))
 
 (defn- app-routes
   [{:keys [db] :as config}]
   (routes
    (generate-routes
-    [(get-route :root []
-                (let [extra (when (db/monthly-report-missing? db config)
-                              {:generate-report-div true})]
-                  (render/index (merge config extra)
-                                {:total-budget (db/get-total-budget db)
-                                 :total-remaining (db/get-total-remaining db)
-                                 :total-spent (db/get-total-spent db)
-                                 :categories (sort-by :funds > (db/get-all db :category))
-                                 :category-ids->names (db/category-ids->names db)
-                                 :monthly-transactions (db/get-monthly-transactions db config)})))
-     (get-route :stocks []
-                (render/stocks config {:stocks (db/get-all db :stock)
-                                       :stocktransactions (db/get-all db :stocktransaction)}))
-     (get-route :funds []
-                (render/funds config {:funds (db/get-all db :fund)
-                                      :fundtransactions (db/get-all db :fundtransaction)}))
-     (post-route :generate-report []
-                 (report/generate config)
-                 (db/reset-month db)
-                 (redirect "/"))
-     (post-route [:category :add] [cat-name funds]
-                 (db/add-category db
-                                  cat-name
-                                  (util/parse-int funds))
-                 (redirect "/"))
-     (post-route :transfer [from to amount]
-                 (db/transfer-funds db
-                                    (util/parse-int from)
-                                    (util/parse-int to)
-                                    (util/parse-int amount))
-                 (redirect "/"))
-     (post-route :spend [cat-id dec-amount]
-                 (db/update-funds db
-                                  (util/parse-int cat-id)
-                                  (util/parse-int dec-amount)
-                                  :decrement)
-                 (redirect "/"))
-     (post-route [:category :delete] [cat-id]
-                 (db/delete db
-                            :category
-                            (util/parse-int cat-id))
-                 (redirect "/"))
-     (post-route [:transaction :delete] [tx-id]
-                 (db/delete db
-                            :transaction
-                            (util/parse-int tx-id))
-                 (redirect "/"))
-     (post-route [:category :update :name] [cat-id cat-name]
-                 (db/update-name db
+    "resources/edn/routes.edn"
+    (get-route :root []
+               (let [extra (when (db/monthly-report-missing? db config)
+                             {:generate-report-div true})]
+                 (render/index (merge config extra)
+                               {:total-budget (db/get-total-budget db)
+                                :total-remaining (db/get-total-remaining db)
+                                :total-spent (db/get-total-spent db)
+                                :categories (sort-by :funds > (db/get-all db :category))
+                                :category-ids->names (db/category-ids->names db)
+                                :monthly-transactions (db/get-monthly-transactions db config)})))
+    (get-route :stocks []
+               (render/stocks config {:stocks (db/get-all db :stock)
+                                      :stocktransactions (db/get-all db :stocktransaction)}))
+    (get-route :funds []
+               (render/funds config {:funds (db/get-all db :fund)
+                                     :fundtransactions (db/get-all db :fundtransaction)}))
+    (post-route :generate-report []
+                (report/generate config)
+                (db/reset-month db)
+                (redirect "/"))
+    (post-route [:category :add] [cat-name funds]
+                (db/add-category db
+                                 cat-name
+                                 (util/parse-int funds))
+                (redirect "/"))
+    (post-route :transfer [from to amount]
+                (db/transfer-funds db
+                                   (util/parse-int from)
+                                   (util/parse-int to)
+                                   (util/parse-int amount))
+                (redirect "/"))
+    (post-route :spend [cat-id dec-amount]
+                (db/update-funds db
                                  (util/parse-int cat-id)
-                                 cat-name)
-                 (redirect "/"))
-     (post-route [:category :update :monthly-limit] [cat-id limit]
-                 (db/update-monthly-limit db
-                                          (util/parse-int cat-id)
-                                          (util/parse-int limit))
-                 (redirect "/"))
+                                 (util/parse-int dec-amount)
+                                 :decrement)
+                (redirect "/"))
+    (post-route [:category :delete] [cat-id]
+                (db/delete db
+                           :category
+                           (util/parse-int cat-id))
+                (redirect "/"))
+    (post-route [:transaction :delete] [tx-id]
+                (db/delete db
+                           :transaction
+                           (util/parse-int tx-id))
+                (redirect "/"))
+    (post-route [:category :update :name] [cat-id cat-name]
+                (db/update-name db
+                                (util/parse-int cat-id)
+                                cat-name)
+                (redirect "/"))
+    (post-route [:category :update :monthly-limit] [cat-id limit]
+                (db/update-monthly-limit db
+                                         (util/parse-int cat-id)
+                                         (util/parse-int limit))
+                (redirect "/"))
 
-     (post-route [:stocks :add :transaction] [stock-id stock-date
-                                              stock-buy stock-shares
-                                              stock-rate stock-total
-                                              stock-currency]
-                 (add-transaction db
-                                  :stocktransaction
-                                  (util/parse-int stock-id)
-                                  stock-date
-                                  stock-buy
-                                  stock-shares
-                                  stock-rate
-                                  stock-total
-                                  stock-currency)
-                 (redirect "/stocks"))
-     (post-route [:stocks :delete :transaction] [stock-id]
-                 (logging/info stock-id)
-                 (db/delete db
-                            :stocktransaction
-                            (util/parse-int stock-id))
-                 (redirect "/stocks"))
-     (post-route [:funds :add :transaction] [fund-id fund-date
-                                             fund-buy fund-shares
-                                             fund-rate fund-total
-                                             fund-currency]
-                 (add-transaction db
-                                  :fundtransaction
-                                  (util/parse-int fund-id)
-                                  fund-date
-                                  fund-buy
-                                  fund-shares
-                                  fund-rate
-                                  fund-total
-                                  fund-currency)
-                 (redirect "/funds"))
-     (post-route [:funds :delete :transaction] [fund-id]
-                 (db/delete db
-                            :fundtransaction
-                            (util/parse-int fund-id))
-                 (redirect "/funds"))])
+    (post-route [:stocks :add :transaction] [stock-id stock-date
+                                             stock-buy stock-shares
+                                             stock-rate stock-total
+                                             stock-currency]
+                (add-transaction db
+                                 :stocktransaction
+                                 (util/parse-int stock-id)
+                                 stock-date
+                                 stock-buy
+                                 stock-shares
+                                 stock-rate
+                                 stock-total
+                                 stock-currency)
+                (redirect "/stocks"))
+    (post-route [:stocks :delete :transaction] [stock-id]
+                (logging/info stock-id)
+                (db/delete db
+                           :stocktransaction
+                           (util/parse-int stock-id))
+                (redirect "/stocks"))
+    (post-route [:funds :add :transaction] [fund-id fund-date
+                                            fund-buy fund-shares
+                                            fund-rate fund-total
+                                            fund-currency]
+                (add-transaction db
+                                 :fundtransaction
+                                 (util/parse-int fund-id)
+                                 fund-date
+                                 fund-buy
+                                 fund-shares
+                                 fund-rate
+                                 fund-total
+                                 fund-currency)
+                (redirect "/funds"))
+    (post-route [:funds :delete :transaction] [fund-id]
+                (db/delete db
+                           :fundtransaction
+                           (util/parse-int fund-id))
+                (redirect "/funds")))
 
    (route/resources "/")
    (route/not-found render/not-found)))
