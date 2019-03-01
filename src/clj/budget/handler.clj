@@ -31,49 +31,52 @@
                        :total (util/parse-float tx-total)
                        :currency tx-currency}))
 
+(def keyword->symbol (comp symbol name))
+
 (defmacro generate-routes [xs#]
   (let [route-spec# (edn/read-string (slurp "resources/edn/routes.edn"))]
     `(routes
-      ~@(for [[method path callback] xs#]
+      ~@(for [[method path args body] xs#]
           (case method
             :get `(GET ~(if (keyword path)
                           (get route-spec# path)
                           (get-in route-spec# path))
                        request-map#
-                       (~callback (:params request-map#)))
+                       (apply (fn ~(mapv keyword->symbol args) ~body)
+                              (vals (select-keys (:params request-map#) ~args))))
             :post `(POST ~(if (keyword path)
                             (get route-spec# path)
                             (get-in route-spec# path))
                          request-map#
-                         (~callback (:params request-map#))))))))
+                         (apply (fn ~(mapv keyword->symbol args) ~body)
+                                (vals (select-keys (:params request-map#) ~args)))))))))
 
 (defn- app-routes
   [{:keys [db] :as config}]
   (let [route-spec (edn/read-string (slurp "resources/edn/routes.edn"))]
     (routes
      (generate-routes
-      [[:get :root
-        (fn [_]
-          (let [extra (when (db/monthly-report-missing? db config)
-                        {:generate-report-div true})]
-            (render/index (merge config extra)
-                          {:total-budget (db/get-total-budget db)
-                           :total-remaining (db/get-total-remaining db)
-                           :total-spent (db/get-total-spent db)
-                           :categories (sort-by :funds > (db/get-all db :category))
-                           :category-ids->names (db/category-ids->names db)
-                           :monthly-transactions (db/get-monthly-transactions db config)})))]
-       [:post :generate-report
-        (fn [_]
+      [[:get :root []
+        (let [extra (when (db/monthly-report-missing? db config)
+                      {:generate-report-div true})]
+          (render/index (merge config extra)
+                        {:total-budget (db/get-total-budget db)
+                         :total-remaining (db/get-total-remaining db)
+                         :total-spent (db/get-total-spent db)
+                         :categories (sort-by :funds > (db/get-all db :category))
+                         :category-ids->names (db/category-ids->names db)
+                         :monthly-transactions (db/get-monthly-transactions db config)}))]
+       [:post :generate-report []
+        (do
           (report/generate config)
           (db/reset-month db)
           (redirect "/"))]
-       [:post [:category :add]
-          (fn [{:keys [cat-name funds]}]
-            (db/add-category db
-                             cat-name
-                             (util/parse-int funds))
-            (redirect "/"))]])
+       [:post [:category :add] [:cat-name :funds]
+        (do
+          (db/add-category db
+                           cat-name
+                           (util/parse-int funds))
+          (redirect "/"))]])
      (POST "/transfer" [from to amount]
            (db/transfer-funds db
                               (util/parse-int from)
