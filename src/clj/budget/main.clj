@@ -1,9 +1,10 @@
 (ns budget.main
+  "Main entry point"
   (:require
    [budget.config :as config]
-   [org.httpkit.server :refer [run-server]]
-   [compojure.handler :refer [site]]
-   [budget.handler :refer [my-app]]))
+   [budget.core :refer [new-system]]
+   [com.stuartsierra.component :as c])
+  (:gen-class))
 
 (defn -main [& args]
   (c/start (new-system (config/load)))

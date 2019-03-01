@@ -4,6 +4,7 @@
             [budget.report :as report]
             [budget.util.core :as util]
             [budget.util.date :as util.date]
+            [me.lsund.routes :refer [generate-routes]]
             [compojure.core :refer [GET POST routes]]
             [compojure.route :as route]
             [clojure.edn :as edn]
@@ -34,38 +35,7 @@
                        :total (util/parse-float tx-total)
                        :currency tx-currency}))
 
-(defn select-keys-with-nil [m ks]
-  "The result of [[(select-keys m ks)]] but if an element is present in ks but not in m,
-   add it with value nil. Order is not necessarily retained.
 
-   Example:
-   (select-keys-with-nil m [:a :b :d])
-    => {:b 2, :d nil, :a 1}"
-  (let [present-keys (select-keys m ks)
-        missing-keys (set/difference (set ks) (set (keys m)))]
-    (merge (apply hash-map (interleave missing-keys (cycle [nil])))
-           present-keys)))
-
-(defmacro generate-routes [routes-file & xs#]
-  (let [route-spec# (edn/read-string (slurp routes-file))]
-    `(routes
-      ~@(for [[method path args & body] xs#]
-          (case method
-            get-route `(GET ~(if (keyword path)
-                               (get (:get route-spec#) path)
-                               (get-in (:get route-spec#) path))
-                            request-map#
-                            (do
-                              ((fn [{:keys ~args}] ~@body)
-                               (select-keys-with-nil (:params request-map#)
-                                                     ~(mapv keyword args)))))
-            post-route `(POST ~(if (keyword path)
-                                 (get (:post route-spec#) path)
-                                 (get-in (:post route-spec#) path))
-                              request-map#
-                              ((fn [{:keys ~args}] ~@body)
-                               (select-keys-with-nil (:params request-map#)
-                                                     ~(mapv keyword args)))))))))
 
 (defn- app-routes
   [{:keys [db] :as config}]
