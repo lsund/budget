@@ -1,0 +1,15 @@
+{:get {:root "/"
+       :stocks "/stocks"
+       :funds "/funds"}
+ :post {:stocks {:add {:transaction "/stocks/add-transaction"}
+                 :delete {:transaction "/stocks/delete-transaction"}}
+        :generate-report "/generate-report"
+        :category {:add "/add-category"
+                   :delete "/delete-category"
+                   :update {:name "/update-name"
+                            :monthly-limit "/update-monthly-limit"}}
+        :transaction {:delete "/delete-transaction"}
+        :transfer "/transfer"
+        :spend "/spend"
+        :funds {:add {:transaction "/funds/add-transaction" }
+                :delete {:transaction "/funds/delete-transaction"}}}}

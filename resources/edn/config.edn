@@ -1,0 +1,6 @@
+{:server {:port 3003}
+ :app {:salary-day 25
+       :styles ["/css/style.css" "/css/mui.css"]
+       :javascripts ["/js/compiled/budget.js"]
+       :report-output-dir "data/reports"}
+ :db {:name "budget"}}
