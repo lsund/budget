@@ -1,13 +1,38 @@
 (ns budget.db
+  (:import com.mchange.v2.c3p0.ComboPooledDataSource)
   (:require [clojure.java.jdbc :as j]
             [com.stuartsierra.component :as c]
+            [environ.core :refer [env]]
+            [jdbc.pool.c3p0 :as pool]
             [taoensso.timbre :as logging]
             [budget.util.core :as util]
             [budget.util.date :as util.date]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Config
+;; Make DB Spec
 
+;; Heroku DB Spec
+(def db-uri
+  (java.net.URI. (or
+                  (env :database-url)
+                  "postgresql://localhost:5432/budget")))
+
+(def user-and-password
+  (if (nil? (.getUserInfo db-uri))
+    nil
+    (clojure.string/split (.getUserInfo db-uri) #":")))
+
+(defn make-db-spec []
+  (pool/make-datasource-spec
+   {:classname "org.postgresql.Driver"
+    :subprotocol "postgresql"
+    :user (get user-and-password 0)
+    :password (get user-and-password 1)
+    :subname (if (= -1 (.getPort db-uri))
+               (format "//%s%s" (.getHost db-uri) (.getPath db-uri))
+               (format "//%s:%s%s" (.getHost db-uri) (.getPort db-uri) (.getPath db-uri)))}))
+
+;; Local DB Spec
 (defn pg-db [config]
   {:dbtype "postgresql"
    :dbname (:name config)
@@ -15,12 +40,15 @@
 
 (def pg-db-val (pg-db {:name "budget"}))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; API
+
 (defrecord Db [db db-config]
   c/Lifecycle
 
   (start [component]
     (println ";; [Db] Starting database")
-    (assoc component :db (pg-db db-config)))
+    (assoc component :db (make-db-spec)))
 
   (stop [component]
     (println ";; [Db] Stopping database")
@@ -117,8 +145,8 @@
 
 (defn add-transaction [db cat-id amount op]
   (j/insert! db :transaction {:categoryid cat-id
-                    :amount (case op :increment amount :decrement (- amount))
-                    :ts (java.time.LocalDateTime/now)})
+                              :amount (case op :increment amount :decrement (- amount))
+                              :ts (java.time.LocalDateTime/now)})
   (decrease-funds db amount cat-id))
 
 (defn remove-transaction [db tx-id]

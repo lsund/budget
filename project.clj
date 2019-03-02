@@ -8,6 +8,8 @@
                  [org.clojure/tools.namespace "0.2.11"]
                  [org.clojure/java.jdbc "0.7.6"]
                  [org.postgresql/postgresql "42.2.2"]
+                 [clojure.jdbc/clojure.jdbc-c3p0 "0.3.3"]
+                 [environ "1.0.0"]
                  [http-kit "2.2.0"]
                  [ring/ring-defaults "0.3.0"]
                  [compojure "1.6.1"]
@@ -17,8 +19,9 @@
                  [io.aviso/pretty "0.1.34"]
                  [com.stuartsierra/component "0.3.2"]
                  [slingshot "0.12.2"]
-                 [me.lsund/util "0.4.1"]]
+                 [me.lsund/util "0.4.3"]]
   :plugins [[lein-figwheel "0.5.15"]
+            [environ/environ.lein "0.3.1"]
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]
             [io.aviso/pretty "0.1.34"]]
   :source-paths ["src/clj" "src/cljs"]
@@ -27,32 +30,28 @@
   :main
   budget.main
   :cljsbuild {:builds
-              [{:id           "dev"
+              [{:id "dev"
                 :source-paths ["src/cljs"]
-
                 :figwheel {:on-jsload "budget.core/on-js-reload"
                            :open-urls ["http://localhost:3449/index.html"]}
-
                 :compiler {:main                 budget.core
                            :asset-path           "js/compiled/out"
                            :output-to            "resources/public/js/compiled/budget.js"
                            :output-dir           "resources/public/js/compiled/out"
                            :source-map-timestamp true
                            :preloads             [devtools.preload]}}
-               {:id           "min"
+               {:id "min"
                 :source-paths ["src/cljs"]
-                :compiler     {:output-to     "resources/public/js/compiled/budget.js"
-                               :main          budget.core
-                               :optimizations :advanced
-                               :pretty-print  false}}]}
-  :figwheel
-  {:css-dirs ["resources/public/css"]}
-  :repl-options
-  {:init-ns user}
-  :profiles {:dev {:dependencies  [[binaryage/devtools "0.9.9"]
-                                   [figwheel-sidecar "0.5.15"]
-                                   [com.cemerick/piggieback "0.2.2"]]
-                   :source-paths  ["src/clj" "src/cljs" "dev"]
-                   :repl-options  {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
+                :compiler {:output-to     "resources/public/js/compiled/budget.js"
+                           :main          budget.core
+                           :optimizations :advanced
+                           :pretty-print  false}}]}
+  :figwheel {:css-dirs ["resources/public/css"]}
+  :repl-options {:init-ns user}
+  :profiles {:dev {:dependencies [[binaryage/devtools "0.9.9"]
+                                  [figwheel-sidecar "0.5.15"]
+                                  [com.cemerick/piggieback "0.2.2"]]
+                   :source-paths ["src/clj" "src/cljs" "dev"]
+                   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
                    :clean-targets ^{:protect false} ["resources/public/js/compiled"
                                                      :target-path]}})

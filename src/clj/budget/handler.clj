@@ -35,13 +35,27 @@
                        :total (util/parse-float tx-total)
                        :currency tx-currency}))
 
-
+(def route-map {:get {:root "/"
+                      :stocks "/stocks"
+                      :funds "/funds"}
+                :post {:stocks {:add {:transaction "/stocks/add-transaction"}
+                                :delete {:transaction "/stocks/delete-transaction"}}
+                       :generate-report "/generate-report"
+                       :category {:add "/add-category"
+                                  :delete "/delete-category"
+                                  :update {:name "/update-name"
+                                           :monthly-limit "/update-monthly-limit"}}
+                       :transaction {:delete "/delete-transaction"}
+                       :transfer "/transfer"
+                       :spend "/spend"
+                       :funds {:add {:transaction "/funds/add-transaction" }
+                               :delete {:transaction "/funds/delete-transaction"}}}})
 
 (defn- app-routes
   [{:keys [db] :as config}]
   (routes
    (generate-routes
-    "resources/edn/routes.edn"
+    route-map
     (get-route :root []
                (let [extra (when (db/monthly-report-missing? db config)
                              {:generate-report-div true})]
