@@ -110,7 +110,7 @@
      [:p (str "Total: " (apply + (map :amount (:monthly-transactions db-data))))]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))
-    (apply include-css (:styles config))]))
+    (apply include-css ["/css/style.css" "//cdn.muicss.com/mui-0.9.41/css/mui.min.css"])]))
 
 (defn stock-transaction-row [t]
   [:tr
@@ -184,7 +184,7 @@
 
     [:div#cljs-target]
     (apply include-js (:javascripts config))
-    (apply include-css (:styles config))]))
+    (apply include-css ["/css/style.css" "//cdn.muicss.com/mui-0.9.41/css/mui.min.css"])]))
 
 (defn fund-transaction-row [t]
   [:tr
@@ -257,6 +257,6 @@
          (fund-transaction-row t))]]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))
-    (apply include-css (:styles config))]))
+    (apply include-css ["/css/style.css" "//cdn.muicss.com/mui-0.9.41/css/mui.min.css"])]))
 
 (def not-found (html5 "not found"))
