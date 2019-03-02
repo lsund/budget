@@ -25,10 +25,9 @@
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]
             [io.aviso/pretty "0.1.34"]]
   :source-paths ["src/clj" "src/cljs"]
-  :ring
-  {:handler budget.core/new-handler}
-  :main
-  budget.main
+  :uberjar-name "budget-standalone.jar"
+  :ring {:handler budget.core/new-handler}
+  :main budget.main
   :cljsbuild {:builds
               [{:id "dev"
                 :source-paths ["src/cljs"]
