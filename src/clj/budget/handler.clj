@@ -38,16 +38,17 @@
 (def route-map {:get {:root "/"
                       :stocks "/stocks"
                       :funds "/funds"}
-                :post {:stocks {:add {:transaction "/stocks/add-transaction"}
-                                :delete {:transaction "/stocks/delete-transaction"}}
-                       :generate-report "/generate-report"
+                :post {:generate-report "/generate-report"
                        :category {:add "/add-category"
                                   :delete "/delete-category"
                                   :update {:name "/update-name"
-                                           :monthly-limit "/update-monthly-limit"}}
+                                           :limit "/update-monthly-limit"}}
                        :transaction {:delete "/delete-transaction"}
-                       :transfer "/transfer"
+                       :transfer {:balance "/transfer/balance"
+                                  :limit "/transfer/limit"}
                        :spend "/spend"
+                       :stocks {:add {:transaction "/stocks/add-transaction"}
+                                :delete {:transaction "/stocks/delete-transaction"}}
                        :funds {:add {:transaction "/funds/add-transaction" }
                                :delete {:transaction "/funds/delete-transaction"}}}})
 
@@ -55,7 +56,7 @@
   [{:keys [db] :as config}]
   (routes
    (generate-routes
-    route-map
+    "resources/edn/routes.edn"
     (get-route :root []
                (let [extra (when (db/monthly-report-missing? db config)
                              {:generate-report-div true})]
@@ -81,7 +82,7 @@
                                  cat-name
                                  (util/parse-int funds))
                 (redirect "/"))
-    (post-route :transfer [from to amount]
+    (post-route [:transfer :balance] [from to amount]
                 (db/transfer-funds db
                                    (util/parse-int from)
                                    (util/parse-int to)
@@ -106,8 +107,8 @@
                                 (util/parse-int cat-id)
                                 cat-name)
                 (redirect "/"))
-    (post-route [:category :update :monthly-limit] [cat-id limit]
-                (db/update-monthly-limit db
+    (post-route [:category :update :limit] [cat-id limit]
+                (db/update-limit db
                                          (util/parse-int cat-id)
                                          (util/parse-int limit))
                 (redirect "/"))

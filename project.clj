@@ -1,4 +1,4 @@
-(defproject budget "0.2.0-SNAPSHOT"
+(defproject budget "0.3.0-SNAPSHOT"
   :description "Fun budgeting program"
   :url "https://github.com/lsund/budget"
   :min-lein-version "2.7.0"

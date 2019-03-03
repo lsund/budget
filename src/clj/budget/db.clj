@@ -158,7 +158,7 @@
 (defn update-name [db cat-id cat-name]
   (j/execute! db ["update category set name=? where id=?" cat-name cat-id]))
 
-(defn update-monthly-limit [db cat-id limit]
+(defn update-limit [db cat-id limit]
   (j/execute! db ["update category set monthly_limit=? where id=?" limit cat-id]))
 
 (defn reset-spent [db]
@@ -171,7 +171,12 @@
   (reset-spent db)
   (reinitialize-monthly-budget db))
 
-(defn transfer-funds [db from to amount]
+(defn transfer-balance [db from to amount]
   (j/with-db-transaction [t-db db]
     (j/execute! t-db ["update category set funds=funds-? where id=?" amount from])
     (j/execute! t-db ["update category set funds=funds+? where id=?" amount to])))
+
+(defn transfer-limit [db from to amount]
+  (j/with-db-transaction [t-db db]
+    (j/execute! t-db ["update category set monthly_limit=monthly_limit-? where id=?" amount from])
+    (j/execute! t-db ["update category set monthly_limit=monthly_limit+? where id=?" amount to])))
