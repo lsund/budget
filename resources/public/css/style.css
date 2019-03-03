@@ -42,6 +42,10 @@ button {
     width: 50px;
 }
 
+.invisible {
+    visibility: hidden;
+}
+
 .hidden {
     visibility: hidden;
     position: absolute;

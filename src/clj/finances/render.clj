@@ -7,8 +7,8 @@
             [finances.html :as html]))
 
 (defn category-row
-  [c categories]
-  [:tr
+  [c categories {:keys [invisible]}]
+  [:tr {:class (when invisible "invisible")}
 
    [:td
     (form-to  [:post "/update-name"]
@@ -83,9 +83,12 @@
        [:th "Transfer to"]
        [:th "Delete"]]]
      [:tbody
-      (let [cs (:categories db-data)]
-        (for [c cs]
-          (category-row c cs)))
+      (let [cs (conj (:categories db-data) (:buffer db-data))]
+        (concat
+         [(category-row (:buffer db-data) cs {})
+          (category-row {} [] {:invisible true})]
+         (for [c (:categories db-data)]
+           (category-row c cs {}))))
       [:row
        [:td ""]
        [:td (:total-finances db-data)]

@@ -35,6 +35,15 @@
                        :total (util/parse-float tx-total)
                        :currency tx-currency}))
 
+(defn budget-db-data [config db]
+  {:total-finances (db/get-total-finances db)
+   :total-remaining (db/get-total-remaining db)
+   :total-spent (db/get-total-spent db)
+   :categories (sort-by :balance > (db/get-all db :category {:except {:name "Buffer"}}))
+   :buffer (db/row db :category {:name "Buffer"})
+   :category-ids->names (db/category-ids->names db)
+   :monthly-transactions (db/get-monthly-transactions db config)})
+
 (defn- app-routes
   [{:keys [db] :as config}]
   (routes
@@ -44,12 +53,7 @@
                (let [extra (when (db/monthly-report-missing? db config)
                              {:generate-report-div true})]
                  (render/index (merge config extra)
-                               {:total-finances (db/get-total-finances db)
-                                :total-remaining (db/get-total-remaining db)
-                                :total-spent (db/get-total-spent db)
-                                :categories (sort-by :balance > (db/get-all db :category))
-                                :category-ids->names (db/category-ids->names db)
-                                :monthly-transactions (db/get-monthly-transactions db config)})))
+                               (budget-db-data config db))))
     (get-route :stocks []
                (render/stocks config {:stocks (db/get-all db :stock)
                                       :stocktransactions (db/get-all db :stocktransaction)}))
@@ -67,15 +71,15 @@
                 (redirect "/"))
     (post-route [:transfer :balance] [from to amount]
                 (db/transfer-balance db
-                                   (util/parse-int from)
-                                   (util/parse-int to)
-                                   (util/parse-int amount))
+                                     (util/parse-int from)
+                                     (util/parse-int to)
+                                     (util/parse-int amount))
                 (redirect "/"))
     (post-route [:transfer :start-balance] [from to amount]
                 (db/transfer-start-balance db
-                                   (util/parse-int from)
-                                   (util/parse-int to)
-                                   (util/parse-int amount))
+                                           (util/parse-int from)
+                                           (util/parse-int to)
+                                           (util/parse-int amount))
                 (redirect "/"))
     (post-route :spend [cat-id dec-amount]
                 (db/add-transaction db
@@ -98,8 +102,8 @@
                 (redirect "/"))
     (post-route [:category :update :start-balance] [cat-id start-balance]
                 (db/update-start-balance db
-                                 (util/parse-int cat-id)
-                                 (util/parse-int start-balance))
+                                         (util/parse-int cat-id)
+                                         (util/parse-int start-balance))
                 (redirect "/"))
 
     (post-route [:stocks :add :transaction] [stock-id stock-date

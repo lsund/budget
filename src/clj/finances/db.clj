@@ -86,11 +86,20 @@
                  month
                  salary-day])))
 
-(defn row [db table id]
-  (first (j/query db [(str "SELECT * FROM " (name table) " WHERE id=?") id])))
+(defn row [db table identifier]
+  (cond
+    (integer? identifier) (first (j/query db [(str "SELECT * FROM " (name table) " WHERE id=?")
+                                              identifier]))
+    (map? identifier) (first (j/query db [(str "SELECT * FROM " (name table) " WHERE name=?")
+                                          (:name identifier)]))))
 
-(defn get-all [db table]
-  (j/query db [(str "select * from " (name table))]))
+(defn get-all
+  ([db table]
+   (get-all db table {}))
+  ([db table {:keys [except]}]
+   (if except
+     (j/query db [(str "select * from " (name table) " where name != ?") (:name except)])
+     (j/query db [(str "select * from " (name table))]))))
 
 (defn category-ids->names
   [db]
