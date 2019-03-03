@@ -6,6 +6,10 @@
             [finances.util.date :as util.date]
             [finances.html :as html]))
 
+(defn diff [{:keys [start_balance spent]}]
+  (when (and start_balance spent)
+    (-  start_balance spent)))
+
 (defn category-row
   [c categories {:keys [invisible]}]
   [:tr {:class (when invisible "invisible")}
@@ -21,13 +25,6 @@
                       :type :text
                       :name "start-balance"
                       :value (:start_balance c)}])]
-   [:td (form-to [:post "/transfer/start-balance"]
-                 [:input {:name "from" :type :hidden :value (:id c)}]
-                 [:input.short-input {:type :text :name "amount" :placeholder "$"}]
-                 [:select {:name "to"}
-                  (for [cat categories]
-                    [:option {:value (:id cat)} (:name cat)])]
-                 [:input.hidden {:type :submit}])]
    [:td (:balance c)]
    [:td
     (form-to [:post "/spend"]
@@ -35,6 +32,14 @@
               [:input {:name "cat-id" :type :hidden :value (:id c)}]
               [:input {:class "spend" :name "dec-amount" :type :number :placeholder "$"}]])]
    [:td (:spent c)]
+   [:td (diff c)]
+   [:td (form-to [:post "/transfer/start-balance"]
+                 [:input {:name "from" :type :hidden :value (:id c)}]
+                 [:input.short-input {:type :text :name "amount" :placeholder "$"}]
+                 [:select {:name "to"}
+                  (for [cat categories]
+                    [:option {:value (:id cat)} (:name cat)])]
+                 [:input.hidden {:type :submit}])]
    [:td (form-to [:post "/transfer"]
                  [:input {:name "from" :type :hidden :value (:id c)}]
                  [:input.short-input {:type :text :name "amount" :placeholder "$"}]
@@ -76,11 +81,12 @@
       [:tr
        [:th "Name"]
        [:th "Start Balance"]
-       [:th "Transfer to"]
-       [:th "Current Funds"]
+       [:th "Balance"]
        [:th "Spend"]
        [:th "Spent"]
-       [:th "Transfer to"]
+       [:th "Diff"]
+       [:th "Transfer Limit"]
+       [:th "Transfer Balance"]
        [:th "Delete"]]]
      [:tbody
       (let [cs (conj (:categories db-data) (:buffer db-data))]
