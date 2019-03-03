@@ -35,23 +35,6 @@
                        :total (util/parse-float tx-total)
                        :currency tx-currency}))
 
-(def route-map {:get {:root "/"
-                      :stocks "/stocks"
-                      :funds "/funds"}
-                :post {:generate-report "/generate-report"
-                       :category {:add "/add-category"
-                                  :delete "/delete-category"
-                                  :update {:name "/update-name"
-                                           :limit "/update-monthly-limit"}}
-                       :transaction {:delete "/delete-transaction"}
-                       :transfer {:balance "/transfer/balance"
-                                  :limit "/transfer/limit"}
-                       :spend "/spend"
-                       :stocks {:add {:transaction "/stocks/add-transaction"}
-                                :delete {:transaction "/stocks/delete-transaction"}}
-                       :funds {:add {:transaction "/funds/add-transaction" }
-                               :delete {:transaction "/funds/delete-transaction"}}}})
-
 (defn- app-routes
   [{:keys [db] :as config}]
   (routes
@@ -88,6 +71,12 @@
                                    (util/parse-int to)
                                    (util/parse-int amount))
                 (redirect "/"))
+    (post-route [:transfer :limit] [from to amount]
+                (db/transfer-limit db
+                                   (util/parse-int from)
+                                   (util/parse-int to)
+                                   (util/parse-int amount))
+                (redirect "/"))
     (post-route :spend [cat-id dec-amount]
                 (db/add-transaction db
                                     (util/parse-int cat-id)
@@ -109,8 +98,8 @@
                 (redirect "/"))
     (post-route [:category :update :limit] [cat-id limit]
                 (db/update-limit db
-                                         (util/parse-int cat-id)
-                                         (util/parse-int limit))
+                                 (util/parse-int cat-id)
+                                 (util/parse-int limit))
                 (redirect "/"))
 
     (post-route [:stocks :add :transaction] [stock-id stock-date

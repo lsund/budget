@@ -20,12 +20,19 @@
                 [:input {:type :hidden :name "cat-id" :value (:id c)}]
                 [:input {:type :text :name "cat-name" :value (:name c)}])]
      [:td
-      (form-to [:post "/update-monthly-limit"]
+      (form-to [:post "/update-limit"]
                [:input {:type :hidden :name "cat-id" :value (:id c)}]
                [:input {:class "limit"
                         :type :text
                         :name "limit"
                         :value (:monthly_limit c)}])]
+     [:td (form-to [:post "/transfer/limit"]
+                   [:input {:name "from" :type :hidden :value (:id c)}]
+                   [:input.short-input {:type :text :name "amount" :placeholder "$"}]
+                   [:select {:name "to"}
+                    (for [cat categories]
+                      [:option {:value (:id cat)} (:name cat)])]
+                   [:input.hidden {:type :submit}])]
      [:td (:funds c)]
      [:td
       (form-to [:post "/spend"]
@@ -74,6 +81,7 @@
       [:tr
        [:th "Name"]
        [:th "Limit"]
+       [:th "Transfer to"]
        [:th "Current Funds"]
        [:th "Spend"]
        [:th "Spent"]
