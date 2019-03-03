@@ -44,7 +44,7 @@
                  [:input.hidden {:type :submit}])]
    [:td
     (form-to
-     [:post "/delete-category"]
+     [:get "/delete-category"]
      [:input {:name "cat-id" :type :hidden :value (:id c)}]
      [:button "X"])]])
 
@@ -264,5 +264,16 @@
     [:div#cljs-target]
     (apply include-js (:javascripts config))
     (apply include-css ["/css/style.css" "//cdn.muicss.com/mui-0.9.41/css/mui.min.css"])]))
+
+(defn delete-category? [id]
+  (html5
+   [:head [:title "Warning"]]
+   [:body.mui-container
+    [:p (str "Are you sure you want to delete the category? "
+             "It will also delete all transactions for the category.")]
+    (form-to [:post "/delete-category"]
+             [:input {:name "cat-id" :type :hidden :value id}]
+             [:button "Continue"])
+    [:div#cljs-target]]))
 
 (def not-found (html5 "not found"))

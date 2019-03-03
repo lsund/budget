@@ -1,6 +1,7 @@
 {:get {:root "/"
        :stocks "/stocks"
-       :funds "/funds"}
+       :funds "/funds"
+       :category {:delete "/delete-category"}}
  :post {:generate-report "/generate-report"
         :category {:add "/add-category"
                    :delete "/delete-category"

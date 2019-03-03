@@ -60,6 +60,8 @@
     (get-route :funds []
                (render/funds config {:funds (db/get-all db :fund)
                                      :fundtransactions (db/get-all db :fundtransaction)}))
+    (get-route [:category :delete] [cat-id]
+               (render/delete-category?  cat-id))
     (post-route :generate-report []
                 (report/generate config)
                 (db/reset-month db)
