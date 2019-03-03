@@ -2,8 +2,8 @@ CREATE TABLE Category
 (
     id              SERIAL PRIMARY KEY,
     name            varchar(64) NOT NULL,
-    funds           INT NOT NULL,
-    monthly_limit   INT NOT NULL,
+    balance         INT NOT NULL,
+    limit           INT NOT NULL,
     spent           INT NOT NULL
 );
 
@@ -19,7 +19,7 @@ CREATE TABLE Transaction
 );
 
 
-/* Courtage for a transaction can be calculated by rate * shares - total */
+/* Courtage for a stock transaction can be calculated by rate * shares - total */
 
 
 CREATE TABLE StockTransaction

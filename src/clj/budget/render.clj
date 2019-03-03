@@ -6,52 +6,47 @@
             [budget.util.date :as util.date]
             [budget.html :as html]))
 
-(defn fmt-category-row
-  [{:keys [name funds]}]
-  (format "%s %s" name funds))
-
 (defn category-row
   [c categories]
-  (let [label (-> c (select-keys [:name :funds]) fmt-category-row)]
-    [:tr
+  [:tr
 
-     [:td
-      (form-to  [:post "/update-name"]
-                [:input {:type :hidden :name "cat-id" :value (:id c)}]
-                [:input {:type :text :name "cat-name" :value (:name c)}])]
-     [:td
-      (form-to [:post "/update-limit"]
-               [:input {:type :hidden :name "cat-id" :value (:id c)}]
-               [:input {:class "limit"
-                        :type :text
-                        :name "limit"
-                        :value (:monthly_limit c)}])]
-     [:td (form-to [:post "/transfer/limit"]
-                   [:input {:name "from" :type :hidden :value (:id c)}]
-                   [:input.short-input {:type :text :name "amount" :placeholder "$"}]
-                   [:select {:name "to"}
-                    (for [cat categories]
-                      [:option {:value (:id cat)} (:name cat)])]
-                   [:input.hidden {:type :submit}])]
-     [:td (:funds c)]
-     [:td
-      (form-to [:post "/spend"]
-               [:div
-                [:input {:name "cat-id" :type :hidden :value (:id c)}]
-                [:input {:class "spend" :name "dec-amount" :type :number :placeholder "$"}]])]
-     [:td (:spent c)]
-     [:td (form-to [:post "/transfer"]
-                   [:input {:name "from" :type :hidden :value (:id c)}]
-                   [:input.short-input {:type :text :name "amount" :placeholder "$"}]
-                   [:select {:name "to"}
-                    (for [cat categories]
-                      [:option {:value (:id cat)} (:name cat)])]
-                   [:input.hidden {:type :submit}])]
-     [:td
-      (form-to
-       [:post "/delete-category"]
-       [:input {:name "cat-id" :type :hidden :value (:id c)}]
-       [:button "X"])]]))
+   [:td
+    (form-to  [:post "/update-name"]
+              [:input {:type :hidden :name "cat-id" :value (:id c)}]
+              [:input {:type :text :name "cat-name" :value (:name c)}])]
+   [:td
+    (form-to [:post "/update-limit"]
+             [:input {:type :hidden :name "cat-id" :value (:id c)}]
+             [:input {:class "limit"
+                      :type :text
+                      :name "limit"
+                      :value (:limit c)}])]
+   [:td (form-to [:post "/transfer/limit"]
+                 [:input {:name "from" :type :hidden :value (:id c)}]
+                 [:input.short-input {:type :text :name "amount" :placeholder "$"}]
+                 [:select {:name "to"}
+                  (for [cat categories]
+                    [:option {:value (:id cat)} (:name cat)])]
+                 [:input.hidden {:type :submit}])]
+   [:td (:balance c)]
+   [:td
+    (form-to [:post "/spend"]
+             [:div
+              [:input {:name "cat-id" :type :hidden :value (:id c)}]
+              [:input {:class "spend" :name "dec-amount" :type :number :placeholder "$"}]])]
+   [:td (:spent c)]
+   [:td (form-to [:post "/transfer"]
+                 [:input {:name "from" :type :hidden :value (:id c)}]
+                 [:input.short-input {:type :text :name "amount" :placeholder "$"}]
+                 [:select {:name "to"}
+                  (for [cat categories]
+                    [:option {:value (:id cat)} (:name cat)])]
+                 [:input.hidden {:type :submit}])]
+   [:td
+    (form-to
+     [:post "/delete-category"]
+     [:input {:name "cat-id" :type :hidden :value (:id c)}]
+     [:button "X"])]])
 
 (defn transaction-row
   [t cat-ids->names]

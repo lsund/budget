@@ -47,7 +47,7 @@
                                {:total-budget (db/get-total-budget db)
                                 :total-remaining (db/get-total-remaining db)
                                 :total-spent (db/get-total-spent db)
-                                :categories (sort-by :funds > (db/get-all db :category))
+                                :categories (sort-by :balance > (db/get-all db :category))
                                 :category-ids->names (db/category-ids->names db)
                                 :monthly-transactions (db/get-monthly-transactions db config)})))
     (get-route :stocks []
@@ -66,7 +66,7 @@
                                  (util/parse-int funds))
                 (redirect "/"))
     (post-route [:transfer :balance] [from to amount]
-                (db/transfer-funds db
+                (db/transfer-balance db
                                    (util/parse-int from)
                                    (util/parse-int to)
                                    (util/parse-int amount))

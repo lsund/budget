@@ -66,10 +66,10 @@
   (-> (j/query db ["select sum(spent) from category"]) first :sum))
 
 (defn get-total-budget [db]
-  (-> (j/query db ["select sum(monthly_limit) from category"]) first :sum))
+  (-> (j/query db ["select sum(limit) from category"]) first :sum))
 
 (defn get-total-remaining [db]
-  (-> (j/query db ["select sum(funds) from category"]) first :sum))
+  (-> (j/query db ["select sum(balance) from category"]) first :sum))
 
 (defn- previous-month [current-month]
   (if (= current-month 1) 12 (dec current-month)))
@@ -113,12 +113,12 @@
 ;; Add
 
 (defn add-category
-  [db cat-name funds]
+  [db cat-name balance]
   (j/insert! db
              :category
              {:name (util/stringify cat-name)
-              :funds funds
-              :monthly_limit funds
+              :balance balance
+              :limit balance
               :spent 0}))
 
 
@@ -135,23 +135,23 @@
 
 ;; Update
 
-(defn- decrease-funds [db amount cat-id]
-  (j/execute! db ["update category set funds=funds-? where id=?" amount cat-id])
+(defn- decrease-balance [db amount cat-id]
+  (j/execute! db ["update category set balance=balance-? where id=?" amount cat-id])
   (j/execute! db ["update category set spent=spent+? where id =?" amount cat-id]))
 
-(defn- increase-funds [db amount cat-id]
-  (j/execute! db ["update category set funds=funds+? where id=?" amount cat-id])
+(defn- increase-balance [db amount cat-id]
+  (j/execute! db ["update category set balance=balance+? where id=?" amount cat-id])
   (j/execute! db ["update category set spent=spent-? where id =?" amount cat-id]))
 
 (defn add-transaction [db cat-id amount op]
   (j/insert! db :transaction {:categoryid cat-id
                               :amount (case op :increment amount :decrement (- amount))
                               :ts (java.time.LocalDateTime/now)})
-  (decrease-funds db amount cat-id))
+  (decrease-balance db amount cat-id))
 
 (defn remove-transaction [db tx-id]
   (let [{:keys [categoryid amount]} (row db :transaction tx-id)]
-    (increase-funds db (- amount) categoryid)
+    (increase-balance db (- amount) categoryid)
     (delete db :transaction tx-id)))
 
 
@@ -159,13 +159,13 @@
   (j/execute! db ["update category set name=? where id=?" cat-name cat-id]))
 
 (defn update-limit [db cat-id limit]
-  (j/execute! db ["update category set monthly_limit=? where id=?" limit cat-id]))
+  (j/execute! db ["update category set limit=? where id=?" limit cat-id]))
 
 (defn reset-spent [db]
   (j/execute! db ["update category set spent=0"]))
 
 (defn reinitialize-monthly-budget [db]
-  (j/execute! db ["update category set funds=monthly_limit"]))
+  (j/execute! db ["update category set balance=limit"]))
 
 (defn reset-month [db]
   (reset-spent db)
@@ -173,10 +173,10 @@
 
 (defn transfer-balance [db from to amount]
   (j/with-db-transaction [t-db db]
-    (j/execute! t-db ["update category set funds=funds-? where id=?" amount from])
-    (j/execute! t-db ["update category set funds=funds+? where id=?" amount to])))
+    (j/execute! t-db ["update category set balance=balance-? where id=?" amount from])
+    (j/execute! t-db ["update category set balance=balance+? where id=?" amount to])))
 
 (defn transfer-limit [db from to amount]
   (j/with-db-transaction [t-db db]
-    (j/execute! t-db ["update category set monthly_limit=monthly_limit-? where id=?" amount from])
-    (j/execute! t-db ["update category set monthly_limit=monthly_limit+? where id=?" amount to])))
+    (j/execute! t-db ["update category set limit=limit-? where id=?" amount from])
+    (j/execute! t-db ["update category set limit=limit+? where id=?" amount to])))
