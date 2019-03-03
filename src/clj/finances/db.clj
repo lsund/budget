@@ -121,6 +121,9 @@
 
 ;; Add
 
+(defn add [db table row]
+  (jdbc/insert! db table row))
+
 (defn add-category
   [db cat-name balance]
   (jdbc/insert! db
@@ -149,6 +152,11 @@
   (delete db :category id))
 
 ;; Update
+
+(defn update-row [db table update-map identifier]
+  (cond
+    (integer? identifier) (jdbc/update! db table update-map ["id=?" identifier])
+    (map? identifier) (jdbc/update! db table update-map ["name=?" (:name identifier)])))
 
 (defn- decrease-balance [db amount cat-id]
   (jdbc/execute! db ["update category set balance=balance-? where id=?" amount cat-id])

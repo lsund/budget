@@ -15,6 +15,7 @@
                  [compojure "1.6.1"]
                  [reagent "0.8.0"]
                  [hiccup "1.0.5"]
+                 [me.raynes/fs "1.4.6"]
                  [com.taoensso/timbre "4.10.0"]
                  [io.aviso/pretty "0.1.34"]
                  [com.stuartsierra/component "0.3.2"]
