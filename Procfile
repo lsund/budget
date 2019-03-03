@@ -1,1 +1,1 @@
-web: java $JVM_OPTS -cp target/budget-standalone.jar clojure.main -m budget.main
+web: java $JVM_OPTS -cp target/finances-standalone.jar clojure.main -m finances.main

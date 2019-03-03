@@ -1,9 +1,9 @@
-(ns budget.report
+(ns finances.report
   (:require
    [taoensso.timbre :as logging]
-   [budget.db :as db]
-   [budget.util.core :as util]
-   [budget.util.date :as util.date]))
+   [finances.db :as db]
+   [finances.util.core :as util]
+   [finances.util.date :as util.date]))
 
 (defn generate [{:keys [db report-output-dir] :as config}]
     (let [filename (format "%s/%s.txt" report-output-dir (util.date/fmt-today))
@@ -18,7 +18,7 @@
               :append true))
       (spit filename
             (format "\nSUMMARY:\nBudget was: %s\nTotal Remaining: %s\nTotal Spent: %s\n"
-                    (db/get-total-budget db)
+                    (db/get-total-finances db)
                     (db/get-total-remaining db)
                     (db/get-total-spent db))
             :append true)

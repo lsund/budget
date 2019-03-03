@@ -1,4 +1,4 @@
-(ns budget.html
+(ns finances.html
   (:require
    [hiccup.form :refer [form-to]]))
 

@@ -1,4 +1,4 @@
-(ns budget.core
+(ns finances.core
   (:require
    [reagent.core :as reagent :refer [atom]]))
 
@@ -7,7 +7,7 @@
 
 
 (defonce app-state
-  (atom {:title "Budget!"}))
+  (atom {:title "Finances!"}))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

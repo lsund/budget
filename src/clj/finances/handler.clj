@@ -1,9 +1,9 @@
-(ns budget.handler
-  (:require [budget.db :as db]
-            [budget.render :as render]
-            [budget.report :as report]
-            [budget.util.core :as util]
-            [budget.util.date :as util.date]
+(ns finances.handler
+  (:require [finances.db :as db]
+            [finances.render :as render]
+            [finances.report :as report]
+            [finances.util.core :as util]
+            [finances.util.date :as util.date]
             [me.lsund.routes :refer [generate-routes]]
             [compojure.core :refer [GET POST routes]]
             [compojure.route :as route]
@@ -18,7 +18,7 @@
 
 (logging/merge-config!
  {:appenders
-  {:spit (appenders/spit-appender {:fname "data/budget.log"})}})
+  {:spit (appenders/spit-appender {:fname "data/finances.log"})}})
 
 (defn add-transaction [db tx-type id tx-date tx-buy
                        tx-shares tx-rate tx-total tx-currency]
@@ -44,7 +44,7 @@
                (let [extra (when (db/monthly-report-missing? db config)
                              {:generate-report-div true})]
                  (render/index (merge config extra)
-                               {:total-budget (db/get-total-budget db)
+                               {:total-finances (db/get-total-finances db)
                                 :total-remaining (db/get-total-remaining db)
                                 :total-spent (db/get-total-spent db)
                                 :categories (sort-by :balance > (db/get-all db :category))

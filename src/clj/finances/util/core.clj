@@ -1,4 +1,4 @@
-(ns budget.util.core
+(ns finances.util.core
   (:require [clojure.string :as string]))
 
 (defn stringify [k] (-> k name string/capitalize))

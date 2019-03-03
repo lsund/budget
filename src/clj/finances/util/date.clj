@@ -1,4 +1,4 @@
-(ns budget.util.date)
+(ns finances.util.date)
 
 (def ^{:private true} date-string "yyyy-MM-dd")
 
@@ -31,21 +31,21 @@
 
 (defn today [] (java.time.LocalDateTime/now))
 
-(defn budget-month [day]
+(defn finances-month [day]
   (let [now (java.time.LocalDateTime/now)]
     (if (past? day now)
       (.getMonth (.plusMonths now 1))
       (.getMonth now))))
 
 
-(defn budget-period [day]
-  (let [n (.getValue (budget-month day))]
+(defn finances-period [day]
+  (let [n (.getValue (finances-month day))]
     [(java.time.LocalDate/of 2018 (- n 1) day) (java.time.LocalDate/of 2018 n day)]))
 
 
 (defn get-current-date-header [day]
   (let [now (java.time.LocalDateTime/now)
-        month (budget-month day)]
+        month (finances-month day)]
     (format "%s %s - %s %s %s"
             day
             (.plus month -1)

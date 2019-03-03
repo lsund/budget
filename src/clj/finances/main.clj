@@ -1,8 +1,8 @@
-(ns budget.main
+(ns finances.main
   "Main entry point"
   (:require
-   [budget.config :as config]
-   [budget.core :refer [new-system]]
+   [finances.config :as config]
+   [finances.core :refer [new-system]]
    [com.stuartsierra.component :as c])
   (:gen-class))
 

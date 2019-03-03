@@ -1,3 +1,3 @@
-# Budget
+# Finances
 
 Personal finances software.

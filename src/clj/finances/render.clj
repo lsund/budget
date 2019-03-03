@@ -1,10 +1,10 @@
-(ns budget.render
+(ns finances.render
   (:require [taoensso.timbre :as logging]
             [hiccup.form :refer [form-to]]
             [hiccup.page :refer [html5 include-css include-js]]
-            [budget.util.core :as util]
-            [budget.util.date :as util.date]
-            [budget.html :as html]))
+            [finances.util.core :as util]
+            [finances.util.date :as util.date]
+            [finances.html :as html]))
 
 (defn category-row
   [c categories]
@@ -62,7 +62,7 @@
 (defn index [config db-data]
   (html5
    (html/navbar)
-   [:head [:title "Budget"]]
+   [:head [:title "Finances"]]
    [:body.mui-container
     (when (:generate-report-div config)
       (do
@@ -88,7 +88,7 @@
           (category-row c cs)))
       [:row
        [:td ""]
-       [:td (:total-budget db-data)]
+       [:td (:total-finances db-data)]
        [:td (:total-remaining db-data)]
        [:td ""]
        [:td (:total-spent db-data)]]]]
@@ -131,7 +131,7 @@
 (defn stocks
   [config {:keys [stocks stocktransactions]}]
   (html5
-   [:head [:title "Budget"]]
+   [:head [:title "Finances"]]
    [:body.mui-container
     (html/navbar)
     [:div.stocks
@@ -205,7 +205,7 @@
 (defn funds
   [config {:keys [funds fundtransactions]}]
   (html5
-   [:head [:title "Budget"]]
+   [:head [:title "Finances"]]
    [:body.mui-container
     (html/navbar)
     [:div.funds

@@ -1,4 +1,4 @@
-(ns budget.server
+(ns finances.server
   (:require [com.stuartsierra.component :as c]
             [environ.core :refer [env]]
             [org.httpkit.server :refer [run-server]]))

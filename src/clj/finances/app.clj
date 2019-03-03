@@ -1,8 +1,8 @@
-(ns budget.app
+(ns finances.app
   (:require
    [com.stuartsierra.component :as c]
    [compojure.handler :refer [site]]
-   [budget.handler :as handler]))
+   [finances.handler :as handler]))
 
 (defrecord App [handler app-config db]
   c/Lifecycle

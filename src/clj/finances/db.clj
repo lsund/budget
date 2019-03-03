@@ -1,12 +1,12 @@
-(ns budget.db
+(ns finances.db
   (:import com.mchange.v2.c3p0.ComboPooledDataSource)
   (:require [clojure.java.jdbc :as j]
             [com.stuartsierra.component :as c]
             [environ.core :refer [env]]
             [jdbc.pool.c3p0 :as pool]
             [taoensso.timbre :as logging]
-            [budget.util.core :as util]
-            [budget.util.date :as util.date]))
+            [finances.util.core :as util]
+            [finances.util.date :as util.date]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Make DB Spec
@@ -15,7 +15,7 @@
 (def db-uri
   (java.net.URI. (or
                   (env :database-url)
-                  "postgresql://localhost:5432/budget")))
+                  "postgresql://localhost:5432/finances")))
 
 (def user-and-password
   (if (nil? (.getUserInfo db-uri))
@@ -38,7 +38,7 @@
    :dbname (:name config)
    :user "postgres"})
 
-(def pg-db-val (pg-db {:name "budget"}))
+(def pg-db-val (pg-db {:name "finances"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; API
@@ -65,7 +65,7 @@
 (defn get-total-spent [db]
   (-> (j/query db ["select sum(spent) from category"]) first :sum))
 
-(defn get-total-budget [db]
+(defn get-total-finances [db]
   (-> (j/query db ["select sum(limit) from category"]) first :sum))
 
 (defn get-total-remaining [db]
@@ -75,7 +75,7 @@
   (if (= current-month 1) 12 (dec current-month)))
 
 (defn get-monthly-transactions [db {:keys [salary-day]}]
-  (let [month (.getValue (util.date/budget-month salary-day))]
+  (let [month (.getValue (util.date/finances-month salary-day))]
     (j/query db [(str "select * from transaction where extract(month from ts) = ?"
                       " and extract(day from ts) >= ?"
                       " union all"
@@ -101,7 +101,7 @@
 
 (defn monthly-report-missing?
   ([db config]
-   (monthly-report-missing? db config (.getValue (util.date/budget-month (:salary-day config)))))
+   (monthly-report-missing? db config (.getValue (util.date/finances-month (:salary-day config)))))
   ([db config month]
    (-> (j/query db ["select id from report where extract(month from day) = ?"
                     (previous-month month)])
@@ -164,12 +164,12 @@
 (defn reset-spent [db]
   (j/execute! db ["update category set spent=0"]))
 
-(defn reinitialize-monthly-budget [db]
+(defn reinitialize-monthly-finances [db]
   (j/execute! db ["update category set balance=limit"]))
 
 (defn reset-month [db]
   (reset-spent db)
-  (reinitialize-monthly-budget db))
+  (reinitialize-monthly-finances db))
 
 (defn transfer-balance [db from to amount]
   (j/with-db-transaction [t-db db]

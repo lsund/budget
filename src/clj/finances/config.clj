@@ -1,4 +1,4 @@
-(ns budget.config
+(ns finances.config
   (:require [clojure.edn :as edn]))
 
 (defn load

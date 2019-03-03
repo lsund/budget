@@ -1,9 +1,9 @@
-(ns budget.core
+(ns finances.core
   (:require
    [com.stuartsierra.component :as c]
-   [budget.app :as app]
-   [budget.server :as server]
-   [budget.db :as db]))
+   [finances.app :as app]
+   [finances.server :as server]
+   [finances.db :as db]))
 
 (defn new-system
   [config]
