@@ -3,7 +3,10 @@
 
 (defn stringify [k] (-> k name string/capitalize))
 
-(defn parse-int [s] (Integer. (re-find  #"\d+" s)))
+(defn parse-int [s]
+  (if (integer? s)
+    s
+    (Integer. (re-find  #"\d+" s))))
 
 (defn parse-float [s]
   (try

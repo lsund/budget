@@ -88,9 +88,7 @@
                                     :decrement)
                 (redirect "/"))
     (post-route [:category :delete] [cat-id]
-                (db/delete db
-                           :category
-                           (util/parse-int cat-id))
+                (db/delete-category db (util/parse-int cat-id))
                 (redirect "/"))
     (post-route [:transaction :delete] [tx-id]
                 (db/remove-transaction db (util/parse-int tx-id))

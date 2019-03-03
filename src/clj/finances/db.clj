@@ -1,7 +1,7 @@
 (ns finances.db
   (:import com.mchange.v2.c3p0.ComboPooledDataSource)
-  (:require [clojure.java.jdbc :as j]
-            [com.stuartsierra.component :as c]
+  (:require [clojure.java.jdbc :as jdbc]
+            [com.stuartsierra.component :as component]
             [environ.core :refer [env]]
             [jdbc.pool.c3p0 :as pool]
             [taoensso.timbre :as logging]
@@ -44,7 +44,7 @@
 ;; API
 
 (defrecord Db [db db-config]
-  c/Lifecycle
+  component/Lifecycle
 
   (start [component]
     (println ";; [Db] Starting database")
@@ -63,20 +63,20 @@
 ;; Query
 
 (defn get-total-spent [db]
-  (-> (j/query db ["select sum(spent) from category"]) first :sum))
+  (-> (jdbc/query db ["select sum(spent) from category"]) first :sum))
 
 (defn get-total-finances [db]
-  (-> (j/query db ["select sum(start_balance) from category"]) first :sum))
+  (-> (jdbc/query db ["select sum(start_balance) from category"]) first :sum))
 
 (defn get-total-remaining [db]
-  (-> (j/query db ["select sum(balance) from category"]) first :sum))
+  (-> (jdbc/query db ["select sum(balance) from category"]) first :sum))
 
 (defn- previous-month [current-month]
   (if (= current-month 1) 12 (dec current-month)))
 
 (defn get-monthly-transactions [db {:keys [salary-day]}]
   (let [month (.getValue (util.date/finances-month salary-day))]
-    (j/query db [(str "select * from transaction where extract(month from ts) = ?"
+    (jdbc/query db [(str "select * from transaction where extract(month from ts) = ?"
                       " and extract(day from ts) >= ?"
                       " union all"
                       " select * from transaction where extract(month from ts) = ?"
@@ -88,9 +88,9 @@
 
 (defn row [db table identifier]
   (cond
-    (integer? identifier) (first (j/query db [(str "SELECT * FROM " (name table) " WHERE id=?")
+    (integer? identifier) (first (jdbc/query db [(str "SELECT * FROM " (name table) " WHERE id=?")
                                               identifier]))
-    (map? identifier) (first (j/query db [(str "SELECT * FROM " (name table) " WHERE name=?")
+    (map? identifier) (first (jdbc/query db [(str "SELECT * FROM " (name table) " WHERE name=?")
                                           (:name identifier)]))))
 
 (defn get-all
@@ -98,8 +98,8 @@
    (get-all db table {}))
   ([db table {:keys [except]}]
    (if except
-     (j/query db [(str "select * from " (name table) " where name != ?") (:name except)])
-     (j/query db [(str "select * from " (name table))]))))
+     (jdbc/query db [(str "select * from " (name table) " where name != ?") (:name except)])
+     (jdbc/query db [(str "select * from " (name table))]))))
 
 (defn category-ids->names
   [db]
@@ -112,7 +112,7 @@
   ([db config]
    (monthly-report-missing? db config (.getValue (util.date/finances-month (:salary-day config)))))
   ([db config month]
-   (-> (j/query db ["select id from report where extract(month from day) = ?"
+   (-> (jdbc/query db ["select id from report where extract(month from day) = ?"
                     (previous-month month)])
        empty?)))
 
@@ -123,7 +123,7 @@
 
 (defn add-category
   [db cat-name balance]
-  (j/insert! db
+  (jdbc/insert! db
              :category
              {:name (util/stringify cat-name)
               :balance balance
@@ -133,27 +133,33 @@
 
 (defn add-report
   [db file]
-  (j/insert! db :report {:file file
+  (jdbc/insert! db :report {:file file
                          :day (util.date/today)}))
 
 ;; Delete
 
 (defn delete
-  [db table tx-id]
-  (j/delete! db table ["id=?" tx-id]))
+  [db table id]
+  (jdbc/delete! db table ["id = ?" id]))
+
+(defn delete-category
+  [db id]
+  (doseq [t (jdbc/query db ["select id from transaction where categoryid = ?" id])]
+    (delete db :transaction (util/parse-int (:id t))))
+  (delete db :category id))
 
 ;; Update
 
 (defn- decrease-balance [db amount cat-id]
-  (j/execute! db ["update category set balance=balance-? where id=?" amount cat-id])
-  (j/execute! db ["update category set spent=spent+? where id =?" amount cat-id]))
+  (jdbc/execute! db ["update category set balance=balance-? where id=?" amount cat-id])
+  (jdbc/execute! db ["update category set spent=spent+? where id =?" amount cat-id]))
 
 (defn- increase-balance [db amount cat-id]
-  (j/execute! db ["update category set balance=balance+? where id=?" amount cat-id])
-  (j/execute! db ["update category set spent=spent-? where id =?" amount cat-id]))
+  (jdbc/execute! db ["update category set balance=balance+? where id=?" amount cat-id])
+  (jdbc/execute! db ["update category set spent=spent-? where id =?" amount cat-id]))
 
 (defn add-transaction [db cat-id amount op]
-  (j/insert! db :transaction {:categoryid cat-id
+  (jdbc/insert! db :transaction {:categoryid cat-id
                               :amount (case op :increment amount :decrement (- amount))
                               :ts (java.time.LocalDateTime/now)})
   (decrease-balance db amount cat-id))
@@ -165,27 +171,27 @@
 
 
 (defn update-name [db cat-id cat-name]
-  (j/execute! db ["update category set name=? where id=?" cat-name cat-id]))
+  (jdbc/execute! db ["update category set name=? where id=?" cat-name cat-id]))
 
 (defn update-start-balance [db cat-id start-balance]
-  (j/execute! db ["update category set start_balance=? where id=?" start-balance cat-id]))
+  (jdbc/execute! db ["update category set start_balance=? where id=?" start-balance cat-id]))
 
 (defn reset-spent [db]
-  (j/execute! db ["update category set spent=0"]))
+  (jdbc/execute! db ["update category set spent=0"]))
 
 (defn reinitialize-monthly-finances [db]
-  (j/execute! db ["update category set balance=start_balance"]))
+  (jdbc/execute! db ["update category set balance=start_balance"]))
 
 (defn reset-month [db]
   (reset-spent db)
   (reinitialize-monthly-finances db))
 
 (defn transfer-balance [db from to amount]
-  (j/with-db-transaction [t-db db]
-    (j/execute! t-db ["update category set balance=balance-? where id=?" amount from])
-    (j/execute! t-db ["update category set balance=balance+? where id=?" amount to])))
+  (jdbc/with-db-transaction [t-db db]
+    (jdbc/execute! t-db ["update category set balance=balance-? where id=?" amount from])
+    (jdbc/execute! t-db ["update category set balance=balance+? where id=?" amount to])))
 
 (defn transfer-start-balance [db from to amount]
-  (j/with-db-transaction [t-db db]
-    (j/execute! t-db ["update category set start_balance=start_balance-? where id=?" amount from])
-    (j/execute! t-db ["update category set start_balance=start_balance+? where id=?" amount to])))
+  (jdbc/with-db-transaction [t-db db]
+    (jdbc/execute! t-db ["update category set start_balance=start_balance-? where id=?" amount from])
+    (jdbc/execute! t-db ["update category set start_balance=start_balance+? where id=?" amount to])))

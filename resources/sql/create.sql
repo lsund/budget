@@ -3,7 +3,7 @@ CREATE TABLE Category
     id              SERIAL PRIMARY KEY,
     name            varchar(64) NOT NULL,
     balance         INT NOT NULL,
-    limit           INT NOT NULL,
+    start_balance   INT NOT NULL,
     spent           INT NOT NULL
 );
 
