@@ -13,7 +13,7 @@
         (spit filename
               (format "%s %s %s\n"
                       (:name c)
-                      (:limit c)
+                      (:start_balance c)
                       (:spent c))
               :append true))
       (spit filename

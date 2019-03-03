@@ -71,8 +71,8 @@
                                    (util/parse-int to)
                                    (util/parse-int amount))
                 (redirect "/"))
-    (post-route [:transfer :limit] [from to amount]
-                (db/transfer-limit db
+    (post-route [:transfer :start-balance] [from to amount]
+                (db/transfer-start-balance db
                                    (util/parse-int from)
                                    (util/parse-int to)
                                    (util/parse-int amount))
@@ -96,10 +96,10 @@
                                 (util/parse-int cat-id)
                                 cat-name)
                 (redirect "/"))
-    (post-route [:category :update :limit] [cat-id limit]
-                (db/update-limit db
+    (post-route [:category :update :start-balance] [cat-id start-balance]
+                (db/update-start-balance db
                                  (util/parse-int cat-id)
-                                 (util/parse-int limit))
+                                 (util/parse-int start-balance))
                 (redirect "/"))
 
     (post-route [:stocks :add :transaction] [stock-id stock-date

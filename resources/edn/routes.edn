@@ -5,10 +5,10 @@
         :category {:add "/add-category"
                    :delete "/delete-category"
                    :update {:name "/update-name"
-                            :limit "/update-monthly-limit"}}
+                            :start-balance "/update-start-balance"}}
         :transaction {:delete "/delete-transaction"}
         :transfer {:balance "/transfer/balance"
-                   :limit "/transfer/limit"}
+                   :start-balance "/transfer/start-balance"}
         :spend "/spend"
         :stocks {:add {:transaction "/stocks/add-transaction"}
                  :delete {:transaction "/stocks/delete-transaction"}}

@@ -15,13 +15,13 @@
               [:input {:type :hidden :name "cat-id" :value (:id c)}]
               [:input {:type :text :name "cat-name" :value (:name c)}])]
    [:td
-    (form-to [:post "/update-limit"]
+    (form-to [:post "/update-start-balance"]
              [:input {:type :hidden :name "cat-id" :value (:id c)}]
-             [:input {:class "limit"
+             [:input {:class "start-balance"
                       :type :text
-                      :name "limit"
-                      :value (:limit c)}])]
-   [:td (form-to [:post "/transfer/limit"]
+                      :name "start-balance"
+                      :value (:start_balance c)}])]
+   [:td (form-to [:post "/transfer/start-balance"]
                  [:input {:name "from" :type :hidden :value (:id c)}]
                  [:input.short-input {:type :text :name "amount" :placeholder "$"}]
                  [:select {:name "to"}
@@ -75,7 +75,7 @@
      [:thead
       [:tr
        [:th "Name"]
-       [:th "Limit"]
+       [:th "Start Balance"]
        [:th "Transfer to"]
        [:th "Current Funds"]
        [:th "Spend"]

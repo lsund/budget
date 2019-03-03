@@ -15,7 +15,7 @@
 (def db-uri
   (java.net.URI. (or
                   (env :database-url)
-                  "postgresql://localhost:5432/finances")))
+                  "postgresql://localhost:5432/budget")))
 
 (def user-and-password
   (if (nil? (.getUserInfo db-uri))
@@ -38,7 +38,7 @@
    :dbname (:name config)
    :user "postgres"})
 
-(def pg-db-val (pg-db {:name "finances"}))
+(def pg-db-val (pg-db {:name "budget"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; API
@@ -66,7 +66,7 @@
   (-> (j/query db ["select sum(spent) from category"]) first :sum))
 
 (defn get-total-finances [db]
-  (-> (j/query db ["select sum(limit) from category"]) first :sum))
+  (-> (j/query db ["select sum(start_balance) from category"]) first :sum))
 
 (defn get-total-remaining [db]
   (-> (j/query db ["select sum(balance) from category"]) first :sum))
@@ -118,7 +118,7 @@
              :category
              {:name (util/stringify cat-name)
               :balance balance
-              :limit balance
+              :start-balance balance
               :spent 0}))
 
 
@@ -158,14 +158,14 @@
 (defn update-name [db cat-id cat-name]
   (j/execute! db ["update category set name=? where id=?" cat-name cat-id]))
 
-(defn update-limit [db cat-id limit]
-  (j/execute! db ["update category set limit=? where id=?" limit cat-id]))
+(defn update-start-balance [db cat-id start-balance]
+  (j/execute! db ["update category set start_balance=? where id=?" start-balance cat-id]))
 
 (defn reset-spent [db]
   (j/execute! db ["update category set spent=0"]))
 
 (defn reinitialize-monthly-finances [db]
-  (j/execute! db ["update category set balance=limit"]))
+  (j/execute! db ["update category set balance=start_balance"]))
 
 (defn reset-month [db]
   (reset-spent db)
@@ -176,7 +176,7 @@
     (j/execute! t-db ["update category set balance=balance-? where id=?" amount from])
     (j/execute! t-db ["update category set balance=balance+? where id=?" amount to])))
 
-(defn transfer-limit [db from to amount]
+(defn transfer-start-balance [db from to amount]
   (j/with-db-transaction [t-db db]
-    (j/execute! t-db ["update category set limit=limit-? where id=?" amount from])
-    (j/execute! t-db ["update category set limit=limit+? where id=?" amount to])))
+    (j/execute! t-db ["update category set start_balance=start_balance-? where id=?" amount from])
+    (j/execute! t-db ["update category set start_balance=start_balance+? where id=?" amount to])))
