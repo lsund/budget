@@ -92,6 +92,9 @@
     (post-route [:category :delete] [cat-id]
                 (db/delete-category db (util/parse-int cat-id))
                 (redirect "/"))
+    (post-route [:transaction :update :note] [id note]
+                (db/update-row db :transaction {:note note} (util/parse-int id))
+                (redirect "/"))
     (post-route [:transaction :delete] [tx-id]
                 (db/remove-transaction db (util/parse-int tx-id))
                 (redirect "/"))

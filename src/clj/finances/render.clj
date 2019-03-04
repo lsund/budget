@@ -40,7 +40,7 @@
                   (for [cat categories]
                     [:option {:value (:id cat)} (:name cat)])]
                  [:input.hidden {:type :submit}])]
-   [:td (form-to [:post "/transfer"]
+   [:td (form-to [:post "/transfer/balance"]
                  [:input {:name "from" :type :hidden :value (:id c)}]
                  [:input.short-input {:type :text :name "amount" :placeholder "$"}]
                  [:select {:name "to"}
@@ -59,7 +59,10 @@
    [:td (cat-ids->names (:categoryid t))]
    [:td (:amount t)]
    [:td (util.date/fmt-date (:ts t))]
-   [:td (:note t)]
+   [:td
+    (form-to  [:post "/transaction/update-note"]
+              [:input {:type :hidden :name "id" :value (:id t)}]
+              [:input {:type :text :name "note" :value (:note t)}])]
    [:td (form-to [:post "/delete-transaction"]
                  [:input {:name "tx-id" :type :hidden :value (:id t)}]
                  [:button "X"])]])

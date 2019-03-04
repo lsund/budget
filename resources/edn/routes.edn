@@ -7,7 +7,8 @@
                    :delete "/delete-category"
                    :update {:name "/update-name"
                             :start-balance "/update-start-balance"}}
-        :transaction {:delete "/delete-transaction"}
+        :transaction {:delete "/delete-transaction"
+                      :update {:note "/transaction/update-note"}}
         :transfer {:balance "/transfer/balance"
                    :start-balance "/transfer/start-balance"}
         :spend "/spend"
