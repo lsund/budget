@@ -77,21 +77,21 @@
 (defn get-monthly-transactions [db {:keys [salary-day]}]
   (let [month (.getValue (util.date/finances-month salary-day))]
     (jdbc/query db [(str "select * from transaction where extract(month from ts) = ?"
-                      " and extract(day from ts) >= ?"
-                      " union all"
-                      " select * from transaction where extract(month from ts) = ?"
-                      " and extract(day from ts) <= ?")
-                 (previous-month month)
-                 salary-day
-                 month
-                 salary-day])))
+                         " and extract(day from ts) >= ?"
+                         " union all"
+                         " select * from transaction where extract(month from ts) = ?"
+                         " and extract(day from ts) <= ?")
+                    (previous-month month)
+                    salary-day
+                    month
+                    salary-day])))
 
 (defn row [db table identifier]
   (cond
     (integer? identifier) (first (jdbc/query db [(str "SELECT * FROM " (name table) " WHERE id=?")
-                                              identifier]))
+                                                 identifier]))
     (map? identifier) (first (jdbc/query db [(str "SELECT * FROM " (name table) " WHERE name=?")
-                                          (:name identifier)]))))
+                                             (:name identifier)]))))
 
 (defn get-all
   ([db table]
@@ -101,8 +101,7 @@
      (jdbc/query db [(str "select * from " (name table) " where name != ?") (:name except)])
      (jdbc/query db [(str "select * from " (name table))]))))
 
-(defn category-ids->names
-  [db]
+(defn category-ids->names [db]
   (let [cats (get-all db :category)
         ids (map :id cats)
         ns  (map :name cats)]
@@ -113,8 +112,22 @@
    (monthly-report-missing? db config (.getValue (util.date/finances-month (:salary-day config)))))
   ([db config month]
    (-> (jdbc/query db ["select id from report where extract(month from day) = ?"
-                    (previous-month month)])
+                       (previous-month month)])
        empty?)))
+
+(defn get-stock-transactions [db]
+  (jdbc/query db
+              ["SELECT stocktransaction.*, stock.*
+                FROM stocktransaction
+                INNER JOIN stock
+                ON stocktransaction.stockid = stock.id"]))
+
+(defn get-fund-transactions [db]
+  (jdbc/query db
+              ["SELECT fundtransaction.*, fund.*
+                FROM fundtransaction
+                INNER JOIN fund
+                ON fundtransaction.fundid = fund.id"]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modify
@@ -127,17 +140,17 @@
 (defn add-category
   [db cat-name balance]
   (jdbc/insert! db
-             :category
-             {:name (util/stringify cat-name)
-              :balance balance
-              :start-balance balance
-              :spent 0}))
+                :category
+                {:name (util/stringify cat-name)
+                 :balance balance
+                 :start-balance balance
+                 :spent 0}))
 
 
 (defn add-report
   [db file]
   (jdbc/insert! db :report {:file file
-                         :day (util.date/today)}))
+                            :day (util.date/today)}))
 
 ;; Delete
 
@@ -168,8 +181,8 @@
 
 (defn add-transaction [db cat-id amount op]
   (jdbc/insert! db :transaction {:categoryid cat-id
-                              :amount (case op :increment amount :decrement (- amount))
-                              :ts (java.time.LocalDateTime/now)})
+                                 :amount (case op :increment amount :decrement (- amount))
+                                 :ts (java.time.LocalDateTime/now)})
   (decrease-balance db amount cat-id))
 
 (defn remove-transaction [db tx-id]

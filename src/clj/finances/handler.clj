@@ -56,10 +56,10 @@
                                (budget-db-data config db))))
     (get-route :stocks []
                (render/stocks config {:stocks (db/get-all db :stock)
-                                      :stocktransactions (db/get-all db :stocktransaction)}))
+                                      :stocktransactions (db/get-stock-transactions db)}))
     (get-route :funds []
                (render/funds config {:funds (db/get-all db :fund)
-                                     :fundtransactions (db/get-all db :fundtransaction)}))
+                                     :fundtransactions (db/get-fund-transactions db)}))
     (get-route [:category :delete] [cat-id]
                (render/delete-category?  cat-id))
     (post-route :generate-report []
