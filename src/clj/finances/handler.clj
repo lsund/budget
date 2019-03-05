@@ -24,16 +24,16 @@
                        tx-shares tx-rate tx-total tx-currency]
   (println [db tx-type id tx-date tx-buy
             tx-shares tx-rate tx-total tx-currency])
-  (db/add-transaction db
-                      tx-type
-                      {(if (= tx-type :stocktransaction) :stockid :fundid) id
-                       :acc "ISK"
-                       :day (util.date/->localdate tx-date)
-                       :shares (util/parse-int tx-shares)
-                       :buy (= tx-buy "on")
-                       :rate (util/parse-float tx-rate)
-                       :total (util/parse-float tx-total)
-                       :currency tx-currency}))
+  (db/add-row db
+              tx-type
+              {(if (= tx-type :stocktransaction) :stockid :fundid) id
+               :acc "ISK"
+               :day (util.date/->localdate tx-date)
+               :shares (util/parse-int tx-shares)
+               :buy (= tx-buy "on")
+               :rate (util/parse-float tx-rate)
+               :total (util/parse-float tx-total)
+               :currency tx-currency}))
 
 (defn budget-db-data [config db]
   {:total-finances (db/get-total-finances db)

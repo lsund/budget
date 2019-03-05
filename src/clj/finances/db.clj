@@ -166,6 +166,10 @@
 
 ;; Update
 
+(defn add-row
+  [db table tx]
+  (jdbc/insert! db table tx))
+
 (defn update-row [db table update-map identifier]
   (cond
     (integer? identifier) (jdbc/update! db table update-map ["id=?" identifier])
@@ -189,7 +193,6 @@
   (let [{:keys [categoryid amount]} (row db :transaction tx-id)]
     (increase-balance db (- amount) categoryid)
     (delete db :transaction tx-id)))
-
 
 (defn update-name [db cat-id cat-name]
   (jdbc/execute! db ["update category set name=? where id=?" cat-name cat-id]))
