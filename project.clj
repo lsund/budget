@@ -1,4 +1,4 @@
-(defproject finances "1.5.0"
+(defproject finances "2.0.0"
   :description "Fun financesing program"
   :url "https://github.com/lsund/finances"
   :min-lein-version "2.7.0"
