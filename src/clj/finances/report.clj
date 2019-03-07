@@ -50,9 +50,14 @@
        rest))
 
 (defn txt-to-edn [file]
-  {:budget (map (fn [[s start spent]] {:name s
-                                       :start_balance (util/parse-int start)
-                                       :spent (util/parse-int spent)})
+  {:budget (map (fn [[s start spent spent?]]
+                  (if spent?
+                    {:name s
+                     :start_balance (util/parse-int spent)
+                     :spent (util/parse-int spent?)}
+                    {:name s
+                     :start_balance (util/parse-int start)
+                     :spent (util/parse-int spent)}))
                 (map #(string/split % #" ") (budget file)))
    :summary (let [[x y z] (summary file)
                   [_ _ was] (string/split x #" ")
@@ -61,9 +66,14 @@
               {:was (util/parse-int was)
                :remaining (util/parse-int remaining)
                :spent (util/parse-int spent)})
-   :transactions (map (fn [[s amount time]] {:name s
-                                             :amount (util/parse-int amount)
-                                             :time time})
+   :transactions (map (fn [[s amount time time?]]
+                        (if time?
+                          {:name s
+                           :amount (util/parse-int time)
+                           :time time?}
+                          {:name s
+                           :amount (util/parse-int amount)
+                           :time time}))
                       (map #(string/split % #" ") (transactions file)))})
 
 (defn add-edn-report [db file]
