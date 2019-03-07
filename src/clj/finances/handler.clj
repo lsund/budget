@@ -39,7 +39,9 @@
   {:total-finances (db/get-total-finances db)
    :total-remaining (db/get-total-remaining db)
    :total-spent (db/get-total-spent db)
-   :categories (sort-by :balance > (db/get-all db :category {:except {:name "Buffer"}}))
+   :categories (->> (db/get-all db :category {:except {:name "Buffer"}})
+                    (sort-by :balance >)
+                    (filter (comp not :hidden)))
    :buffer (db/row db :category {:name "Buffer"})
    :category-ids->names (db/category-ids->names db)
    :monthly-transactions (db/get-monthly-transactions db config)})
@@ -91,6 +93,9 @@
                 (redirect "/"))
     (post-route [:category :delete] [cat-id]
                 (db/delete-category db (util/parse-int cat-id))
+                (redirect "/"))
+    (post-route [:category :hide] [cat-id]
+                (db/update-row db :category {:hidden true} (util/parse-int cat-id))
                 (redirect "/"))
     (post-route [:transaction :update :note] [id note]
                 (db/update-row db :transaction {:note note} (util/parse-int id))

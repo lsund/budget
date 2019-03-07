@@ -2,6 +2,7 @@ CREATE TABLE Category
 (
     id              SERIAL PRIMARY KEY,
     name            varchar(64) NOT NULL,
+    hidden          BOOLEAN NOT NULL,
     balance         INT NOT NULL,
     start_balance   INT NOT NULL,
     spent           INT NOT NULL

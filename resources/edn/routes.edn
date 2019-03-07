@@ -5,6 +5,7 @@
  :post {:generate-report "/generate-report"
         :category {:add "/add-category"
                    :delete "/delete-category"
+                   :hide "/hide-category"
                    :update {:name "/update-name"
                             :start-balance "/update-start-balance"}}
         :transaction {:delete "/delete-transaction"
