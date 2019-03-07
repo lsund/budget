@@ -47,7 +47,8 @@
                            :optimizations :advanced
                            :pretty-print  false}}]}
   :figwheel {:css-dirs ["resources/public/css"]}
-  :repl-options {:init-ns user}
+  :repl-options {:init-ns user
+                 :timeout 120000}
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.9"]
                                   [figwheel-sidecar "0.5.15"]
                                   [com.cemerick/piggieback "0.2.2"]]
