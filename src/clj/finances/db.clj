@@ -15,7 +15,7 @@
 (def db-uri
   (java.net.URI. (or
                   (env :database-url)
-                  "postgresql://localhost:5432/budget")))
+                  "postgresql://localhost:5432/finances")))
 
 (def user-and-password
   (if (nil? (.getUserInfo db-uri))
@@ -38,7 +38,7 @@
    :dbname (:name config)
    :user "postgres"})
 
-(def pg-db-val (pg-db {:name "budget"}))
+(def pg-db-val (pg-db {:name "finances"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; API
@@ -183,30 +183,30 @@
     (integer? identifier) (jdbc/update! db table update-map ["id=?" identifier])
     (map? identifier) (jdbc/update! db table update-map ["name=?" (:name identifier)])))
 
-(defn- decrease-balance [db amount cat-id]
-  (jdbc/execute! db ["update category set balance=balance-? where id=?" amount cat-id])
-  (jdbc/execute! db ["update category set spent=spent+? where id =?" amount cat-id]))
+(defn- decrease-balance [db amount id]
+  (jdbc/execute! db ["update category set balance=balance-? where id=?" amount id])
+  (jdbc/execute! db ["update category set spent=spent+? where id =?" amount id]))
 
-(defn- increase-balance [db amount cat-id]
-  (jdbc/execute! db ["update category set balance=balance+? where id=?" amount cat-id])
-  (jdbc/execute! db ["update category set spent=spent-? where id =?" amount cat-id]))
+(defn- increase-balance [db amount id]
+  (jdbc/execute! db ["update category set balance=balance+? where id=?" amount id])
+  (jdbc/execute! db ["update category set spent=spent-? where id =?" amount id]))
 
-(defn add-transaction [db cat-id amount op]
-  (jdbc/insert! db :transaction {:categoryid cat-id
+(defn add-transaction [db id amount op]
+  (jdbc/insert! db :transaction {:categoryid id
                                  :amount (case op :increment amount :decrement (- amount))
                                  :ts (java.time.LocalDateTime/now)})
-  (decrease-balance db amount cat-id))
+  (decrease-balance db amount id))
 
 (defn remove-transaction [db tx-id]
   (let [{:keys [categoryid amount]} (row db :transaction tx-id)]
     (increase-balance db (- amount) categoryid)
     (delete db :transaction tx-id)))
 
-(defn update-name [db cat-id cat-name]
-  (jdbc/execute! db ["update category set name=? where id=?" cat-name cat-id]))
+(defn update-name [db id cat-name]
+  (jdbc/execute! db ["update category set name=? where id=?" cat-name id]))
 
-(defn update-start-balance [db cat-id start-balance]
-  (jdbc/execute! db ["update category set start_balance=? where id=?" start-balance cat-id]))
+(defn update-start-balance [db id start-balance]
+  (jdbc/execute! db ["update category set start_balance=? where id=?" start-balance id]))
 
 (defn reset-spent [db]
   (jdbc/execute! db ["update category set spent=0"]))

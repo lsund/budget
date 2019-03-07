@@ -16,11 +16,11 @@
 
    [:td
     (form-to  [:post "/update-name"]
-              [:input {:type :hidden :name "cat-id" :value (:id c)}]
+              [:input {:type :hidden :name "id" :value (:id c)}]
               [:input {:type :text :name "cat-name" :value (:name c)}])]
    [:td
     (form-to [:post "/update-start-balance"]
-             [:input {:type :hidden :name "cat-id" :value (:id c)}]
+             [:input {:type :hidden :name "id" :value (:id c)}]
              [:input {:class "start-balance"
                       :type :text
                       :name "start-balance"
@@ -29,7 +29,7 @@
    [:td
     (form-to [:post "/spend"]
              [:div
-              [:input {:name "cat-id" :type :hidden :value (:id c)}]
+              [:input {:name "id" :type :hidden :value (:id c)}]
               [:input {:class "spend" :name "dec-amount" :type :number :placeholder "$"}]])]
    [:td (:spent c)]
    [:td (diff c)]
@@ -50,13 +50,12 @@
    [:td
     (form-to
      [:get "/delete-category"]
-     [:input {:name "cat-id" :type :hidden :value (:id c)}]
+     [:input {:name "id" :type :hidden :value (:id c)}]
      [:button "X"])]])
 
-(defn transaction-row
-  [t cat-ids->names]
+(defn transaction-row [t]
   [:tr
-   [:td (cat-ids->names (:categoryid t))]
+   [:td (:name t)]
    [:td (:amount t)]
    [:td (util.date/fmt-date (:ts t))]
    [:td
@@ -126,7 +125,7 @@
                     :monthly-transactions
                     (sort-by :ts)
                     reverse)]
-         (transaction-row t (:category-ids->names db-data)))]]
+         (transaction-row t))]]
      [:p (str "Total: " (apply + (map :amount (:monthly-transactions db-data))))]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))
@@ -287,10 +286,10 @@
              "and also delete all transactions for the category.")]
     [:p "Hiding the category will make it it will dissapear from the front page but can be restored."]
     (form-to [:post "/delete-category"]
-             [:input {:name "cat-id" :type :hidden :value id}]
+             [:input {:name "id" :type :hidden :value id}]
              [:button "Continue"])
     (form-to [:post "/hide-category"]
-             [:input {:name "cat-id" :type :hidden :value id}]
+             [:input {:name "id" :type :hidden :value id}]
              [:button "Hide"])
     [:div#cljs-target]]))
 

@@ -66,8 +66,8 @@
     (get-route :funds []
                (render/funds config {:funds (db/get-all db :fund)
                                      :fundtransactions (db/get-fund-transactions db)}))
-    (get-route [:category :delete] [cat-id]
-               (render/delete-category?  cat-id))
+    (get-route [:category :delete] [id]
+               (render/delete-category?  id))
     (post-route :generate-report []
                 (report/generate config)
                 (db/reset-month db)
@@ -89,17 +89,17 @@
                                            (util/parse-int to)
                                            (util/parse-int amount))
                 (redirect "/"))
-    (post-route :spend [cat-id dec-amount]
+    (post-route :spend [id dec-amount]
                 (db/add-transaction db
-                                    (util/parse-int cat-id)
+                                    (util/parse-int id)
                                     (util/parse-int dec-amount)
                                     :decrement)
                 (redirect "/"))
-    (post-route [:category :delete] [cat-id]
-                (db/delete-category db (util/parse-int cat-id))
+    (post-route [:category :delete] [id]
+                (db/delete-category db (util/parse-int id))
                 (redirect "/"))
-    (post-route [:category :hide] [cat-id]
-                (db/update-row db :category {:hidden true} (util/parse-int cat-id))
+    (post-route [:category :hide] [id]
+                (db/update-row db :category {:hidden true} (util/parse-int id))
                 (redirect "/"))
     (post-route [:transaction :update :note] [id note]
                 (db/update-row db :transaction {:note note} (util/parse-int id))
@@ -107,14 +107,14 @@
     (post-route [:transaction :delete] [tx-id]
                 (db/remove-transaction db (util/parse-int tx-id))
                 (redirect "/"))
-    (post-route [:category :update :name] [cat-id cat-name]
+    (post-route [:category :update :name] [id cat-name]
                 (db/update-name db
-                                (util/parse-int cat-id)
+                                (util/parse-int id)
                                 cat-name)
                 (redirect "/"))
-    (post-route [:category :update :start-balance] [cat-id start-balance]
+    (post-route [:category :update :start-balance] [id start-balance]
                 (db/update-start-balance db
-                                         (util/parse-int cat-id)
+                                         (util/parse-int id)
                                          (util/parse-int start-balance))
                 (redirect "/"))
 
