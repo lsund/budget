@@ -33,7 +33,7 @@
               (for [report reports]
                 [:option {:value (:id report)} (:day report)])]
              [:button.mui-btn "View"])
-    (let [report (edn/read-string (:file report))]
+    (if-let [report (edn/read-string (:file report))]
       [:div
        [:div
         [:p (str "Budget was " (get-in report [:summary :was]))]
