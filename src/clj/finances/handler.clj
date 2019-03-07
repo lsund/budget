@@ -47,8 +47,6 @@
 (defn- app-routes
   [{:keys [db] :as config}]
   (routes
-   (GET "/migrate" [id]
-        (report/migrate-db-report db (util/parse-int id)))
    (generate-routes
     "resources/edn/routes.edn"
     (get-route :root []
