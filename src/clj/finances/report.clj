@@ -54,7 +54,10 @@
                                        :start_balance (util/parse-int start)
                                        :spent (util/parse-int spent)})
                 (map #(string/split % #" ") (budget file)))
-   :summary (let [[was remaining spent] (summary file)]
+   :summary (let [[x y z] (summary file)
+                  [_ _ was] (string/split x #" ")
+                  [_ _ remaining] (string/split y #" ")
+                  [_ _ spent] (string/split z #" ")]
               {:was (util/parse-int was)
                :remaining (util/parse-int remaining)
                :spent (util/parse-int spent)})
