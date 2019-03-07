@@ -76,11 +76,19 @@
 
 (defn get-monthly-transactions [db {:keys [salary-day]}]
   (let [month (.getValue (util.date/finances-month salary-day))]
-    (jdbc/query db [(str "select * from transaction where extract(month from ts) = ?"
-                         " and extract(day from ts) >= ?"
-                         " union all"
-                         " select * from transaction where extract(month from ts) = ?"
-                         " and extract(day from ts) <= ?")
+    (jdbc/query db ["SELECT transaction.*, category.name, category.id
+                     FROM transaction
+                     INNER JOIN category
+                     ON category.id = transaction.categoryid
+                     WHERE extract(month from ts) = ?
+                     AND extract(day from ts) >= ?
+                     UNION ALL
+                     SELECT transaction.*, category.name, category.id
+                     FROM transaction
+                     INNER JOIN category
+                     ON category.id = transaction.categoryid
+                     WHERE extract(month from ts) = ?
+                     AND extract(day from ts) <= ?"
                     (previous-month month)
                     salary-day
                     month

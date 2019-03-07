@@ -4,12 +4,12 @@
 (defn stringify [k] (-> k name string/capitalize))
 
 (defn parse-int [s]
+  {:pre [(re-matches #"-?\d+" s)]}
   (if (integer? s)
     s
-    (Integer. (re-find  #"\d+" s))))
+    (Integer/parseInt s)))
 
 (defn parse-float [s]
+  {:pre [(re-matches #"(-?\d+\.\d+|-?\d+)" s)]}
   (try
-    (Double. (re-find #"\d+\.\d+" s))
-    (catch Exception _
-      (parse-int s))))
+    (Double/parseDouble s)))
