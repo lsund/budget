@@ -1,6 +1,7 @@
 (ns finances.handler
   (:require [finances.db :as db]
             [finances.render :as render]
+            [finances.views.reports :as views.reports]
             [finances.report :as report]
             [finances.util.core :as util]
             [finances.util.date :as util.date]
@@ -56,6 +57,9 @@
                              {:generate-report-div true})]
                  (render/index (merge config extra)
                                (budget-db-data config db))))
+    (get-route :reports [id]
+               (views.reports/render config {:report (when id (db/row db :report (util/parse-int id)))
+                                             :reports (db/get-all db :report)}))
     (get-route :stocks []
                (render/stocks config {:stocks (db/get-all db :stock)
                                       :stocktransactions (db/get-stock-transactions db)}))

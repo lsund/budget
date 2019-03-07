@@ -14,4 +14,7 @@
                [:input {:type :submit :value "Stocks"}])]
      [:td.mui--appbar-height
       (form-to [:get "/funds"]
-               [:input {:type :submit :value "Funds"}])]]]])
+               [:input {:type :submit :value "Funds"}])]
+     [:td.mui--appbar-height
+      (form-to [:get "/reports"]
+               [:input {:type :submit :value "Budget reports"}])]]]])

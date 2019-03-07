@@ -115,7 +115,12 @@
      [:h2 "This months transactions"]
      [:table
       [:thead
-       [:tr [:th "Name"] [:th "Amount"] [:th "Date"] [:th "Note"] [:th "Remove"]]]
+       [:tr
+        [:th "Name"]
+        [:th "Amount"]
+        [:th "Date"]
+        [:th "Note"]
+        [:th "Remove"]]]
       [:tbody
        (for [t (->> db-data
                     :monthly-transactions
