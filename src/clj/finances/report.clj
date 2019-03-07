@@ -77,4 +77,4 @@
 (defn migrate-db-report [db id]
   (let [report (db/row db :report id)]
     (spit (str (:id report) "test.txt") (:file report))
-    (db/update-row db :report {:file (str (txt-to-edn (str (:id report) "test.txt")))} 89)))
+    (db/update-row db :report {:file (str (txt-to-edn (str (:id report) "test.txt")))} id)))
