@@ -15,9 +15,9 @@
   [:tr {:class (when invisible "invisible")}
 
    [:td
-    (form-to  [:post "/update-name"]
+    (form-to  [:post "/update-label"]
               [:input {:type :hidden :name "id" :value (:id c)}]
-              [:input {:type :text :name "cat-name" :value (:name c)}])]
+              [:input {:type :text :name "label" :value (:label c)}])]
    [:td
     (form-to [:post "/update-start-balance"]
              [:input {:type :hidden :name "id" :value (:id c)}]
@@ -38,14 +38,14 @@
                  [:input.short-input {:type :text :name "amount" :placeholder "$"}]
                  [:select {:name "to"}
                   (for [cat categories]
-                    [:option {:value (:id cat)} (:name cat)])]
+                    [:option {:value (:id cat)} (:label cat)])]
                  [:input.hidden {:type :submit}])]
    [:td (form-to [:post "/transfer/balance"]
                  [:input {:name "from" :type :hidden :value (:id c)}]
                  [:input.short-input {:type :text :name "amount" :placeholder "$"}]
                  [:select {:name "to"}
                   (for [cat categories]
-                    [:option {:value (:id cat)} (:name cat)])]
+                    [:option {:value (:id cat)} (:label cat)])]
                  [:input.hidden {:type :submit}])]
    [:td
     (form-to
@@ -55,7 +55,7 @@
 
 (defn transaction-row [t]
   [:tr
-   [:td (:name t)]
+   [:td (:label t)]
    [:td (:amount t)]
    [:td (util.date/fmt-date (:ts t))]
    [:td
@@ -107,7 +107,7 @@
      [:h3 "Add New Spend Category"]
      (form-to {:class "add-category"} [:post "/add-category"]
               [:input
-               {:name "cat-name" :type :text :placeholder "Category name"}]
+               {:name "label" :type :text :placeholder "Category name"}]
               [:input {:name "funds" :type :number :value 0}]
               [:button.mui-btn "Add category"])]
     [:div
@@ -134,7 +134,7 @@
 (defn stock-transaction-row [t]
   [:tr
    [:td (:day t)]
-   [:td (:shortname t)]
+   [:td (:tag t)]
    [:td (if (:buy t) "Buy" "Sell")]
    [:td (:shares t)]
    [:td (:rate t)]
@@ -156,7 +156,7 @@
       (form-to  [:post "/stocks/add-transaction"]
                 [:select {:name "stock-id"}
                  (for [stock stocks]
-                   [:option {:value (:id stock)} (:shortname stock)])]
+                   [:option {:value (:id stock)} (:tag stock)])]
                 [:div
                  [:label "Date"]
                  [:input {:name "stock-date" :type :date}]
@@ -208,7 +208,7 @@
 (defn fund-transaction-row [t]
   [:tr
    [:td (:day t)]
-   [:td (:shortname t)]
+   [:td (:tag t)]
    [:td (if (:buy t) "Buy" "Sell")]
    [:td (:shares t)]
    [:td (:rate t)]
@@ -230,7 +230,7 @@
       (form-to  [:post "/funds/add-transaction"]
                 [:select {:name "fund-id"}
                  (for [fund funds]
-                   [:option {:value (:id fund)} (:shortname fund)])]
+                   [:option {:value (:id fund)} (:tag fund)])]
                 [:div
                  [:label "Date"]
                  [:input {:name "fund-date" :type :date}]

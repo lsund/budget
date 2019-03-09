@@ -1,12 +1,11 @@
 (ns finances.db
-  (:import com.mchange.v2.c3p0.ComboPooledDataSource)
   (:require [clojure.java.jdbc :as jdbc]
+            [clojure.string :as string]
             [com.stuartsierra.component :as component]
             [environ.core :refer [env]]
-            [jdbc.pool.c3p0 :as pool]
-            [taoensso.timbre :as logging]
             [finances.util.core :as util]
-            [finances.util.date :as util.date]))
+            [finances.util.date :as util.date]
+            [jdbc.pool.c3p0 :as pool]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Make DB Spec
@@ -76,14 +75,14 @@
 
 (defn get-monthly-transactions [db {:keys [salary-day]}]
   (let [month (.getValue (util.date/finances-month salary-day))]
-    (jdbc/query db ["SELECT transaction.*, category.name, category.id
+    (jdbc/query db ["SELECT transaction.*, category.label, category.id
                      FROM transaction
                      INNER JOIN category
                      ON category.id = transaction.categoryid
                      WHERE extract(month from ts) = ?
                      AND extract(day from ts) >= ?
                      UNION ALL
-                     SELECT transaction.*, category.name, category.id
+                     SELECT transaction.*, category.label, category.id
                      FROM transaction
                      INNER JOIN category
                      ON category.id = transaction.categoryid
@@ -98,21 +97,21 @@
   (cond
     (integer? identifier) (first (jdbc/query db [(str "SELECT * FROM " (name table) " WHERE id=?")
                                                  identifier]))
-    (map? identifier) (first (jdbc/query db [(str "SELECT * FROM " (name table) " WHERE name=?")
-                                             (:name identifier)]))))
+    (map? identifier) (first (jdbc/query db [(str "SELECT * FROM " (name table) " WHERE label=?")
+                                             (:label identifier)]))))
 
 (defn get-all
   ([db table]
    (get-all db table {}))
   ([db table {:keys [except]}]
    (if except
-     (jdbc/query db [(str "select * from " (name table) " where name != ?") (:name except)])
+     (jdbc/query db [(str "select * from " (name table) " where label != ?") (:label except)])
      (jdbc/query db [(str "select * from " (name table))]))))
 
 (defn category-ids->names [db]
   (let [cats (get-all db :category)
         ids (map :id cats)
-        ns  (map :name cats)]
+        ns  (map :label cats)]
     (zipmap ids ns)))
 
 (defn monthly-report-missing?
@@ -146,10 +145,10 @@
   (jdbc/insert! db table row))
 
 (defn add-category
-  [db cat-name balance]
+  [db label balance]
   (jdbc/insert! db
                 :category
-                {:name (util/stringify cat-name)
+                {:label (string/capitalize label)
                  :balance balance
                  :start-balance balance
                  :spent 0}))
@@ -181,7 +180,7 @@
 (defn update-row [db table update-map identifier]
   (cond
     (integer? identifier) (jdbc/update! db table update-map ["id=?" identifier])
-    (map? identifier) (jdbc/update! db table update-map ["name=?" (:name identifier)])))
+    (map? identifier) (jdbc/update! db table update-map ["label=?" (:label identifier)])))
 
 (defn- decrease-balance [db amount id]
   (jdbc/execute! db ["update category set balance=balance-? where id=?" amount id])
@@ -202,8 +201,8 @@
     (increase-balance db (- amount) categoryid)
     (delete db :transaction tx-id)))
 
-(defn update-name [db id cat-name]
-  (jdbc/execute! db ["update category set name=? where id=?" cat-name id]))
+(defn update-label [db id label]
+  (jdbc/execute! db ["update category set label=? where id=?" label id]))
 
 (defn update-start-balance [db id start-balance]
   (jdbc/execute! db ["update category set start_balance=? where id=?" start-balance id]))

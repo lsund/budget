@@ -40,10 +40,10 @@
   {:total-finances (db/get-total-finances db)
    :total-remaining (db/get-total-remaining db)
    :total-spent (db/get-total-spent db)
-   :categories (->> (db/get-all db :category {:except {:name "Buffer"}})
+   :categories (->> (db/get-all db :category {:except {:label "Buffer"}})
                     (sort-by :balance >)
                     (filter (comp not :hidden)))
-   :buffer (db/row db :category {:name "Buffer"})
+   :buffer (db/row db :category {:label "Buffer"})
    :category-ids->names (db/category-ids->names db)
    :monthly-transactions (db/get-monthly-transactions db config)})
 
@@ -72,9 +72,9 @@
                 (report/generate config)
                 (db/reset-month db)
                 (redirect "/"))
-    (post-route [:category :add] [cat-name funds]
+    (post-route [:category :add] [label funds]
                 (db/add-category db
-                                 cat-name
+                                 label
                                  (util/parse-int funds))
                 (redirect "/"))
     (post-route [:transfer :balance] [from to amount]
@@ -107,10 +107,10 @@
     (post-route [:transaction :delete] [tx-id]
                 (db/remove-transaction db (util/parse-int tx-id))
                 (redirect "/"))
-    (post-route [:category :update :name] [id cat-name]
-                (db/update-name db
+    (post-route [:category :update :name] [id label]
+                (db/update-label db
                                 (util/parse-int id)
-                                cat-name)
+                                label)
                 (redirect "/"))
     (post-route [:category :update :start-balance] [id start-balance]
                 (db/update-start-balance db

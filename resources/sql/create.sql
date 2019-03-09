@@ -1,7 +1,7 @@
 CREATE TABLE Category
 (
     id              SERIAL PRIMARY KEY,
-    name            varchar(64) NOT NULL,
+    label           varchar(64) NOT NULL,
     hidden          BOOLEAN NOT NULL,
     balance         INT NOT NULL,
     start_balance   INT NOT NULL,
@@ -41,8 +41,8 @@ CREATE TABLE StockTransaction
 CREATE TABLE Stock
 (
     id          SERIAL PRIMARY KEY,
-    name        VARCHAR(64) NOT NULL,
-    shortname   VARCHAR(16) NOT NULL
+    label       VARCHAR(64) NOT NULL,
+    tag         VARCHAR(16) NOT NULL
 );
 
 
@@ -64,8 +64,8 @@ CREATE TABLE FundTransaction
 CREATE TABLE Fund
 (
     id          SERIAL PRIMARY KEY,
-    name        VARCHAR(64) NOT NULL,
-    shortname   VARCHAR(16) NOT NULL
+    label       VARCHAR(64) NOT NULL,
+    tag         VARCHAR(16) NOT NULL
 );
 
 CREATE TABLE Report
