@@ -6,6 +6,7 @@
             [finances.views.stocks :as views.stocks]
             [finances.views.funds :as views.funds]
             [finances.views.budget.transfer :as views.budget.transfer]
+            [finances.views.budget.transaction-group :as views.budget.transaction-group]
             [finances.report :as report]
             [finances.util.core :as util]
             [finances.util.date :as util.date]
@@ -76,6 +77,12 @@
                                               :categories (->> (db/get-all db :category {:except {:label "Buffer"}})
                                                                (sort-by :balance >)
                                                                (filter (comp not :hidden)))}))
+    (get-route [:budget :transaction-group] [id]
+               (views.budget.transaction-group/render config
+                                                      {:transaction-group
+                                                       (db/get-monthly-transactions db
+                                                                                    config
+                                                                                    (util/parse-int id))}))
     (get-route [:category :delete] [id]
                (render/delete-category?  id))
     (post-route :generate-report []

@@ -40,18 +40,13 @@
      [:input {:name "id" :type :hidden :value (:id category)}]
      [:button "X"])]])
 
-(defn transaction-row [t]
+(defn transaction-row [[id transactions]]
   [:tr
-   [:td (:label t)]
-   [:td (:amount t)]
-   [:td (util.date/fmt-date (:ts t))]
-   [:td
-    (form-to  [:post "/transaction/update-note"]
-              [:input {:type :hidden :name "id" :value (:id t)}]
-              [:input {:type :text :name "note" :value (:note t)}])]
-   [:td (form-to [:post "/delete-transaction"]
-                 [:input {:name "tx-id" :type :hidden :value (:id t)}]
-                 [:button "X"])]])
+   [:td (:label (first transactions))]
+   [:td (apply + (map :amount transactions))]
+   [:td (form-to [:get "/budget/transaction-group"]
+                 [:input {:type :hidden :name "id" :value id}]
+                 [:button "Details"])]])
 
 (defn render [config db-data]
   (html5
@@ -107,11 +102,12 @@
         [:th "Note"]
         [:th "Remove"]]]
       [:tbody
-       (for [t (->> db-data
-                    :monthly-transactions
-                    (sort-by :ts)
-                    reverse)]
-         (transaction-row t))]]
+       (for [transaction-group (->> db-data
+                                    :monthly-transactions
+                                    (sort-by :ts)
+                                    reverse
+                                    (group-by :categoryid))]
+         (transaction-row transaction-group))]]
      [:p (str "Total: " (apply + (map :amount (:monthly-transactions db-data))))]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))

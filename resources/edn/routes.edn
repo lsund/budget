@@ -3,7 +3,8 @@
        :funds "/funds"
        :reports "/reports"
        :category {:delete "/delete-category"}
-       :budget {:transfer "/budget/transfer"}}
+       :budget {:transfer "/budget/transfer"
+                :transaction-group "/budget/transaction-group"}}
  :post {:generate-report "/generate-report"
         :category {:add "/add-category"
                    :delete "/delete-category"

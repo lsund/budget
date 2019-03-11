@@ -73,9 +73,10 @@
 (defn- previous-month [current-month]
   (if (= current-month 1) 12 (dec current-month)))
 
-(defn get-monthly-transactions [db {:keys [salary-day]}]
-  (let [month (.getValue (util.date/finances-month salary-day))]
-    (jdbc/query db ["SELECT transaction.*, category.label, category.id
+(defn get-monthly-transactions
+  ([db {:keys [salary-day]}]
+   (let [month (.getValue (util.date/finances-month salary-day))]
+     (jdbc/query db ["SELECT transaction.*, category.label, category.id
                      FROM transaction
                      INNER JOIN category
                      ON category.id = transaction.categoryid
@@ -88,10 +89,33 @@
                      ON category.id = transaction.categoryid
                      WHERE extract(month from ts) = ?
                      AND extract(day from ts) <= ?"
-                    (previous-month month)
-                    salary-day
-                    month
-                    salary-day])))
+                     (previous-month month)
+                     salary-day
+                     month
+                     salary-day])))
+  ([db {:keys [salary-day]} id]
+   (let [month (.getValue (util.date/finances-month salary-day))]
+     (jdbc/query db ["SELECT transaction.*, category.label, category.id
+                     FROM transaction
+                     INNER JOIN category
+                     ON category.id = transaction.categoryid
+                     WHERE extract(month from ts) = ?
+                     AND extract(day from ts) >= ?
+                     AND categoryid = ?
+                     UNION ALL
+                     SELECT transaction.*, category.label, category.id
+                     FROM transaction
+                     INNER JOIN category
+                     ON category.id = transaction.categoryid
+                     WHERE extract(month from ts) = ?
+                     AND extract(day from ts) <= ?
+                     AND categoryid = ?"
+                     (previous-month month)
+                     salary-day
+                     id
+                     month
+                     salary-day
+                     id]))))
 
 (defn row [db table identifier]
   (cond
