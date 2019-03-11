@@ -2,6 +2,10 @@
   (:require [finances.db :as db]
             [finances.render :as render]
             [finances.views.reports :as views.reports]
+            [finances.views.budget :as views.budget]
+            [finances.views.stocks :as views.stocks]
+            [finances.views.funds :as views.funds]
+            [finances.views.budget.transfer :as views.budget.transfer]
             [finances.report :as report]
             [finances.util.core :as util]
             [finances.util.date :as util.date]
@@ -55,17 +59,23 @@
     (get-route :root []
                (let [extra (when (db/monthly-report-missing? db config)
                              {:generate-report-div true})]
-                 (render/index (merge config extra)
-                               (budget-db-data config db))))
+                 (views.budget/render (merge config extra)
+                                      (budget-db-data config db))))
     (get-route :reports [id]
                (views.reports/render config {:report (when id (db/row db :report (util/parse-int id)))
                                              :reports (db/get-all db :report)}))
     (get-route :stocks []
-               (render/stocks config {:stocks (db/get-all db :stock)
-                                      :stocktransactions (db/get-stock-transactions db)}))
+               (views.stocks/render config {:stocks (db/get-all db :stock)
+                                            :stocktransactions (db/get-stock-transactions db)}))
     (get-route :funds []
-               (render/funds config {:funds (db/get-all db :fund)
-                                     :fundtransactions (db/get-fund-transactions db)}))
+               (views.funds/render config {:funds (db/get-all db :fund)
+                                           :fundtransactions (db/get-fund-transactions db)}))
+    (get-route [:budget :transfer] [id]
+               (views.budget.transfer/render config
+                                             {:category (db/row db :category (util/parse-int id))
+                                              :categories (->> (db/get-all db :category {:except {:label "Buffer"}})
+                                                               (sort-by :balance >)
+                                                               (filter (comp not :hidden)))}))
     (get-route [:category :delete] [id]
                (render/delete-category?  id))
     (post-route :generate-report []
@@ -109,8 +119,8 @@
                 (redirect "/"))
     (post-route [:category :update :name] [id label]
                 (db/update-label db
-                                (util/parse-int id)
-                                label)
+                                 (util/parse-int id)
+                                 label)
                 (redirect "/"))
     (post-route [:category :update :start-balance] [id start-balance]
                 (db/update-start-balance db
@@ -157,7 +167,6 @@
                            :fundtransaction
                            (util/parse-int fund-id))
                 (redirect "/funds")))
-
    (route/resources "/")
    (route/not-found render/not-found)))
 

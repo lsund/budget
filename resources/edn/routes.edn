@@ -2,7 +2,8 @@
        :stocks "/stocks"
        :funds "/funds"
        :reports "/reports"
-       :category {:delete "/delete-category"}}
+       :category {:delete "/delete-category"}
+       :budget {:transfer "/budget/transfer"}}
  :post {:generate-report "/generate-report"
         :category {:add "/add-category"
                    :delete "/delete-category"
