@@ -1,6 +1,5 @@
-(defproject finances "2.5.0"
-
-  :description "Fun financesing program"
+(defproject finances "2.6.0-SNAPSHOT"
+  :description "Fun finance program"
   :url "https://github.com/lsund/finances"
   :min-lein-version "2.7.0"
   :dependencies [[org.clojure/clojure "1.9.0"]
