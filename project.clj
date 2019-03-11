@@ -1,4 +1,4 @@
-(defproject finances "2.5.0-SNAPSHOT"
+(defproject finances "2.5.0"
 
   :description "Fun financesing program"
   :url "https://github.com/lsund/finances"
