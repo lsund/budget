@@ -174,7 +174,7 @@
                 :category
                 {:label (string/capitalize label)
                  :balance balance
-                 :start-balance balance
+                 :start_balance balance
                  :spent 0}))
 
 
