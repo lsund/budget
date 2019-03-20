@@ -192,7 +192,7 @@
 (defn delete-category
   [db id]
   (doseq [t (jdbc/query db ["select id from transaction where categoryid = ?" id])]
-    (delete db :transaction (util/parse-int (:id t))))
+    (delete db :transaction (:id t)))
   (delete db :category id))
 
 ;; Update
