@@ -10,12 +10,12 @@
    [finances.util.core :as util]
    [finances.util.date :as util.date]))
 
-(defn generate [{:keys [db]}]
+(defn generate [{:keys [db] :as config}]
   (let [report {:transactions (map #(-> %
                                         (select-keys [:name :amount :ts :note])
                                         (rename-keys {:ts :time}) ;; TODO remove this line
                                         (update :time (fn [t] (util.date/fmt-date t))))
-                                   (db/get-monthly-transactions db/pg-db-val {:salary-day 25}))
+                                   (db/get-monthly-transactions db config))
                 :summary {:was (db/get-total-finances db)
                           :remaining (db/get-total-remaining db)
                           :spent (db/get-total-spent db)}
