@@ -40,7 +40,17 @@
      [:input {:name "id" :type :hidden :value (:id category)}]
      [:button "X"])]])
 
-(defn transaction-row [[id transactions]]
+(defn transaction-row
+  [t]
+  [:tr
+   [:td (:label t)]
+   [:td (:amount t)]
+   [:td (util.date/fmt-date (:ts t))]
+   [:td (form-to [:post "/delete-transaction"]
+                 [:input {:name "tx-id" :type :hidden :value (:id t)}]
+                 [:button "X"])]])
+
+(defn transaction-group-row [[id transactions]]
   [:tr
    [:td (:label (first transactions))]
    [:td (apply + (map :amount transactions))]
@@ -92,7 +102,18 @@
               [:input {:name "funds" :type :number :value 0}]
               [:button.mui-btn "Add category"])]
     [:div
-     [:h2 "This months transactions"]
+     [:h2 "Latest transactions"]
+     [:table
+      [:thead
+       [:tr [:th "Name"] [:th "Amount"] [:th "Date"] [:th "Remove"]]]
+      [:tbody
+       (for [transaction (->> db-data
+                              :monthly-transactions
+                              (sort-by :ts)
+                              reverse
+                              (take 10))]
+         (transaction-row transaction))]]
+     [:h2 "Transaction summary"]
      [:table
       [:thead
        [:tr
@@ -107,7 +128,7 @@
                                     (sort-by :ts)
                                     reverse
                                     (group-by :categoryid))]
-         (transaction-row transaction-group))]]
+         (transaction-group-row transaction-group))]]
      [:p (str "Total: " (apply + (map :amount (:monthly-transactions db-data))))]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))
