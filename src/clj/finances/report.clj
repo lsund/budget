@@ -12,14 +12,14 @@
 
 (defn generate [{:keys [db] :as config}]
   (let [report {:transactions (map #(-> %
-                                        (select-keys [:name :amount :ts :note])
+                                        (select-keys [:label :amount :ts :note])
                                         (rename-keys {:ts :time}) ;; TODO remove this line
                                         (update :time (fn [t] (util.date/fmt-date t))))
                                    (db/get-monthly-transactions db config))
                 :summary {:was (db/get-total-finances db)
                           :remaining (db/get-total-remaining db)
                           :spent (db/get-total-spent db)}
-                :budget (map #(select-keys % [:name :start_balance :spent])
+                :budget (map #(select-keys % [:label :start_balance :spent])
                              (db/get-all db :category))}]
     (db/add db :report {:file (str report)
                         :day (util.date/today)})))
