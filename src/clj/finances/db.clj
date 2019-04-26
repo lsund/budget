@@ -73,48 +73,29 @@
 (defn- previous-month [current-month]
   (if (= current-month 1) 12 (dec current-month)))
 
-(defn get-monthly-transactions
-  ([db {:keys [salary-day]}]
-   (let [month (.getValue (util.date/finances-month salary-day))]
+(defn get-unreported-transactions
+  ([db config]
+   (let [last-report-day (->> ["SELECT day FROM report order by day desc"]
+                              (jdbc/query db)
+                              first
+                              :day)]
      (jdbc/query db ["SELECT transaction.*, category.label, category.id
-                     FROM transaction
-                     INNER JOIN category
-                     ON category.id = transaction.categoryid
-                     WHERE extract(month from ts) = ?
-                     AND extract(day from ts) >= ?
-                     UNION ALL
-                     SELECT transaction.*, category.label, category.id
-                     FROM transaction
-                     INNER JOIN category
-                     ON category.id = transaction.categoryid
-                     WHERE extract(month from ts) = ?
-                     AND extract(day from ts) <= ?"
-                     (previous-month month)
-                     salary-day
-                     month
-                     salary-day])))
-  ([db {:keys [salary-day]} id]
-   (let [month (.getValue (util.date/finances-month salary-day))]
+                      FROM transaction
+                      INNER JOIN category
+                      ON category.id = transaction.categoryid
+                      WHERE ts > ?" last-report-day])))
+  ([db config id]
+   (let [last-report-day (->> ["SELECT day FROM report order by day desc"]
+                              (jdbc/query db)
+                              first
+                              :day)]
      (jdbc/query db ["SELECT transaction.*, category.label, category.id
-                     FROM transaction
-                     INNER JOIN category
-                     ON category.id = transaction.categoryid
-                     WHERE extract(month from ts) = ?
-                     AND extract(day from ts) >= ?
-                     AND categoryid = ?
-                     UNION ALL
-                     SELECT transaction.*, category.label, category.id
-                     FROM transaction
-                     INNER JOIN category
-                     ON category.id = transaction.categoryid
-                     WHERE extract(month from ts) = ?
-                     AND extract(day from ts) <= ?
-                     AND categoryid = ?"
-                     (previous-month month)
-                     salary-day
-                     id
-                     month
-                     salary-day
+                      FROM transaction
+                      INNER JOIN category
+                      ON category.id = transaction.categoryid
+                      WHERE ts > ?
+                      AND categoryid = ?"
+                     last-report-day
                      id]))))
 
 (defn row [db table identifier]

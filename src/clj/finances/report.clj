@@ -15,7 +15,7 @@
                                         (select-keys [:label :amount :ts :note])
                                         (rename-keys {:ts :time}) ;; TODO remove this line
                                         (update :time (fn [t] (util.date/fmt-date t))))
-                                   (db/get-monthly-transactions db config))
+                                   (db/get-unreported-transactions db config))
                 :summary {:was (db/get-total-finances db)
                           :remaining (db/get-total-remaining db)
                           :spent (db/get-total-spent db)}

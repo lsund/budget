@@ -50,7 +50,7 @@
                     (filter (comp not :hidden)))
    :buffer (db/row db :category {:label "Buffer"})
    :category-ids->names (db/category-ids->names db)
-   :monthly-transactions (db/get-monthly-transactions db config)})
+   :monthly-transactions (db/get-unreported-transactions db config)})
 
 (defn- app-routes
   [{:keys [db] :as config}]
@@ -80,7 +80,7 @@
     (get-route [:budget :transaction-group] [id]
                (views.budget.transaction-group/render config
                                                       {:transaction-group
-                                                       (db/get-monthly-transactions db
+                                                       (db/get-unreported-transactions db
                                                                                     config
                                                                                     (util/parse-int id))}))
     (get-route [:category :delete] [id]
