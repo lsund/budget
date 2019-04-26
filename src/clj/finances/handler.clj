@@ -124,7 +124,7 @@
     (post-route [:transaction :delete] [tx-id]
                 (db/remove-transaction db (util/parse-int tx-id))
                 (redirect "/"))
-    (post-route [:category :update :name] [id label]
+    (post-route [:category :update :label] [id label]
                 (db/update-label db
                                  (util/parse-int id)
                                  label)

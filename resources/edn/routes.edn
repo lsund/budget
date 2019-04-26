@@ -9,7 +9,7 @@
         :category {:add "/add-category"
                    :delete "/delete-category"
                    :hide "/hide-category"
-                   :update {:name "/update-name"
+                   :update {:label "/update-label"
                             :start-balance "/update-start-balance"}}
         :transaction {:delete "/delete-transaction"
                       :update {:note "/transaction/update-note"}}
