@@ -12,6 +12,7 @@
                  [environ "1.0.0"]
                  [http-kit "2.2.0"]
                  [ring/ring-defaults "0.3.0"]
+                 [ring/ring-json "0.4.0"]
                  [compojure "1.6.1"]
                  [reagent "0.8.0"]
                  [hiccup "1.0.5"]

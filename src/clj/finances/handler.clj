@@ -15,6 +15,7 @@
             [compojure.route :as route]
             [clojure.edn :as edn]
             [clojure.set :as set]
+            [ring.middleware.json :refer [wrap-json-params]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.params :refer [wrap-params]]
@@ -81,8 +82,8 @@
                (views.budget.transaction-group/render config
                                                       {:transaction-group
                                                        (db/get-unreported-transactions db
-                                                                                    config
-                                                                                    (util/parse-int id))}))
+                                                                                       config
+                                                                                       (util/parse-int id))}))
     (get-route [:category :delete] [id]
                (render/delete-category?  id))
     (post-route :generate-report []
@@ -174,12 +175,16 @@
                            :fundtransaction
                            (util/parse-int fund-id))
                 (redirect "/funds")))
+   (POST "/merge-categories" [source-id dest-id]
+         (db/merge-categories db (util/parse-int source-id) (util/parse-int dest-id))
+         (redirect "/"))
    (route/resources "/")
    (route/not-found render/not-found)))
 
 (defn new-handler
   [config]
   (-> (app-routes config)
+      (wrap-json-params)
       (wrap-keyword-params)
       (wrap-params)
       (wrap-defaults

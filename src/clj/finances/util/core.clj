@@ -2,7 +2,7 @@
   (:require [clojure.string :as string]))
 
 (defn parse-int [s]
-  {:pre [(re-matches #"-?\d+" s)]}
+  {:pre [(or (integer? s) (re-matches #"-?\d+" s))]}
   (if (integer? s)
     s
     (Integer/parseInt s)))

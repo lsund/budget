@@ -10,7 +10,8 @@
                    :delete "/delete-category"
                    :hide "/hide-category"
                    :update {:label "/update-label"
-                            :start-balance "/update-start-balance"}}
+                            :start-balance "/update-start-balance"}
+                   :merge "/merge-categories"}
         :transaction {:delete "/delete-transaction"
                       :update {:note "/transaction/update-note"}}
         :transfer {:balance "/transfer/balance"

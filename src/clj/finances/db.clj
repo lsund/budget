@@ -242,7 +242,11 @@
 (defn merge-categories [db source-id dest-id]
   (let [{:keys [balance start_balance spent]} (row db :category source-id)]
     (jdbc/with-db-transaction [t-db db]
+      (jdbc/execute! t-db
+                     ["update transaction set categoryid = ? where categoryid = ?"
+                      dest-id
+                      source-id])
       (transfer-balance t-db source-id dest-id balance)
       (transfer-start-balance t-db source-id dest-id start_balance)
-      (transfer-start-balance t-db source-id dest-id spent)
-      (jdbc/delete! db :category ["id = ?" source-id]))))
+      (transfer-spent t-db source-id dest-id spent)
+      (jdbc/delete! t-db :category ["id = ?" source-id]))))
