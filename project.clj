@@ -1,4 +1,4 @@
-(defproject finances 2.10.0-SNAPSHOT
+(defproject finances "2.10.0-SNAPSHOT"
   :description "Fun finance program"
   :url "https://github.com/lsund/finances"
   :min-lein-version "2.7.0"
