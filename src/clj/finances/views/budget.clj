@@ -46,6 +46,10 @@
    [:td (:label t)]
    [:td (:amount t)]
    [:td (util.date/fmt-date (:ts t))]
+   [:td
+    (form-to  [:post "/transaction/update-note"]
+              [:input {:type :hidden :name "id" :value (:id t)}]
+              [:input {:type :text :name "note" :value (:note t)}])]
    [:td (form-to [:post "/delete-transaction"]
                  [:input {:name "tx-id" :type :hidden :value (:id t)}]
                  [:button "X"])]])
@@ -56,7 +60,7 @@
    [:td (apply + (map :amount transactions))]
    [:td (form-to [:get "/budget/transaction-group"]
                  [:input {:type :hidden :name "id" :value id}]
-                 [:button "Details"])]])
+                 [:button "D"])]])
 
 (defn render [config db-data]
   (html5
@@ -105,7 +109,12 @@
      [:h2 "Latest transactions"]
      [:table
       [:thead
-       [:tr [:th "Name"] [:th "Amount"] [:th "Date"] [:th "Remove"]]]
+       [:tr
+        [:th "Name"]
+        [:th "Amount"]
+        [:th "Date"]
+        [:th "Note"]
+        [:th "Remove"]]]
       [:tbody
        (for [transaction (->> db-data
                               :monthly-transactions
@@ -118,10 +127,8 @@
       [:thead
        [:tr
         [:th "Name"]
-        [:th "Amount"]
-        [:th "Date"]
-        [:th "Note"]
-        [:th "Remove"]]]
+        [:th "Total"]
+        [:th "Details"]]]
       [:tbody
        (for [transaction-group (->> db-data
                                     :monthly-transactions
