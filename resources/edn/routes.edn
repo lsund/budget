@@ -1,4 +1,5 @@
 {:get {:root "/"
+       :debts "/debts"
        :stocks "/stocks"
        :funds "/funds"
        :reports "/reports"

@@ -74,3 +74,11 @@ CREATE TABLE Report
     day         DATE NOT NULL,
     file        TEXT
 );
+
+
+CREATE TABLE Debt
+(
+    id          SERIAL PRIMARY KEY,
+    label       TEXT NOT NULL,
+    amount      INT NOT NULL
+);
