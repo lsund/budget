@@ -8,7 +8,10 @@
     [:tr {:style "vertical-align:middle;"}
      [:td.mui--appbar-height
       (form-to [:get "/"]
-               [:input {:type :submit :value "Index"}])]
+               [:input {:type :submit :value "Budget"}])]
+     [:td.mui--appbar-height
+      (form-to [:get "/debts"]
+               [:input {:type :submit :value "Debts"}])]
      [:td.mui--appbar-height
       (form-to [:get "/stocks"]
                [:input {:type :submit :value "Stocks"}])]

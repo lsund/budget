@@ -5,6 +5,7 @@
             [finances.views.budget :as views.budget]
             [finances.views.stocks :as views.stocks]
             [finances.views.funds :as views.funds]
+            [finances.views.debts :as views.debts]
             [finances.views.budget.transfer :as views.budget.transfer]
             [finances.views.budget.transaction-group :as views.budget.transaction-group]
             [finances.report :as report]
@@ -46,7 +47,7 @@
   {:total-finances (db/get-total-finances db)
    :total-remaining (db/get-total-remaining db)
    :total-spent (db/get-total-spent db)
-   :categories (->> (db/get-all db :category {:except {:label "Buffer"}})
+   :categories (->> (db/all db :category {:except {:label "Buffer"}})
                     (sort-by :balance >)
                     (filter (comp not :hidden)))
    :buffer (db/row db :category {:label "Buffer"})
@@ -63,19 +64,21 @@
                              {:generate-report-div true})]
                  (views.budget/render (merge config extra)
                                       (budget-db-data config db))))
+    (get-route :debts [id]
+               (views.debts/render config {:debts (db/all db :debts)}))
     (get-route :reports [id]
                (views.reports/render config {:report (when id (db/row db :report (util/parse-int id)))
-                                             :reports (db/get-all db :report)}))
+                                             :reports (db/all db :report)}))
     (get-route :stocks []
-               (views.stocks/render config {:stocks (db/get-all db :stock)
+               (views.stocks/render config {:stocks (db/all db :stock)
                                             :stocktransactions (db/get-stock-transactions db)}))
     (get-route :funds []
-               (views.funds/render config {:funds (db/get-all db :fund)
+               (views.funds/render config {:funds (db/all db :fund)
                                            :fundtransactions (db/get-fund-transactions db)}))
     (get-route [:budget :transfer] [id]
                (views.budget.transfer/render config
                                              {:category (db/row db :category (util/parse-int id))
-                                              :categories (->> (db/get-all db :category {:except {:label "Buffer"}})
+                                              :categories (->> (db/all db :category {:except {:label "Buffer"}})
                                                                (sort-by :balance >)
                                                                (filter (comp not :hidden)))}))
     (get-route [:budget :transaction-group] [id]

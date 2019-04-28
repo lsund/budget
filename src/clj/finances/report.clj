@@ -20,6 +20,6 @@
                           :remaining (db/get-total-remaining db)
                           :spent (db/get-total-spent db)}
                 :budget (map #(select-keys % [:label :start_balance :spent])
-                             (db/get-all db :category))}]
+                             (db/all db :category))}]
     (db/add db :report {:file (str report)
                         :day (util.date/today)})))

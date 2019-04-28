@@ -105,16 +105,16 @@
     (map? identifier) (first (jdbc/query db [(str "SELECT * FROM " (name table) " WHERE label=?")
                                              (:label identifier)]))))
 
-(defn get-all
+(defn all
   ([db table]
-   (get-all db table {}))
+   (all db table {}))
   ([db table {:keys [except]}]
    (if except
      (jdbc/query db [(str "select * from " (name table) " where label != ?") (:label except)])
      (jdbc/query db [(str "select * from " (name table))]))))
 
 (defn category-ids->names [db]
-  (let [cats (get-all db :category)
+  (let [cats (all db :category)
         ids (map :id cats)
         ns  (map :label cats)]
     (zipmap ids ns)))
