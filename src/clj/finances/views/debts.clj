@@ -8,7 +8,15 @@
    (html/navbar)
    [:head [:title "Finances"]]
    [:body.mui-container
-    [:p "Debts:"]
+    (form-to {} [:post "/add-debt"]
+             [:input
+              {:name "label" :type :text :placeholder "Debt label"}]
+             [:input {:name "funds" :type :number :value 0}]
+             [:button.mui-btn "Add Debt"])
+    [:h3 "Debts"]
+    [:ul
+     (for [debt (:debts db-data)]
+       [:li (str (:label debt) ":" (:amount debt))])]
     [:div#cljs-target]
     (apply include-js (:javascripts config))
     (apply include-css ["/css/style.css" "//cdn.muicss.com/mui-0.9.41/css/mui.min.css"])]))

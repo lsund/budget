@@ -65,7 +65,7 @@
                  (views.budget/render (merge config extra)
                                       (budget-db-data config db))))
     (get-route :debts [id]
-               (views.debts/render config {:debts (db/all db :debts)}))
+               (views.debts/render config {:debts (db/all db :debt)}))
     (get-route :reports [id]
                (views.reports/render config {:report (when id (db/row db :report (util/parse-int id)))
                                              :reports (db/all db :report)}))
@@ -98,6 +98,9 @@
                                  label
                                  (util/parse-int funds))
                 (redirect "/"))
+    (post-route [:debt :add] [label funds]
+                (db/add db :debt {:label label :amount (util/parse-int funds)})
+                (redirect "/debts"))
     (post-route [:transfer :balance] [from to amount]
                 (db/transfer-balance db
                                      (util/parse-int from)

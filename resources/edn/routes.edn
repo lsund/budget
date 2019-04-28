@@ -13,6 +13,7 @@
                    :update {:label "/update-label"
                             :start-balance "/update-start-balance"}
                    :merge "/merge-categories"}
+        :debt {:add "/add-debt"}
         :transaction {:delete "/delete-transaction"
                       :update {:note "/transaction/update-note"}}
         :transfer {:balance "/transfer/balance"
