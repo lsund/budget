@@ -10,14 +10,14 @@
 (defn category-row
   [c]
   [:tr
-   [:td (:name c)]
+   [:td (:label c)]
    [:td (:start_balance c)]
    [:td (:spent c)]])
 
 (defn transaction-row
   [t]
   [:tr
-   [:td (:name t)]
+   [:td (:label t)]
    [:td (:amount t)]
    [:td (:time t)]
    [:td (:note t)]])
