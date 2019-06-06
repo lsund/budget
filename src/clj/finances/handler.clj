@@ -2,11 +2,11 @@
   (:require [compojure.core :refer [POST routes]]
             [compojure.route :as route]
             [finances.db :as db]
-            [finances.render :as render]
             [finances.report :as report]
             [finances.util.core :as util]
             [finances.util.date :as util.date]
             [finances.views.budget :as views.budget]
+            [finances.views.delete-category :as views.delete-category]
             [finances.views.budget.transaction-group :as views.budget.transaction-group]
             [finances.views.budget.transfer :as views.budget.transfer]
             [finances.views.debts :as views.debts]
@@ -89,7 +89,7 @@
                                                                                        config
                                                                                        (util/parse-int id))}))
     (get-route [:category :delete] [id]
-               (render/delete-category?  id))
+               (views.delete-category/render  id))
     (post-route :generate-report []
                 (report/generate config)
                 (db/reset-month db)
