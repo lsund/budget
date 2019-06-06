@@ -55,8 +55,7 @@
    :category-ids->names (db/category-ids->names db)
    :monthly-transactions (db/get-unreported-transactions db config)})
 
-(defn- app-routes
-  [{:keys [db] :as config}]
+(defn- app-routes [{:keys [db] :as config}]
   (routes
    (generate-routes
     "resources/edn/routes.edn"

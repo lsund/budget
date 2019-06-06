@@ -123,7 +123,10 @@
   ([db config]
    (monthly-report-missing? db config (.getValue (util.date/finances-month (:salary-day config)))))
   ([db config month]
-   (-> (jdbc/query db ["select id from report where extract(month from day) = ?"
+   (-> (jdbc/query db ["SELECT id from report
+                        WHERE extract(month from day) = ?
+                        OR extract(month from day) = ?"
+                       month
                        (previous-month month)])
        empty?)))
 
