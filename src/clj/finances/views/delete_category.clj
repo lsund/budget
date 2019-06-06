@@ -1,4 +1,4 @@
-(ns finances.render
+(ns finances.views.delete-category
   (:require [taoensso.timbre :as logging]
             [hiccup.form :refer [form-to]]
             [hiccup.page :refer [html5 include-css include-js]]
@@ -6,7 +6,7 @@
             [finances.util.date :as util.date]
             [finances.html :as html]))
 
-(defn delete-category? [id]
+(defn render [id]
   (html5
    [:head [:title "Warning"]]
    [:body.mui-container
@@ -20,5 +20,3 @@
              [:input {:name "id" :type :hidden :value id}]
              [:button "Hide"])
     [:div#cljs-target]]))
-
-(def not-found (html5 "not found"))

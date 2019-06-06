@@ -1,23 +1,22 @@
 (ns finances.handler
-  (:require [finances.db :as db]
+  (:require [compojure.core :refer [POST routes]]
+            [compojure.route :as route]
+            [finances.db :as db]
             [finances.render :as render]
-            [finances.views.reports :as views.reports]
-            [finances.views.budget :as views.budget]
-            [finances.views.stocks :as views.stocks]
-            [finances.views.funds :as views.funds]
-            [finances.views.debts :as views.debts]
-            [finances.views.budget.transfer :as views.budget.transfer]
-            [finances.views.budget.transaction-group :as views.budget.transaction-group]
             [finances.report :as report]
             [finances.util.core :as util]
             [finances.util.date :as util.date]
+            [finances.views.budget :as views.budget]
+            [finances.views.budget.transaction-group :as views.budget.transaction-group]
+            [finances.views.budget.transfer :as views.budget.transfer]
+            [finances.views.debts :as views.debts]
+            [finances.views.funds :as views.funds]
+            [finances.views.reports :as views.reports]
+            [finances.views.stocks :as views.stocks]
             [me.lsund.routes :refer [generate-routes]]
-            [compojure.core :refer [GET POST routes]]
-            [compojure.route :as route]
-            [clojure.edn :as edn]
-            [clojure.set :as set]
-            [ring.middleware.json :refer [wrap-json-params]]
+            [hiccup.page :refer [html5 include-css include-js]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
+            [ring.middleware.json :refer [wrap-json-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.util.response :refer [redirect]]
@@ -27,6 +26,8 @@
 (logging/merge-config!
  {:appenders
   {:spit (appenders/spit-appender {:fname "data/finances.log"})}})
+
+(def not-found (html5 "not found"))
 
 (defn add-transaction [db tx-type id tx-date tx-buy
                        tx-shares tx-rate tx-total tx-currency]
@@ -185,7 +186,7 @@
          (db/merge-categories db (util/parse-int source-id) (util/parse-int dest-id))
          (redirect "/"))
    (route/resources "/")
-   (route/not-found render/not-found)))
+   (route/not-found not-found)))
 
 (defn new-handler
   [config]
