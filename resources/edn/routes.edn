@@ -7,6 +7,7 @@
        :budget {:transfer "/budget/transfer"
                 :transaction-group "/budget/transaction-group"}}
  :post {:generate-report "/generate-report"
+        :calibrate-start-balances "/calibrate-start-balances"
         :category {:add "/add-category"
                    :delete "/delete-category"
                    :hide "/hide-category"

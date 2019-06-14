@@ -10,7 +10,7 @@
    [finances.util.core :as util]
    [finances.util.date :as util.date]))
 
-(defn generate [{:keys [db] :as config}]
+(defn generate [{:keys [db] :as config} db-data]
   (let [report {:transactions (map #(-> %
                                         (select-keys [:label :amount :ts :note])
                                         (rename-keys {:ts :time}) ;; TODO remove this line

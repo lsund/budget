@@ -106,12 +106,8 @@
                                              (:label identifier)]))))
 
 (defn all
-  ([db table]
-   (all db table {}))
-  ([db table {:keys [except]}]
-   (if except
-     (jdbc/query db [(str "select * from " (name table) " where label != ?") (:label except)])
-     (jdbc/query db [(str "select * from " (name table))]))))
+  [db table]
+   (jdbc/query db [(str "select * from " (name table))]))
 
 (defn category-ids->names [db]
   (let [cats (all db :category)

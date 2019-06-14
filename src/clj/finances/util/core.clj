@@ -1,6 +1,10 @@
 (ns finances.util.core
   (:require [clojure.string :as string]))
 
+(defn category-diff [{:keys [start_balance spent]}]
+  (when (and start_balance spent)
+    (-  start_balance spent)))
+
 (defn parse-int [s]
   {:pre [(or (integer? s) (re-matches #"-?\d+" s))]}
   (if (integer? s)

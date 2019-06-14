@@ -2,11 +2,8 @@
   (:require [hiccup.form :refer [form-to]]
             [hiccup.page :refer [html5 include-css include-js]]
             [finances.util.date :as util.date]
+            [finances.util.core :as util]
             [finances.html :as html]))
-
-(defn diff [{:keys [start_balance spent]}]
-  (when (and start_balance spent)
-    (-  start_balance spent)))
 
 (defn category-row
   [category categories {:keys [invisible]}]
@@ -16,13 +13,7 @@
     (form-to  [:post "/update-label"]
               [:input {:type :hidden :name "id" :value (:id category)}]
               [:input {:type :text :name "label" :value (:label category)}])]
-   [:td
-    (form-to [:post "/update-start-balance"]
-             [:input {:type :hidden :name "id" :value (:id category)}]
-             [:input {:class "start-balance"
-                      :type :text
-                      :name "start-balance"
-                      :value (:start_balance category)}])]
+   [:td (:start_balance category)]
    [:td (:balance category)]
    [:td
     (form-to [:post "/spend"]
@@ -30,7 +21,7 @@
               [:input {:name "id" :type :hidden :value (:id category)}]
               [:input {:class "spend" :name "dec-amount" :type :number :placeholder "$"}]])]
    [:td (:spent category)]
-   [:td (diff category)]
+   [:td (util/category-diff category)]
    [:td (form-to [:get "/budget/transfer"]
                  [:input {:name "id" :type :hidden :value (:id category)}]
                  [:button "T"])]
@@ -67,12 +58,12 @@
    (html/navbar)
    [:head [:title "Finances"]]
    [:body.mui-container
-    (when (:generate-report-div config)
-      (do
-        [:div.generate-report-div
-         (form-to [:post "/generate-report"]
-                  [:label "I don't see a report for last month. Generate one now?"]
-                  [:button "Yes"])]))
+    (when #_(:generate-report-div config) true
+          (do
+            [:div.generate-report-div
+             (form-to [:post "/calibrate-start-balances"]
+                      [:label "I don't see a report for last month. Generate one now?"]
+                      [:button "Yes"])]))
     [:h1 (util.date/get-current-date-header (:salary-day config))]
     [:table
      [:thead

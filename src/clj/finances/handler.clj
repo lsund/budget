@@ -1,6 +1,7 @@
 (ns finances.handler
   (:require [compojure.core :refer [POST routes]]
             [compojure.route :as route]
+            [clojure.string :as string]
             [finances.db :as db]
             [finances.report :as report]
             [finances.util.core :as util]
@@ -9,11 +10,13 @@
             [finances.views.delete-category :as views.delete-category]
             [finances.views.budget.transaction-group :as views.budget.transaction-group]
             [finances.views.budget.transfer :as views.budget.transfer]
+            [finances.views.calibrate-start-balances :as views.calibrate-start-balances]
             [finances.views.debts :as views.debts]
             [finances.views.funds :as views.funds]
             [finances.views.reports :as views.reports]
             [finances.views.stocks :as views.stocks]
             [me.lsund.routes :refer [generate-routes]]
+            [medley.core :refer [map-keys]]
             [hiccup.page :refer [html5 include-css include-js]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [ring.middleware.json :refer [wrap-json-params]]
@@ -48,7 +51,8 @@
   {:total-finances (db/get-total-finances db)
    :total-remaining (db/get-total-remaining db)
    :total-spent (db/get-total-spent db)
-   :categories (->> (db/all db :category {:except {:label "Buffer"}})
+   :categories (->> (db/all db :category)
+                    (remove #(= (:label %) "Buffer"))
                     (sort-by :balance >)
                     (filter (comp not :hidden)))
    :buffer (db/row db :category {:label "Buffer"})
@@ -78,7 +82,8 @@
     (get-route [:budget :transfer] [id]
                (views.budget.transfer/render config
                                              {:category (db/row db :category (util/parse-int id))
-                                              :categories (->> (db/all db :category {:except {:label "Buffer"}})
+                                              :categories (->> (db/all db :category)
+                                                               (remove #(= (:label %) "Buffer"))
                                                                (sort-by :balance >)
                                                                (filter (comp not :hidden)))}))
     (get-route [:budget :transaction-group] [id]
@@ -89,10 +94,13 @@
                                                                                        (util/parse-int id))}))
     (get-route [:category :delete] [id]
                (views.delete-category/render  id))
-    (post-route :generate-report []
-                (report/generate config)
-                (db/reset-month db)
-                (redirect "/"))
+    (post-route :calibrate-start-balances []
+                (views.calibrate-start-balances/render config
+                                                       {:total-start-balance (db/get-total-finances db)
+                                                        :categories (->> (db/all db :category)
+                                                                         (sort-by :balance >)
+                                                                         (filter (comp not :hidden)))}))
+
     (post-route [:category :add] [label funds]
                 (db/add-category db
                                  label
@@ -181,6 +189,15 @@
                            :fundtransaction
                            (util/parse-int fund-id))
                 (redirect "/funds")))
+   (POST "/generate-report" req
+         (println (map-keys #(-> %
+                                 str
+                                 (string/split #"-")
+                                 last) (:params req)))
+         (redirect "/")
+         #_(report/generate config)
+         #_(db/reset-month db)
+         #_(redirect "/"))
    (POST "/merge-categories" [source-id dest-id]
          (db/merge-categories db (util/parse-int source-id) (util/parse-int dest-id))
          (redirect "/"))
