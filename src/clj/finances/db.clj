@@ -83,7 +83,9 @@
                       FROM transaction
                       INNER JOIN category
                       ON category.id = transaction.categoryid
-                      WHERE ts > ?" last-report-day])))
+                      WHERE ts > ?
+                      ORDER BY ts DESC"
+                     last-report-day])))
   ([db config id]
    (let [last-report-day (->> ["SELECT day FROM report order by day desc"]
                               (jdbc/query db)
@@ -94,7 +96,8 @@
                       INNER JOIN category
                       ON category.id = transaction.categoryid
                       WHERE ts > ?
-                      AND categoryid = ?"
+                      AND categoryid = ?
+                      ORDER BY ts DESC"
                      last-report-day
                      id]))))
 
