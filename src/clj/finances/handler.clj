@@ -1,23 +1,26 @@
 (ns finances.handler
-  (:require [compojure.core :refer [POST routes]]
+  (:require [clojure.string :as string]
+            [compojure.core :refer [POST routes]]
             [compojure.route :as route]
-            [clojure.string :as string]
             [finances.db :as db]
-            [finances.report :as report]
             [finances.util.core :as util]
             [finances.util.date :as util.date]
             [finances.views.budget :as views.budget]
-            [finances.views.delete-category :as views.delete-category]
-            [finances.views.budget.transaction-group :as views.budget.transaction-group]
+            [finances.views.budget.transaction-group
+             :as
+             views.budget.transaction-group]
             [finances.views.budget.transfer :as views.budget.transfer]
-            [finances.views.calibrate-start-balances :as views.calibrate-start-balances]
+            [finances.views.calibrate-start-balances
+             :as
+             views.calibrate-start-balances]
             [finances.views.debts :as views.debts]
+            [finances.views.delete-category :as views.delete-category]
             [finances.views.funds :as views.funds]
             [finances.views.reports :as views.reports]
             [finances.views.stocks :as views.stocks]
+            [hiccup.page :refer [html5]]
             [me.lsund.routes :refer [generate-routes]]
             [medley.core :refer [map-keys]]
-            [hiccup.page :refer [html5 include-css include-js]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [ring.middleware.json :refer [wrap-json-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
@@ -71,35 +74,54 @@
     (get-route :debts [id]
                (views.debts/render config {:debts (db/all db :debt)}))
     (get-route :reports [id]
-               (views.reports/render config {:report (when id (db/row db :report (util/parse-int id)))
-                                             :reports (db/all db :report)}))
+               (views.reports/render config
+                                     {:report (when id
+                                                (db/row db
+                                                        :report
+                                                        (util/parse-int id)))
+                                      :reports (db/all db :report)}))
     (get-route :stocks []
-               (views.stocks/render config {:stocks (db/all db :stock)
-                                            :stocktransactions (db/get-stock-transactions db)}))
+               (views.stocks/render config
+                                    {:stocks
+                                     (db/all db :stock)
+                                     :stocktransactions
+                                     (db/get-stock-transactions db)}))
     (get-route :funds []
-               (views.funds/render config {:funds (db/all db :fund)
-                                           :fundtransactions (db/get-fund-transactions db)}))
+               (views.funds/render config
+                                   {:funds
+                                    (db/all db :fund)
+                                    :fundtransactions
+                                    (db/get-fund-transactions db)}))
     (get-route [:budget :transfer] [id]
                (views.budget.transfer/render config
-                                             {:category (db/row db :category (util/parse-int id))
-                                              :categories (->> (db/all db :category)
-                                                               (remove #(= (:label %) "Buffer"))
-                                                               (sort-by :balance >)
-                                                               (filter (comp not :hidden)))}))
+                                             {:category
+                                              (db/row db
+                                                      :category
+                                                      (util/parse-int id))
+                                              :categories
+                                              (->> (db/all db :category)
+                                                   (remove #(= (:label %)
+                                                               "Buffer"))
+                                                   (sort-by :balance >)
+                                                   (filter (comp not :hidden)))}))
     (get-route [:budget :transaction-group] [id]
-               (views.budget.transaction-group/render config
-                                                      {:transaction-group
-                                                       (db/get-unreported-transactions db
-                                                                                       config
-                                                                                       (util/parse-int id))}))
+               (views.budget.transaction-group/render
+                config
+                {:transaction-group
+                 (db/get-unreported-transactions db
+                                                 config
+                                                 (util/parse-int id))}))
     (get-route [:category :delete] [id]
                (views.delete-category/render  id))
     (post-route :calibrate-start-balances []
-                (views.calibrate-start-balances/render config
-                                                       {:total-start-balance (db/get-total-finances db)
-                                                        :categories (->> (db/all db :category)
-                                                                         (sort-by :balance >)
-                                                                         (filter (comp not :hidden)))}))
+                (views.calibrate-start-balances/render
+                 config
+                 {:total-start-balance
+                  (db/get-total-finances db)
+                  :categories
+                  (->> (db/all db :category)
+                       (sort-by :balance >)
+                       (filter (comp not :hidden)))}))
 
     (post-route [:category :add] [label funds]
                 (db/add-category db

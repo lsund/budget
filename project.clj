@@ -33,5 +33,6 @@
                  :timeout 120000}
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.9"]]
                    :source-paths ["src/clj" "dev"]
-                   :clean-targets ^{:protect false} ["resources/public/js/compiled"
-                                                     :target-path]}})
+                   :clean-targets ^{:protect false}
+                   ["resources/public/js/compiled"
+                    :target-path]}})
