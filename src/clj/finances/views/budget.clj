@@ -59,12 +59,21 @@
    [:head [:title "Finances"]]
    [:body.mui-container
     (when (:generate-report-div config)
-          (do
-            [:div.generate-report-div
-             (form-to [:post "/calibrate-start-balances"]
-                      [:label "I don't see a report for last month. Generate one now?"]
-                      [:button "Yes"])]))
-    [:h1 (util.date/get-current-date-header (:salary-day config))]
+      (do
+        [:div.generate-report-div
+         (form-to [:post "/calibrate-start-balances"]
+                  [:label "I don't see a report for last month. Generate one now?"]
+                  [:button "Yes"])]))
+    [:h2 "Spend"]
+    (form-to [:post "/spend"]
+             [:div
+              [:select {:name "id"}
+               (for [cat (:categories db-data)]
+                 [:option {:value (:id cat)} (:label cat)])]
+              [:input {:class "spend" :name "dec-amount" :type :number :placeholder "$"}]])
+
+
+    [:h2 "Budget: " (util.date/get-current-date-header (:salary-day config))]
     [:table
      [:thead
       [:tr
