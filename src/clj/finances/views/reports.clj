@@ -65,7 +65,7 @@
          [:tbody
           (for [t (->> report
                        :transactions
-                       (sort-by :ts)
+                       (sort-by :time)
                        reverse)]
             (transaction-row t))]]]])
     [:div#cljs-target]

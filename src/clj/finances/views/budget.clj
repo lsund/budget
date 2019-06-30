@@ -28,7 +28,7 @@
   [:tr
    [:td (:label t)]
    [:td (:amount t)]
-   [:td (util.date/fmt-date (:ts t))]
+   [:td (util.date/fmt-date (:time t))]
    [:td
     (form-to  [:post "/transaction/update-note"]
               [:input {:type :hidden :name "id" :value (:id t)}]
@@ -109,7 +109,7 @@
       [:tbody
        (for [transaction (->> db-data
                               :monthly-transactions
-                              (sort-by :ts)
+                              (sort-by :time)
                               reverse
                               (take 10))]
          (transaction-row transaction))]]
@@ -123,7 +123,7 @@
       [:tbody
        (for [transaction-group (->> db-data
                                     :monthly-transactions
-                                    (sort-by :ts)
+                                    (sort-by :time)
                                     reverse
                                     (group-by :categoryid))]
          (transaction-group-row transaction-group))]]

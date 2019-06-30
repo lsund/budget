@@ -8,7 +8,7 @@
   [:tr
    [:td (:label transaction)]
    [:td (:amount transaction)]
-   [:td (util.date/fmt-date (:ts transaction))]
+   [:td (util.date/fmt-date (:time transaction))]
    [:td
     (form-to  [:post "/transaction/update-note"]
               [:input {:type :hidden :name "id" :value (:id transaction)}]

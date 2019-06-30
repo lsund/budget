@@ -83,8 +83,8 @@
                       FROM transaction
                       INNER JOIN category
                       ON category.id = transaction.categoryid
-                      WHERE ts > ?
-                      ORDER BY ts DESC"
+                      WHERE time > ?
+                      ORDER BY time DESC"
                      last-report-day])))
   ([db config id]
    (let [last-report-day (->> ["SELECT day FROM report order by day desc"]
@@ -95,9 +95,9 @@
                       FROM transaction
                       INNER JOIN category
                       ON category.id = transaction.categoryid
-                      WHERE ts > ?
+                      WHERE time > ?
                       AND categoryid = ?
-                      ORDER BY ts DESC"
+                      ORDER BY time DESC"
                      last-report-day
                      id]))))
 
@@ -200,7 +200,7 @@
 (defn add-transaction [db id amount op]
   (jdbc/insert! db :transaction {:categoryid id
                                  :amount (case op :increment amount :decrement (- amount))
-                                 :ts (java.time.LocalDateTime/now)})
+                                 :time (java.time.LocalDateTime/now)})
   (decrease-balance db amount id))
 
 (defn remove-transaction [db tx-id]
