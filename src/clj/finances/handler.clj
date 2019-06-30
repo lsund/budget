@@ -1,5 +1,6 @@
 (ns finances.handler
   (:require [clojure.string :as string]
+            [clojure.java.jdbc :as jdbc]
             [compojure.core :refer [POST routes]]
             [compojure.route :as route]
             [finances.report :as report]
@@ -143,6 +144,17 @@
                                            (util/parse-int from)
                                            (util/parse-int to)
                                            (util/parse-int amount))
+                (redirect "/"))
+    (post-route [:transfer :both] [from to amount]
+                (jdbc/with-db-transaction [t-db db]
+                  (db/transfer-balance t-db
+                                       (util/parse-int from)
+                                       (util/parse-int to)
+                                       (util/parse-int amount))
+                  (db/transfer-start-balance t-db
+                                             (util/parse-int from)
+                                             (util/parse-int to)
+                                             (util/parse-int amount)))
                 (redirect "/"))
     (post-route :spend [id dec-amount]
                 (db/add-transaction db

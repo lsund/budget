@@ -17,7 +17,8 @@
         :debt {:add "/add-debt"}
         :transaction {:delete "/delete-transaction"
                       :update {:note "/transaction/update-note"}}
-        :transfer {:balance "/transfer/balance"
+        :transfer {:both "/transfer/both"
+                   :balance "/transfer/balance"
                    :start-balance "/transfer/start-balance"}
         :spend "/spend"
         :stocks {:add {:transaction "/stocks/add-transaction"}
