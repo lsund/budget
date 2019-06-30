@@ -1,0 +1,5 @@
+#!/bin/zsh
+
+clojure-tools release --push
+git push heroku master
+clojure-tools bump --push
