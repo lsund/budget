@@ -9,17 +9,9 @@
   [category categories {:keys [invisible]}]
   [:tr {:class (when invisible "invisible")}
 
-   [:td
-    (form-to  [:post "/update-label"]
-              [:input {:type :hidden :name "id" :value (:id category)}]
-              [:input {:type :text :name "label" :value (:label category)}])]
+   [:td (:label category)]
    [:td (:start_balance category)]
    [:td (:balance category)]
-   [:td
-    (form-to [:post "/spend"]
-             [:div
-              [:input {:name "id" :type :hidden :value (:id category)}]
-              [:input {:class "spend" :name "dec-amount" :type :number :placeholder "$"}]])]
    [:td (:spent category)]
    [:td (util/category-diff category)]
    [:td (form-to [:get "/budget/transfer"]
@@ -80,7 +72,6 @@
        [:th "Name"]
        [:th "Start Balance"]
        [:th "Balance"]
-       [:th "Spend"]
        [:th "Spent"]
        [:th "Diff"]
        [:th "Transfer"]
