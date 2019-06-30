@@ -23,31 +23,15 @@
                  [slingshot "0.12.2"]
                  [me.lsund/util "0.4.3"]]
   :plugins [[environ/environ.lein "0.3.1"]
-            [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]
             [io.aviso/pretty "0.1.34"]]
-  :source-paths ["src/clj" "src/cljs"]
+  :source-paths ["src/clj"]
   :uberjar-name "finances-standalone.jar"
   :ring {:handler finances.core/new-handler}
   :main finances.main
-  :cljsbuild {:builds
-              [{:id "dev"
-                :source-paths ["src/cljs"]
-                :compiler {:main                 finances.core
-                           :asset-path           "js/compiled/out"
-                           :output-to            "resources/public/js/compiled/finances.js"
-                           :output-dir           "resources/public/js/compiled/out"
-                           :source-map-timestamp true
-                           :preloads             [devtools.preload]}}
-               {:id "min"
-                :source-paths ["src/cljs"]
-                :compiler {:output-to     "resources/public/js/compiled/finances.js"
-                           :main          finances.core
-                           :optimizations :advanced
-                           :pretty-print  false}}]}
   :figwheel {:css-dirs ["resources/public/css"]}
   :repl-options {:init-ns user
                  :timeout 120000}
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.9"]]
-                   :source-paths ["src/clj" "src/cljs" "dev"]
+                   :source-paths ["src/clj" "dev"]
                    :clean-targets ^{:protect false} ["resources/public/js/compiled"
                                                      :target-path]}})
