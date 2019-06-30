@@ -58,7 +58,7 @@
    (html/navbar)
    [:head [:title "Finances"]]
    [:body.mui-container
-    (when #_(:generate-report-div config) true
+    (when (:generate-report-div config)
           (do
             [:div.generate-report-div
              (form-to [:post "/calibrate-start-balances"]

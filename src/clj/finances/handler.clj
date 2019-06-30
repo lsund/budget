@@ -212,16 +212,22 @@
                            (util/parse-int fund-id))
                 (redirect "/funds")))
    (POST "/generate-report" req
-         (println (map-keys #(-> %
-                                 str
-                                 (string/split #"-")
-                                 last) (:params req)))
-         (redirect "/")
-         #_(report/generate config)
-         #_(db/reset-month db)
-         #_(redirect "/"))
+         (report/generate config)
+         (db/update-start-balances! db
+                                    (map (fn [[x y]]
+                                           {:id (util/parse-int x)
+                                            :start-balance (util/parse-int y)})
+                                         (map-keys #(-> %
+                                                        str
+                                                        (string/split #"-")
+                                                        last)
+                                                   (:params req))))
+         (db/reset-month db)
+         (redirect "/"))
    (POST "/merge-categories" [source-id dest-id]
-         (db/merge-categories db (util/parse-int source-id) (util/parse-int dest-id))
+         (db/merge-categories db
+                              (util/parse-int source-id)
+                              (util/parse-int dest-id))
          (redirect "/"))
    (route/resources "/")
    (route/not-found not-found)))

@@ -231,12 +231,22 @@
 
 (defn transfer-start-balance [db from to amount]
   (jdbc/with-db-transaction [t-db db]
-    (jdbc/execute! t-db ["update category set start_balance=start_balance-? where id=?" amount from])
+    (jdbc/execute! t-db ["UPDATE category
+                          SET start_balance=start_balance-?
+                          WHERE id=?" amount from])
     (jdbc/execute! t-db ["update category set start_balance=start_balance+? where id=?" amount to])))
 (defn transfer-spent [db from to amount]
   (jdbc/with-db-transaction [t-db db]
     (jdbc/execute! t-db ["update category set spent=spent-? where id=?" amount from])
     (jdbc/execute! t-db ["update category set spent=spent+? where id=?" amount to])))
+
+(defn update-start-balances! [db balances]
+  (jdbc/with-db-transaction [t-db db]
+    (doseq [{:keys [id start-balance]} balances]
+      (jdbc/execute! t-db
+                     ["UPDATE category
+                       SET start_balance=?
+                       WHERE id=?" start-balance id]))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Merge two categories
