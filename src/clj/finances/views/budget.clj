@@ -90,13 +90,6 @@
        [:td ""]
        [:td (:total-spent db-data)]]]]
     [:div
-     [:h3 "Add New Spend Category"]
-     (form-to {:class "add-category"} [:post "/add-category"]
-              [:input
-               {:name "label" :type :text :placeholder "Category name"}]
-              [:input {:name "funds" :type :number :value 0}]
-              [:button.mui-btn "Add category"])]
-    [:div
      [:h2 "Latest transactions"]
      [:table
       [:thead
@@ -128,6 +121,11 @@
                                     (group-by :categoryid))]
          (transaction-group-row transaction-group))]]
      [:p (str "Total: " (apply + (map :amount (:monthly-transactions db-data))))]]
-    [:div#cljs-target]
-    (apply include-js (:javascripts config))
+    [:div
+     [:h3 "Add New Spend Category"]
+     (form-to {:class "add-category"} [:post "/add-category"]
+              [:input
+               {:name "label" :type :text :placeholder "Category name"}]
+              [:input {:name "funds" :type :number :value 0}]
+              [:button.mui-btn "Add category"])]
     (apply include-css ["/css/style.css" "//cdn.muicss.com/mui-0.9.41/css/mui.min.css"])]))
