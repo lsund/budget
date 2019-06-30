@@ -13,7 +13,7 @@
 (defn generate [{:keys [db] :as config}]
   (let [report {:transactions (map #(-> %
                                         (select-keys [:label :amount :ts :note])
-                                        (rename-keys {:ts :time}) ;; TODO remove this line
+                                        (rename-keys {:ts :time}) ;; TODO get rid of this conversion
                                         (update :time (fn [t] (util.date/fmt-date t))))
                                    (db/get-unreported-transactions db config))
                 :summary {:was (db/get-total-finances db)

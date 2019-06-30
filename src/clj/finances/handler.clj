@@ -2,6 +2,7 @@
   (:require [clojure.string :as string]
             [compojure.core :refer [POST routes]]
             [compojure.route :as route]
+            [finances.report :as report]
             [finances.db :as db]
             [finances.util.core :as util]
             [finances.util.date :as util.date]
