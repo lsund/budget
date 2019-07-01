@@ -43,7 +43,9 @@
             tx-shares tx-rate tx-total tx-currency])
   (db/add-row db
               tx-type
-              {(if (= tx-type :stocktransaction) :stockid :fundid) id
+              {(if (= tx-type :stocktransaction)
+                 :stockid
+                 :fundid) id
                :acc "ISK"
                :day (util.date/->localdate tx-date)
                :shares (util/parse-int tx-shares)
@@ -58,7 +60,6 @@
    :total-spent (db/get-total-spent db)
    :categories (->> (db/all db :category)
                     (remove #(= (:label %) "Buffer"))
-                    (sort-by :balance >)
                     (filter (comp not :hidden)))
    :buffer (db/row db :category {:label "Buffer"})
    :category-ids->names (db/category-ids->names db)

@@ -54,15 +54,19 @@
       (do
         [:div.generate-report-div
          (form-to [:post "/calibrate-start-balances"]
-                  [:label "I don't see a report for last month. Generate one now?"]
+                  [:label "I don't see a report for last month.
+                           Generate one now?"]
                   [:button "Yes"])]))
     [:h2 "Spend"]
     (form-to [:post "/spend"]
              [:div
               [:select {:name "id"}
-               (for [cat (:categories db-data)]
+               (for [cat (sort-by :label (:categories db-data))]
                  [:option {:value (:id cat)} (:label cat)])]
-              [:input {:class "spend" :name "dec-amount" :type :number :placeholder "$"}]])
+              [:input {:class "spend"
+                       :name "dec-amount"
+                       :type :number
+                       :placeholder "$"}]])
 
 
     [:h2 "Budget: " (util.date/get-current-date-header (:salary-day config))]
@@ -81,7 +85,7 @@
         (concat
          [(category-row (:buffer db-data) cs {})
           (category-row {} [] {:invisible true})]
-         (for [c (:categories db-data)]
+         (for [c (sort-by :label (:categories db-data))]
            (category-row c cs {}))))
       [:row
        [:td ""]
@@ -128,4 +132,5 @@
                {:name "label" :type :text :placeholder "Category name"}]
               [:input {:name "funds" :type :number :value 0}]
               [:button.mui-btn "Add category"])]
-    (apply include-css ["/css/style.css" "//cdn.muicss.com/mui-0.9.41/css/mui.min.css"])]))
+    (apply include-css ["/css/style.css"
+                        "//cdn.muicss.com/mui-0.9.41/css/mui.min.css"])]))
