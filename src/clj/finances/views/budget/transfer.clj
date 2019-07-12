@@ -38,4 +38,4 @@
 
     [:div#cljs-target]
     (apply include-js (:javascripts config))
-    (apply include-css ["/css/style.css" "//cdn.muicss.com/mui-0.9.41/css/mui.min.css"])]))
+    (apply include-css (:styles config))]))

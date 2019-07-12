@@ -132,5 +132,4 @@
                {:name "label" :type :text :placeholder "Category name"}]
               [:input {:name "funds" :type :number :value 0}]
               [:button.mui-btn "Add category"])]
-    (apply include-css ["/css/style.css"
-                        "//cdn.muicss.com/mui-0.9.41/css/mui.min.css"])]))
+    (apply include-css (:styles config))]))
