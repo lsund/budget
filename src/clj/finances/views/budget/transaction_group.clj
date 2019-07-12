@@ -20,8 +20,7 @@
 (defn render [config {:keys [transaction-group]}]
   (html5
    (html/navbar)
-   [:head [:title "Finances"]
-    [:link {:type "text/css" :rel "stylesheet" :href "/css/mui.css"}]]
+   [:head [:title "Finances"]]
    [:body.mui-container
     [:h3 (str "Details for " (:label (first transaction-group)))]
     [:table
@@ -36,5 +35,5 @@
       (for [transaction transaction-group]
         (transaction-row transaction))]]
     [:div#cljs-target]
-    #_(apply include-js (:javascripts config))
-    #_(apply include-css (:styles config))]))
+    (apply include-js (:javascripts config))
+    (apply include-css (:styles config))]))
