@@ -21,7 +21,7 @@
   (html5
    (html/navbar)
    [:head [:title "Finances"]
-    [:link {:rel "stylesheet" :href "/css/mui.css"}]]
+    [:link {:type "text/css" :rel "stylesheet" :href "/css/mui.css"}]]
    [:body.mui-container
     [:h3 (str "Details for " (:label (first transaction-group)))]
     [:table
@@ -36,5 +36,5 @@
       (for [transaction transaction-group]
         (transaction-row transaction))]]
     [:div#cljs-target]
-    (apply include-js (:javascripts config))
+    #_(apply include-js (:javascripts config))
     #_(apply include-css (:styles config))]))
