@@ -60,7 +60,8 @@
    :total-spent (db/get-total-spent db)
    :categories (->> (db/all db :category)
                     (remove #(= (:label %) "Buffer"))
-                    (filter (comp not :hidden)))
+                    (filter (comp not :hidden))
+                    (sort-by :label))
    :buffer (db/row db :category {:label "Buffer"})
    :category-ids->names (db/category-ids->names db)
    :monthly-transactions (db/get-unreported-transactions db config)})
@@ -105,7 +106,7 @@
                                               (->> (db/all db :category)
                                                    (remove #(= (:label %)
                                                                "Buffer"))
-                                                   (sort-by :balance >)
+                                                   (sort-by :label)
                                                    (filter (comp not :hidden)))}))
     (get-route [:budget :transaction-group] [id]
                (views.budget.transaction-group/render
@@ -123,7 +124,7 @@
                   (db/get-total-finances db)
                   :categories
                   (->> (db/all db :category)
-                       (sort-by :balance >)
+                       (sort-by :label)
                        (filter (comp not :hidden)))}))
 
     (post-route [:category :add] [label funds]

@@ -61,7 +61,7 @@
     (form-to [:post "/spend"]
              [:div
               [:select {:name "id"}
-               (for [cat (sort-by :label (:categories db-data))]
+               (for [cat (:categories db-data)]
                  [:option {:value (:id cat)} (:label cat)])]
               [:input {:class "spend"
                        :name "dec-amount"
@@ -85,7 +85,7 @@
         (concat
          [(category-row (:buffer db-data) cs {})
           (category-row {} [] {:invisible true})]
-         (for [c (sort-by :label (:categories db-data))]
+         (for [c (:categories db-data)]
            (category-row c cs {}))))
       [:row
        [:td ""]
