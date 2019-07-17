@@ -6,21 +6,23 @@
             [finances.html :as html]))
 
 (defn category-row
-  [category categories {:keys [invisible]}]
+  [{:keys [id label start_balance balance spent] :as category}
+   categories
+   {:keys [invisible]}]
   [:tr {:class (when invisible "invisible")}
-
-   [:td (:label category)]
-   [:td (:start_balance category)]
-   [:td (:balance category)]
-   [:td (:spent category)]
+   [:td label]
+   [:td start_balance]
+   [:td {:class (when (and balance (neg? balance))
+                  "red")} balance]
+   [:td  spent]
    [:td (util/category-diff category)]
    [:td (form-to [:get "/budget/transfer"]
-                 [:input {:name "id" :type :hidden :value (:id category)}]
+                 [:input {:name "id" :type :hidden :value id}]
                  [:button "T"])]
    [:td
     (form-to
      [:get "/delete-category"]
-     [:input {:name "id" :type :hidden :value (:id category)}]
+     [:input {:name "id" :type :hidden :value id}]
      [:button "X"])]])
 
 (defn transaction-row
@@ -45,7 +47,8 @@
                  [:input {:type :hidden :name "id" :value id}]
                  [:button "D"])]])
 
-(defn render [config db-data]
+(defn render [config {:keys [total-spent total-remaining total-finances]
+                      :as db-data}]
   (html5
    (html/navbar)
    [:head [:title "Finances"]]
@@ -67,8 +70,6 @@
                        :name "dec-amount"
                        :type :number
                        :placeholder "$"}]])
-
-
     [:h2 "Budget: " (util.date/get-current-date-header (:salary-day config))]
     [:table
      [:thead
@@ -89,10 +90,10 @@
            (category-row c cs {}))))
       [:row
        [:td ""]
-       [:td (:total-finances db-data)]
-       [:td (:total-remaining db-data)]
+       [:td total-finances]
+       [:td {:class (when (neg? total-remaining) "red")} total-remaining]
        [:td ""]
-       [:td (:total-spent db-data)]]]]
+       [:td  total-spent]]]]
     [:div
      [:h2 "Latest transactions"]
      [:table

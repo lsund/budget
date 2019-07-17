@@ -58,3 +58,7 @@ select {
 .generate-report-div {
     background-color: #ffe6ff;
 }
+
+.red {
+    color: red;
+}

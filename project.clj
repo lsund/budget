@@ -34,5 +34,4 @@
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.9"]]
                    :source-paths ["src/clj" "dev"]
                    :clean-targets ^{:protect false}
-                   ["resources/public/js/compiled"
-                    :target-path]}})
+                   ["resources/public/js/compiled" :target-path]}})
