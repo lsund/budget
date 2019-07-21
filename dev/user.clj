@@ -24,5 +24,4 @@
 
 (defn system-restart! []
   (system-stop!)
-  (tools/refresh :after 'user/system-go!)
-  (system-go!))
+  (tools/refresh :after 'user/system-go!))

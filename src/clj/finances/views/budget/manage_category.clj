@@ -10,6 +10,20 @@
    [:head [:title "Finances"]]
    [:body.mui-container
     [:div
+     [:h2 (:label category)]
+     (form-to [:post "/update-label"]
+              [:input {:name "id" :type :hidden :value (:id category)}]
+              [:label "Change Label: "]
+              [:input {:name "label"
+                       :type "text"
+                       :value (:label category)}])
+     (form-to [:post "/update-start-balance"]
+              [:input {:name "id" :type :hidden :value (:id category)}]
+              [:label "Change Start Balance: "]
+              [:input {:name "start-balance"
+                       :type "text"
+                       :value (:start_balance category)}])]
+    [:div
      [:div.left
       [:h2 (:label category)]
       (if (pos? (:balance category))
@@ -59,19 +73,5 @@
         [:div "Non-positive start balance"])]
      [:div.right
       (views.budget/budget-table {:simple? true
-                                  :highlight 4} db-data)]
-     [:div
-      [:h2 (:label category)]
-      (form-to [:post "/update-label"]
-               [:input {:name "id" :type :hidden :value (:id category)}]
-               [:label "Change Label: "]
-               [:input {:name "label"
-                        :type "text"
-                        :value (:label category)}])
-      (form-to [:post "/update-start-balance"]
-               [:input {:name "id" :type :hidden :value (:id category)}]
-               [:label "Change Start Balance: "]
-               [:input {:name "start-balance"
-                        :type "text"
-                        :value (:start_balance category)}])]]
+                                  :highlight 4} db-data)]]
     (apply include-css (:styles config))]))
