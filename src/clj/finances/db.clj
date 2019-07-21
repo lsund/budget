@@ -110,7 +110,7 @@
 
 (defn all
   [db table]
-   (jdbc/query db [(str "select * from " (name table))]))
+  (jdbc/query db [(str "select * from " (name table))]))
 
 (defn category-ids->names [db]
   (let [cats (all db :category)
@@ -129,19 +129,13 @@
                        (previous-month month)])
        empty?)))
 
-(defn get-stock-transactions [db]
+(defn get-asset-transactions [db type]
   (jdbc/query db
-              ["SELECT stocktransaction.*, stock.*
-                FROM stocktransaction
-                INNER JOIN stock
-                ON stocktransaction.stockid = stock.id"]))
-
-(defn get-fund-transactions [db]
-  (jdbc/query db
-              ["SELECT fundtransaction.*, fund.*
-                FROM fundtransaction
-                INNER JOIN fund
-                ON fundtransaction.fundid = fund.id"]))
+              ["SELECT AssetTransaction.*, asset.*
+                FROM assettransaction
+                INNER JOIN asset
+                ON assettransaction.assetid = asset.id AND asset.type=?"
+               (case type :stock 1 2)]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modify
@@ -262,3 +256,20 @@
       (transfer-start-balance t-db source-id dest-id start_balance)
       (transfer-spent t-db source-id dest-id spent)
       (jdbc/delete! t-db :category ["id = ?" source-id]))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Migrations
+
+(defn merge-stock-with-funds [db]
+  (jdbc/execute! db ["ALTER TABLE stock ADD COLUMN type INT NOT NULL DEFAULT 1"])
+  (jdbc/execute! db ["alter table stock rename TO asset"])
+  (jdbc/execute! db ["alter table stocktransaction rename to assettransaction"])
+  (jdbc/execute! db ["alter table assettransaction  rename column stockid to assetid"])
+  (jdbc/execute! db ["alter table fundtransaction rename column fundid to assetid"])
+  (doseq [fund (all db :fundtransaction)]
+    (add-row db :assettransaction
+             (update
+              (select-keys fund [:day :acc :buy :shares :rate :currency :total :assetid])
+              :assetid #(+ % 30))))
+  (doseq [fund (all db :fund)]
+      (add-row db :stock (assoc (select-keys fund [:label :tag]) :type 2))))

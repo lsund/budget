@@ -23,10 +23,10 @@ CREATE TABLE Transaction
 /* Courtage for a stock transaction can be calculated by rate * shares - total */
 
 
-CREATE TABLE StockTransaction
+CREATE TABLE AssetTransaction
 (
     id          SERIAL PRIMARY KEY,
-    stockid     INT NOT NULL,
+    assetid     INT NOT NULL,
     day         DATE NOT NULL,
     acc         VARCHAR(64) NOT NULL,
     buy         BOOLEAN NOT NULL,
@@ -35,38 +35,17 @@ CREATE TABLE StockTransaction
     currency    VARCHAR(16) NOT NULL,
     total       FLOAT NOT NULL,
 
-    FOREIGN KEY (stockid) REFERENCES Stock (id)
+    FOREIGN KEY (assetid) REFERENCES Asset (id)
 );
 
-CREATE TABLE Stock
+CREATE TABLE Asset
 (
     id          SERIAL PRIMARY KEY,
     label       VARCHAR(64) NOT NULL,
-    tag         VARCHAR(16) NOT NULL
+    tag         VARCHAR(16) NOT NULL,
+    type        INT NOT NULL
 );
 
-
-CREATE TABLE FundTransaction
-(
-    id          SERIAL PRIMARY KEY,
-    fundid      INT NOT NULL,
-    day         DATE NOT NULL,
-    acc         VARCHAR(64) NOT NULL,
-    buy         BOOLEAN NOT NULL,
-    shares      FLOAT NOT NULL,
-    rate        FLOAT NOT NULL,
-    currency    VARCHAR(16) NOT NULL,
-    total       FLOAT NOT NULL,
-
-    FOREIGN KEY (stockid) REFERENCES Stock (id)
-);
-
-CREATE TABLE Fund
-(
-    id          SERIAL PRIMARY KEY,
-    label       VARCHAR(64) NOT NULL,
-    tag         VARCHAR(16) NOT NULL
-);
 
 CREATE TABLE Report
 (

@@ -43,9 +43,7 @@
             tx-shares tx-rate tx-total tx-currency])
   (db/add-row db
               tx-type
-              {(if (= tx-type :stocktransaction)
-                 :stockid
-                 :fundid) id
+              {:assetid id
                :acc "ISK"
                :day (util.date/->localdate tx-date)
                :shares (util/parse-int tx-shares)
@@ -90,15 +88,15 @@
    (GET "/stocks" []
         (views.stocks/render config
                              {:stocks
-                              (db/all db :stock)
+                              (db/all db :asset)
                               :stocktransactions
-                              (db/get-stock-transactions db)}))
+                              (db/get-asset-transactions db :stock)}))
    (GET "/funds" []
         (views.funds/render config
                             {:funds
-                             (db/all db :fund)
+                             (db/all db :asset)
                              :fundtransactions
-                             (db/get-fund-transactions db)}))
+                             (db/get-asset-transactions db :fund)}))
    (GET "/budget/manage-category" [id]
         (views.budget.manage-category/render config
                                              (assoc (budget-db-data config db)
@@ -190,7 +188,7 @@
                                       stock-rate stock-total
                                       stock-currency]
          (add-transaction db
-                          :stocktransaction
+                          :assettransaction
                           (util/parse-int stock-id)
                           stock-date
                           stock-buy
@@ -202,7 +200,7 @@
    (POST "/stocks/delete-transaction" [stock-id]
          (logging/info stock-id)
          (db/delete db
-                    :stocktransaction
+                    :assettransaction
                     (util/parse-int stock-id))
          (redirect "/stocks"))
    (POST "/funds/add-transaction" [fund-id fund-date
