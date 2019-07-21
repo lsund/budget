@@ -98,16 +98,11 @@
                                     (db/get-fund-transactions db)}))
     (get-route [:budget :transfer] [id]
                (views.budget.transfer/render config
-                                             {:category
-                                              (db/row db
-                                                      :category
-                                                      (util/parse-int id))
-                                              :categories
-                                              (->> (db/all db :category)
-                                                   (remove #(= (:label %)
-                                                               "Buffer"))
-                                                   (sort-by :label)
-                                                   (filter (comp not :hidden)))}))
+                                             (assoc (budget-db-data config db)
+                                                    :category
+                                                    (db/row db
+                                                            :category
+                                                            (util/parse-int id)))))
     (get-route [:budget :transaction-group] [id]
                (views.budget.transaction-group/render
                 config
@@ -140,13 +135,13 @@
                                      (util/parse-int from)
                                      (util/parse-int to)
                                      (util/parse-int amount))
-                (redirect "/"))
+                (redirect (str "/budget/transfer?id=" from)))
     (post-route [:transfer :start-balance] [from to amount]
                 (db/transfer-start-balance db
                                            (util/parse-int from)
                                            (util/parse-int to)
                                            (util/parse-int amount))
-                (redirect "/"))
+                (redirect (str "/budget/transfer?id=" from)))
     (post-route [:transfer :both] [from to amount]
                 (jdbc/with-db-transaction [t-db db]
                   (db/transfer-balance t-db
@@ -157,7 +152,7 @@
                                              (util/parse-int from)
                                              (util/parse-int to)
                                              (util/parse-int amount)))
-                (redirect "/"))
+                (redirect (str "/budget/transfer?id=" from)))
     (post-route :spend [id dec-amount]
                 (db/add-transaction db
                                     (util/parse-int id)

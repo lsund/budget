@@ -8,22 +8,24 @@
 (defn category-row
   [{:keys [id label start_balance balance spent] :as category}
    categories
-   {:keys [invisible]}]
-  [:tr {:class (when invisible "invisible")}
-   [:td label]
-   [:td start_balance]
-   [:td {:class (when (and balance (neg? balance))
-                  "red")} balance]
-   [:td  spent]
-   [:td (util/category-diff category)]
-   [:td (form-to [:get "/budget/transfer"]
-                 [:input {:name "id" :type :hidden :value id}]
-                 [:button "T"])]
-   [:td
-    (form-to
-     [:get "/delete-category"]
-     [:input {:name "id" :type :hidden :value id}]
-     [:button "X"])]])
+   {:keys [invisible? simple?]}]
+  (-> [:tr {:class (when invisible? "invisible")}]
+      (concat [[:td label]
+               [:td {:class (when (and balance (neg? balance))
+                              "red")} balance]]
+              (when-not simple?
+                [[:td start_balance]
+                 [:td spent]
+                 [:td (util/category-diff category)]
+                 [:td (form-to [:get "/budget/transfer"]
+                               [:input {:name "id" :type :hidden :value id}]
+                               [:button "T"])]
+                 [:td
+                  (form-to
+                   [:get "/delete-category"]
+                   [:input {:name "id" :type :hidden :value id}]
+                   [:button "X"])]]))
+      vec))
 
 (defn transaction-row
   [t]
@@ -46,6 +48,34 @@
    [:td (form-to [:get "/budget/transaction-group"]
                  [:input {:type :hidden :name "id" :value id}]
                  [:button "D"])]])
+
+(defn budget-table [{:keys [simple?] :as options}
+                    {:keys [total-spent total-remaining total-finances]
+                     :as db-data}]
+  [:table
+   [:thead
+    (-> [:tr] (concat [[:th "Name"]
+                       [:th "Balance"]]
+                      (when-not simple?
+                        [[:th "Start Balance"]
+                         [:th "Spent"]
+                         [:th "Diff"]
+                         [:th "Transfer"]
+                         [:th "Delete"]]))
+        vec)]
+   [:tbody
+    (let [cs (conj (:categories db-data) (:buffer db-data))]
+      (concat
+       [(category-row (:buffer db-data) cs options)
+        (category-row {} [] (assoc options :invisible? true))]
+       (for [c (:categories db-data)]
+         (category-row c cs options))))
+    [:tr
+     [:td ""]
+     [:td total-finances]
+     [:td {:class (when (neg? total-remaining) "red")} total-remaining]
+     [:td ""]
+     [:td  total-spent]]]])
 
 (defn render [config {:keys [total-spent total-remaining total-finances]
                       :as db-data}]
@@ -71,29 +101,7 @@
                        :type :number
                        :placeholder "$"}]])
     [:h2 "Budget: " (util.date/get-current-date-header (:salary-day config))]
-    [:table
-     [:thead
-      [:tr
-       [:th "Name"]
-       [:th "Start Balance"]
-       [:th "Balance"]
-       [:th "Spent"]
-       [:th "Diff"]
-       [:th "Transfer"]
-       [:th "Delete"]]]
-     [:tbody
-      (let [cs (conj (:categories db-data) (:buffer db-data))]
-        (concat
-         [(category-row (:buffer db-data) cs {})
-          (category-row {} [] {:invisible true})]
-         (for [c (:categories db-data)]
-           (category-row c cs {}))))
-      [:row
-       [:td ""]
-       [:td total-finances]
-       [:td {:class (when (neg? total-remaining) "red")} total-remaining]
-       [:td ""]
-       [:td  total-spent]]]]
+    (budget-table {:simple? false} db-data)
     [:div
      [:h2 "Latest transactions"]
      [:table

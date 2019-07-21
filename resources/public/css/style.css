@@ -8,6 +8,18 @@ tr > td  {
     border-left: 25px solid transparent;
 }
 
+.right {
+    margin-top: 50px;
+    margin-right: 150px;
+    float: right;
+}
+
+.left {
+    margin-top: 50px;
+    margin-left: 150px;
+    float: left;
+}
+
 .add-category {
     margin-top: 50px;
     margin-bottom: 50px;
