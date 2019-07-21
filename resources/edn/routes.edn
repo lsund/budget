@@ -4,7 +4,7 @@
        :funds "/funds"
        :reports "/reports"
        :category {:delete "/delete-category"}
-       :budget {:transfer "/budget/transfer"
+       :budget {:manage-category "/budget/manage-category"
                 :transaction-group "/budget/transaction-group"}}
  :post {:generate-report "/generate-report"
         :calibrate-start-balances "/calibrate-start-balances"

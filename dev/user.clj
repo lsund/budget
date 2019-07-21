@@ -3,10 +3,9 @@
    [clojure.tools.namespace.repl :as tools]
    [com.stuartsierra.component :as c]
    [finances.config :as config]
-   [finances.core :refer [new-system]]
-   ,,,))
+   [finances.core :refer [new-system]]))
 
-(defn new-dev-system [] (new-system (config/load)))
+(defn new-dev-system [] (new-system (config/load!)))
 
 (defonce system nil)
 
@@ -25,5 +24,5 @@
 
 (defn system-restart! []
   (system-stop!)
-  ;; (tools/refresh :after 'user/system-go!)  ; Does not work because sente is failing
+  (tools/refresh :after 'user/system-go!)
   (system-go!))

@@ -1,22 +1,22 @@
 (ns finances.handler
-  (:require [clojure.string :as string]
-            [clojure.java.jdbc :as jdbc]
+  (:require [clojure.java.jdbc :as jdbc]
+            [clojure.string :as string]
             [compojure.core :refer [POST routes]]
             [compojure.route :as route]
-            [finances.report :as report]
             [finances.db :as db]
+            [finances.report :as report]
             [finances.util.core :as util]
             [finances.util.date :as util.date]
             [finances.views.budget :as views.budget]
             [finances.views.budget.transaction-group
              :as
              views.budget.transaction-group]
-            [finances.views.budget.transfer :as views.budget.transfer]
             [finances.views.calibrate-start-balances
              :as
              views.calibrate-start-balances]
             [finances.views.debts :as views.debts]
             [finances.views.delete-category :as views.delete-category]
+            [finances.views.budget.manage-category :as views.budget.manage-category]
             [finances.views.funds :as views.funds]
             [finances.views.reports :as views.reports]
             [finances.views.stocks :as views.stocks]
@@ -101,13 +101,13 @@
                                     (db/all db :fund)
                                     :fundtransactions
                                     (db/get-fund-transactions db)}))
-    (get-route [:budget :transfer] [id]
-               (views.budget.transfer/render config
-                                             (assoc (budget-db-data config db)
-                                                    :category
-                                                    (db/row db
-                                                            :category
-                                                            (util/parse-int id)))))
+    (get-route [:budget :manage-category] [id]
+               (views.budget.manage-category/render config
+                                                    (assoc (budget-db-data config db)
+                                                           :category
+                                                           (db/row db
+                                                                   :category
+                                                                   (util/parse-int id)))))
     (get-route [:budget :transaction-group] [id]
                (views.budget.transaction-group/render
                 config

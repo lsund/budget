@@ -12,21 +12,56 @@
   (let [highlight-fn #(if (= id highlight) [:b %] %)]
     (-> [:tr {:class (when invisible? "invisible")}]
         (concat [[:td (highlight-fn label)]
+                 [:td (highlight-fn start_balance)]
                  [:td {:class (when (and balance (neg? balance))
-                                "red")} (highlight-fn balance)]
-                 [:td (highlight-fn start_balance)]]
+                                "red")} (highlight-fn balance)]]
                 (when-not simple?
                   [[:td spent]
                    [:td (util/category-diff category)]
-                   [:td (form-to [:get "/budget/transfer"]
+                   [:td (form-to [:get "/budget/manage-category"]
                                  [:input {:name "id" :type :hidden :value id}]
-                                 [:button "T"])]
+                                 [:button "M"])]
                    [:td
                     (form-to
                      [:get "/delete-category"]
                      [:input {:name "id" :type :hidden :value id}]
                      [:button "X"])]]))
         vec)))
+
+(defn budget-table [{:keys [simple? all?] :as options}
+                    {:keys [total-spent total-remaining total-finances]
+                     :as db-data}]
+  [:table
+   [:thead
+    (-> [:tr]
+        (concat [[:th "Name"]
+                 [:th "Start Balance"]
+                 [:th "Balance"]]
+                (when-not simple?
+                  [[:th "Spent"]
+                   [:th "Diff"]
+                   [:th "Manage"]
+                   [:th "Delete"]]))
+        vec)]
+   [:tbody
+    (let [cs (conj (:categories db-data) (:buffer db-data))]
+      (concat
+       [(category-row (:buffer db-data) cs options)
+        (category-row {} [] (assoc options :invisible? true))]
+       (for [c (:categories db-data)]
+         (when (or all?
+                   (pos? (:balance c))
+                   (pos? (:spent c)))
+           (category-row c cs options)))))
+    (-> [:tr]
+        (concat [[:td ""]
+                 [:td total-finances]
+                 [:td {:class (when (neg? total-remaining) "red")}
+                  total-remaining]]
+                (when-not simple?
+                  [[:td  total-spent]
+                   [:td ""]]))
+        vec)]])
 
 (defn transaction-row
   [t]
@@ -49,43 +84,6 @@
    [:td (form-to [:get "/budget/transaction-group"]
                  [:input {:type :hidden :name "id" :value id}]
                  [:button "D"])]])
-
-(defn budget-table [{:keys [simple? all?] :as options}
-                    {:keys [total-spent total-remaining total-finances]
-                     :as db-data}]
-  [:table
-   [:thead
-    (-> [:tr]
-        (concat [[:th "Name"]
-                 [:th "Balance"]
-                 [:th "Start Balance"]]
-                (when-not simple?
-                  [[:th "Spent"]
-                   [:th "Diff"]
-                   [:th "Transfer"]
-                   [:th "Delete"]]))
-        vec)]
-   [:tbody
-    (let [cs (conj (:categories db-data) (:buffer db-data))]
-      (concat
-       [(category-row (:buffer db-data) cs options)
-        (category-row {} [] (assoc options :invisible? true))]
-       (for [c (:categories db-data)]
-         (when (or all?
-                   (pos? (:balance c))
-                   (and (pos? (:spent c))
-                        (= (:start_balance c)
-                           (:spent c))))
-           (category-row c cs options)))))
-    (-> [:tr]
-        (concat [[:td ""]
-                 [:td total-finances]
-                 [:td {:class (when (neg? total-remaining) "red")}
-                  total-remaining]]
-                (when-not simple?
-                  [[:td  total-spent]
-                   [:td ""]]))
-        vec)]])
 
 (defn render [{:keys [all? config generate-report-div]}
               {:keys [total-spent total-remaining total-finances]
