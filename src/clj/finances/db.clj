@@ -260,6 +260,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Migrations
 
+;; 2019-07-21 Merge Fund and Stock into one table
 (defn stock-fund-merge-update-tables [db]
   (jdbc/execute! db ["ALTER TABLE stock ADD COLUMN type INT NOT NULL DEFAULT 1"])
   (jdbc/execute! db ["alter table stock rename TO asset"])

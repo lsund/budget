@@ -1,4 +1,4 @@
-(defproject finances "3.1.0"
+(defproject finances "3.2.0-SNAPSHOT"
   :description "Fun finance program"
   :url "https://github.com/lsund/finances"
   :min-lein-version "2.7.0"
@@ -21,7 +21,7 @@
                  [io.aviso/pretty "0.1.34"]
                  [com.stuartsierra/component "0.3.2"]
                  [slingshot "0.12.2"]
-                 [me.lsund/util "0.4.3"]]
+                 [me.lsund/util "0.6.0"]]
   :plugins [[environ/environ.lein "0.3.1"]
             [io.aviso/pretty "0.1.34"]]
   :source-paths ["src/clj"]
