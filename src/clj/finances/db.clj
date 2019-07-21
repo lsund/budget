@@ -260,16 +260,20 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Migrations
 
-(defn merge-stock-with-funds [db]
+(defn stock-fund-merge-update-tables [db]
   (jdbc/execute! db ["ALTER TABLE stock ADD COLUMN type INT NOT NULL DEFAULT 1"])
   (jdbc/execute! db ["alter table stock rename TO asset"])
   (jdbc/execute! db ["alter table stocktransaction rename to assettransaction"])
   (jdbc/execute! db ["alter table assettransaction  rename column stockid to assetid"])
-  (jdbc/execute! db ["alter table fundtransaction rename column fundid to assetid"])
+  (jdbc/execute! db ["alter table fundtransaction rename column fundid to assetid"]))
+
+(defn stock-fund-merge-add-funds [db]
+  (doseq [fund (all db :fund)]
+    (add-row db :asset (assoc (select-keys fund [:label :tag]) :type 2))))
+
+(defn stock-fund-merge-add-fundtransactions [db]
   (doseq [fund (all db :fundtransaction)]
     (add-row db :assettransaction
              (update
               (select-keys fund [:day :acc :buy :shares :rate :currency :total :assetid])
-              :assetid #(+ % 30))))
-  (doseq [fund (all db :fund)]
-      (add-row db :stock (assoc (select-keys fund [:label :tag]) :type 2))))
+              :assetid #(+ % 30)))))
