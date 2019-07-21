@@ -70,11 +70,16 @@
   (routes
    (generate-routes
     "resources/edn/routes.edn"
-    (get-route :root []
-               (let [extra (when (db/monthly-report-missing? db config)
-                             {:generate-report-div true})]
-                 (views.budget/render (merge config extra)
-                                      (budget-db-data config db))))
+    (get-route :root [all]
+               (views.budget/render {:config
+                                     config
+
+                                     :all?
+                                     (some? all)
+
+                                     :generate-report-div
+                                     (db/monthly-report-missing? db config)}
+                                    (budget-db-data config db)))
     (get-route :debts [id]
                (views.debts/render config {:debts (db/all db :debt)}))
     (get-route :reports [id]
@@ -111,7 +116,7 @@
                                                  config
                                                  (util/parse-int id))}))
     (get-route [:category :delete] [id]
-               (views.delete-category/render  id))
+               (views.delete-category/render id))
     (post-route :calibrate-start-balances []
                 (views.calibrate-start-balances/render
                  config

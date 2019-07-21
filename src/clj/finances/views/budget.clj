@@ -50,7 +50,7 @@
                  [:input {:type :hidden :name "id" :value id}]
                  [:button "D"])]])
 
-(defn budget-table [{:keys [simple?] :as options}
+(defn budget-table [{:keys [simple? all?] :as options}
                     {:keys [total-spent total-remaining total-finances]
                      :as db-data}]
   [:table
@@ -71,7 +71,12 @@
        [(category-row (:buffer db-data) cs options)
         (category-row {} [] (assoc options :invisible? true))]
        (for [c (:categories db-data)]
-         (category-row c cs options))))
+         (when (or all?
+                   (pos? (:balance c))
+                   (and (pos? (:spent c))
+                        (= (:start_balance c)
+                           (:spent c))))
+           (category-row c cs options)))))
     (-> [:tr]
         (concat [[:td ""]
                  [:td total-finances]
@@ -82,13 +87,14 @@
                    [:td ""]]))
         vec)]])
 
-(defn render [config {:keys [total-spent total-remaining total-finances]
-                      :as db-data}]
+(defn render [{:keys [all? config generate-report-div]}
+              {:keys [total-spent total-remaining total-finances]
+               :as db-data}]
   (html5
    (html/navbar)
    [:head [:title "Finances"]]
    [:body.mui-container
-    (when (:generate-report-div config)
+    (when generate-report-div
       (do
         [:div.generate-report-div
          (form-to [:post "/calibrate-start-balances"]
@@ -106,7 +112,8 @@
                        :type :number
                        :placeholder "$"}]])
     [:h2 "Budget: " (util.date/get-current-date-header (:salary-day config))]
-    (budget-table {:simple? false} db-data)
+    [:a {:href "/?all=true"} "Show all"]
+    (budget-table {:simple? false :all? all?} db-data)
     [:div
      [:h2 "Latest transactions"]
      [:table
