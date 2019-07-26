@@ -21,7 +21,6 @@
             [finances.views.reports :as views.reports]
             [finances.views.stocks :as views.stocks]
             [hiccup.page :refer [html5]]
-            [me.lsund.routes :refer [generate-routes]]
             [medley.core :refer [map-keys]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
             [ring.middleware.json :refer [wrap-json-params]]

@@ -1,5 +1,6 @@
 (ns finances.db
   (:require [clojure.java.jdbc :as jdbc]
+            [clj-time.core :as clj-time]
             [clojure.string :as string]
             [com.stuartsierra.component :as component]
             [environ.core :refer [env]]
@@ -120,14 +121,17 @@
 
 (defn monthly-report-missing?
   ([db config]
-   (monthly-report-missing? db config (.getValue (util.date/finances-month (:salary-day config)))))
+   (monthly-report-missing? db config (.getValue (.getMonth (util.date/today)))))
   ([db config month]
-   (-> (jdbc/query db ["SELECT id from report
-                        WHERE extract(month from day) = ?
-                        OR extract(month from day) = ?"
-                       month
-                       (previous-month month)])
-       empty?)))
+   (if (>= (.getDayOfMonth (util.date/today)) 25)
+     (-> (jdbc/query db ["SELECT id from report
+                          WHERE extract(month from day) = ?"
+                         month])
+         empty?)
+     (-> (jdbc/query db ["SELECT id from report
+                          WHERE extract(month from day) = ?"
+                         (previous-month month)])
+         empty?))))
 
 (defn get-asset-transactions [db type]
   (jdbc/query db
