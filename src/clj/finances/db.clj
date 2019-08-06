@@ -62,6 +62,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Query
 
+(defn row [db table identifier]
+  (cond
+    (integer? identifier) (first (jdbc/query db [(str "SELECT * FROM " (name table) " WHERE id=?")
+                                                 identifier]))
+    (map? identifier) (first (jdbc/query db [(str "SELECT * FROM " (name table) " WHERE label=?")
+                                             (:label identifier)]))))
+
+(defn all
+  [db table]
+  (jdbc/query db [(str "select * from " (name table))]))
+
 (defn get-total-spent [db]
   (-> (jdbc/query db ["select sum(spent) from category"]) first :sum))
 
@@ -101,17 +112,6 @@
                       ORDER BY time DESC"
                      last-report-day
                      id]))))
-
-(defn row [db table identifier]
-  (cond
-    (integer? identifier) (first (jdbc/query db [(str "SELECT * FROM " (name table) " WHERE id=?")
-                                                 identifier]))
-    (map? identifier) (first (jdbc/query db [(str "SELECT * FROM " (name table) " WHERE label=?")
-                                             (:label identifier)]))))
-
-(defn all
-  [db table]
-  (jdbc/query db [(str "select * from " (name table))]))
 
 (defn category-ids->names [db]
   (let [cats (all db :category)
@@ -164,6 +164,25 @@
   (jdbc/insert! db :report {:file file
                             :day (util.date/today)}))
 
+(defn add-asset-transaction [db tx-type id tx-date tx-buy
+                             tx-shares tx-rate tx-total tx-currency]
+  (add-row db
+           tx-type
+           {:assetid id
+            :acc "ISK"
+            :day (util.date/->localdate tx-date)
+            :shares (util/parse-int tx-shares)
+            :buy (= tx-buy "on")
+            :rate (util/parse-float tx-rate)
+            :total (util/parse-float tx-total)
+            :currency tx-currency}))
+
+(defn add-transaction [db id amount op]
+  (jdbc/insert! db :transaction {:categoryid id
+                                 :amount (case op :increment amount :decrement (- amount))
+                                 :time (java.time.LocalDateTime/now)})
+  (decrease-balance db amount id))
+
 ;; Delete
 
 (defn delete
@@ -194,12 +213,6 @@
 (defn- increase-balance [db amount id]
   (jdbc/execute! db ["update category set balance=balance+? where id=?" amount id])
   (jdbc/execute! db ["update category set spent=spent-? where id =?" amount id]))
-
-(defn add-transaction [db id amount op]
-  (jdbc/insert! db :transaction {:categoryid id
-                                 :amount (case op :increment amount :decrement (- amount))
-                                 :time (java.time.LocalDateTime/now)})
-  (decrease-balance db amount id))
 
 (defn remove-transaction [db tx-id]
   (let [{:keys [categoryid amount]} (row db :transaction tx-id)]

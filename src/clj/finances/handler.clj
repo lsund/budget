@@ -19,7 +19,7 @@
             [finances.views.budget.manage-category :as views.budget.manage-category]
             [finances.views.funds :as views.funds]
             [finances.views.reports :as views.reports]
-            [finances.views.stocks :as views.stocks]
+            [finances.views.assets :as views.assets]
             [hiccup.page :refer [html5]]
             [medley.core :refer [map-keys]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
@@ -35,21 +35,6 @@
   {:spit (appenders/spit-appender {:fname "data/finances.log"})}})
 
 (def not-found (html5 "not found"))
-
-(defn add-transaction [db tx-type id tx-date tx-buy
-                       tx-shares tx-rate tx-total tx-currency]
-  (println [db tx-type id tx-date tx-buy
-            tx-shares tx-rate tx-total tx-currency])
-  (db/add-row db
-              tx-type
-              {:assetid id
-               :acc "ISK"
-               :day (util.date/->localdate tx-date)
-               :shares (util/parse-int tx-shares)
-               :buy (= tx-buy "on")
-               :rate (util/parse-float tx-rate)
-               :total (util/parse-float tx-total)
-               :currency tx-currency}))
 
 (defn budget-db-data [config db]
   {:total-finances (db/get-total-finances db)
@@ -85,17 +70,17 @@
                                                  (util/parse-int id)))
                                :reports (db/all db :report)}))
    (GET "/stocks" []
-        (views.stocks/render config
-                             {:stocks
+        (views.assets/render config
+                             {:assets
                               (db/all db :asset)
-                              :stocktransactions
+                              :transactions
                               (db/get-asset-transactions db :stock)}))
    (GET "/funds" []
-        (views.funds/render config
-                            {:funds
-                             (db/all db :asset)
-                             :fundtransactions
-                             (db/get-asset-transactions db :fund)}))
+        (views.assets/render config
+                             {:assets
+                              (db/all db :asset)
+                              :transactions
+                              (db/get-asset-transactions db :fund)}))
    (GET "/budget/manage-category" [id]
         (views.budget.manage-category/render config
                                              (assoc (budget-db-data config db)
@@ -182,45 +167,26 @@
                                   (util/parse-int start-balance))
          (redirect "/"))
 
-   (POST "/stocks/add-transaction" [stock-id stock-date
-                                      stock-buy stock-shares
-                                      stock-rate stock-total
-                                      stock-currency]
-         (add-transaction db
-                          :assettransaction
-                          (util/parse-int stock-id)
-                          stock-date
-                          stock-buy
-                          stock-shares
-                          stock-rate
-                          stock-total
-                          stock-currency)
-         (redirect "/stocks"))
-   (POST "/stocks/delete-transaction" [stock-id]
-         (logging/info stock-id)
-         (db/delete db
-                    :assettransaction
-                    (util/parse-int stock-id))
-         (redirect "/stocks"))
-   (POST "/funds/add-transaction" [fund-id fund-date
-                                     fund-buy fund-shares
-                                     fund-rate fund-total
-                                     fund-currency]
-         (add-transaction db
-                          :fundtransaction
-                          (util/parse-int fund-id)
-                          fund-date
-                          fund-buy
-                          fund-shares
-                          fund-rate
-                          fund-total
-                          fund-currency)
-         (redirect "/funds"))
-   (POST "/funds/delete-transaction" [fund-id]
-         (db/delete db
-                    :fundtransaction
-                    (util/parse-int fund-id))
-         (redirect "/funds"))
+   (POST "/assets/add-transaction" [id date buy shares rate total currency]
+         (println id date buy shares rate total currency)
+         (println "date " date)
+
+         (db/add-asset-transaction db
+                                   :assettransaction
+                                   (util/parse-int id)
+                                   date
+                                   buy
+                                   shares
+                                   rate
+                                   total
+                                   currency)
+         (let [asset (db/row db :asset (util/parse-int id))]
+           (case (:type asset)
+             1 (redirect "/stocks")
+             (redirect "/funds"))))
+   (POST "/assets/delete-transaction" [id]
+         (db/delete db :assettransaction (util/parse-int id))
+         (redirect "/assets"))
    (POST "/generate-report" req
          (report/generate config)
          (db/update-start-balances! db

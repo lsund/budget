@@ -1,9 +1,9 @@
-(ns finances.views.funds
+(ns finances.views.assets
   (:require [hiccup.form :refer [form-to]]
             [hiccup.page :refer [html5 include-css include-js]]
             [finances.html :as html]))
 
-(defn fund-transaction-row [t]
+(defn transaction-row [t]
   [:tr
    [:td (:day t)]
    [:td (:tag t)]
@@ -12,50 +12,50 @@
    [:td (:rate t)]
    [:td (:total t)]
    [:td (:currency t)]
-   [:td (form-to [:post "/funds/delete-transaction"]
-                 [:input {:name "fund-id" :type :hidden :value (:id t)}]
+   [:td (form-to [:post "/assets/delete-transaction"]
+                 [:input {:name "id" :type :hidden :value (:id t)}]
                  [:button "X"])]])
 
 (defn render
-  [config {:keys [funds fundtransactions]}]
+  [config {:keys [assets transactions] :as options}]
   (html5
    [:head [:title "Finances"]]
    [:body.mui-container
     (html/navbar)
-    [:div.funds
+    [:div.assets
      [:div
-      [:h2 "Add new Fund Transaction"]
-      (form-to  [:post "/funds/add-transaction"]
-                [:select {:name "fund-id"}
-                 (for [fund funds]
-                   [:option {:value (:id fund)} (:tag fund)])]
+      [:h2 "Add new Transaction"]
+      (form-to  [:post "/assets/add-transaction"]
+                [:select {:name "id"}
+                 (for [asset assets]
+                   [:option {:value (:id asset)} (:tag asset)])]
                 [:div
                  [:label "Date"]
-                 [:input {:name "fund-date" :type :date}]
+                 [:input {:name "date" :type :date}]
                  [:label "Buy?"
-                  [:input {:name "fund-buy" :type :checkbox}]]
+                  [:input {:name "buy" :type :checkbox}]]
                  [:label "Shares"]
                  [:input {:class "number-input"
-                          :name  "fund-shares"
+                          :name  "shares"
                           :type :number
                           :step "0.01"
                           :min  "0"}]
                  [:label "Rate"]
                  [:input {:class "number-input"
-                          :name "fund-rate"
+                          :name "rate"
                           :type :number
                           :step "0.01"
                           :min "0"}]
                  [:label "Total"]
                  [:input {:class "number-input"
-                          :name "fund-total"
+                          :name "total"
                           :type :number
                           :step "0.01"
                           :min "0"}]
-                 [:select {:name "fund-currency"}
+                 [:select {:name "currency"}
                   [:option {:value "SEK"} "SEK"]]]
                 [:button.mui-btn "Add Transaction"])]
-     [:h2 "Fund transactions"]
+     [:h2 "Transactions"]
      [:table
       [:thead
        [:tr
@@ -68,10 +68,8 @@
         [:th "Currency"]
         [:th "Delete"]]]
       [:tbody
-       (for [t (->> fundtransactions
-                    (sort-by :day)
-                    reverse)]
-         (fund-transaction-row t))]]]
+       (for [t (->> transactions (sort-by :day) reverse)]
+         (transaction-row t))]]]
     [:div#cljs-target]
     (apply include-js (:javascripts config))
     (apply include-css (:styles config))]))
