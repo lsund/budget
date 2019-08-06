@@ -144,45 +144,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modify
 
-;; Add
-
-(defn add [db table row]
-  (jdbc/insert! db table row))
-
-(defn add-category
-  [db label balance]
-  (jdbc/insert! db
-                :category
-                {:label (string/capitalize label)
-                 :balance balance
-                 :start_balance balance
-                 :spent 0}))
-
-
-(defn add-report
-  [db file]
-  (jdbc/insert! db :report {:file file
-                            :day (util.date/today)}))
-
-(defn add-asset-transaction [db tx-type id tx-date tx-buy
-                             tx-shares tx-rate tx-total tx-currency]
-  (add-row db
-           tx-type
-           {:assetid id
-            :acc "ISK"
-            :day (util.date/->localdate tx-date)
-            :shares (util/parse-int tx-shares)
-            :buy (= tx-buy "on")
-            :rate (util/parse-float tx-rate)
-            :total (util/parse-float tx-total)
-            :currency tx-currency}))
-
-(defn add-transaction [db id amount op]
-  (jdbc/insert! db :transaction {:categoryid id
-                                 :amount (case op :increment amount :decrement (- amount))
-                                 :time (java.time.LocalDateTime/now)})
-  (decrease-balance db amount id))
-
 ;; Delete
 
 (defn delete
@@ -196,10 +157,6 @@
   (delete db :category id))
 
 ;; Update
-
-(defn add-row
-  [db table tx]
-  (jdbc/insert! db table tx))
 
 (defn update-row [db table update-map identifier]
   (cond
@@ -258,6 +215,48 @@
                      ["UPDATE category
                        SET start_balance=?
                        WHERE id=?" start-balance id]))))
+
+;; Add
+
+(defn add [db table row]
+  (jdbc/insert! db table row))
+
+(defn add-category
+  [db label balance]
+  (jdbc/insert! db
+                :category
+                {:label (string/capitalize label)
+                 :balance balance
+                 :start_balance balance
+                 :spent 0}))
+
+(defn add-row
+  [db table tx]
+  (jdbc/insert! db table tx))
+
+(defn add-report
+  [db file]
+  (jdbc/insert! db :report {:file file
+                            :day (util.date/today)}))
+
+(defn add-asset-transaction [db tx-type id tx-date tx-buy
+                             tx-shares tx-rate tx-total tx-currency]
+  (add-row db
+           tx-type
+           {:assetid id
+            :acc "ISK"
+            :day (util.date/->localdate tx-date)
+            :shares (util/parse-int tx-shares)
+            :buy (= tx-buy "on")
+            :rate (util/parse-float tx-rate)
+            :total (util/parse-float tx-total)
+            :currency tx-currency}))
+
+(defn add-transaction [db id amount op]
+  (jdbc/insert! db :transaction {:categoryid id
+                                 :amount (case op :increment amount :decrement (- amount))
+                                 :time (java.time.LocalDateTime/now)})
+  (decrease-balance db amount id))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Merge two categories

@@ -17,7 +17,6 @@
             [finances.views.debts :as views.debts]
             [finances.views.delete-category :as views.delete-category]
             [finances.views.budget.manage-category :as views.budget.manage-category]
-            [finances.views.funds :as views.funds]
             [finances.views.reports :as views.reports]
             [finances.views.assets :as views.assets]
             [hiccup.page :refer [html5]]
