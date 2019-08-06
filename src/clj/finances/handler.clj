@@ -6,19 +6,7 @@
             [finances.db :as db]
             [finances.report :as report]
             [finances.util.core :as util]
-            [finances.util.date :as util.date]
-            [finances.views.budget :as views.budget]
-            [finances.views.budget.transaction-group
-             :as
-             views.budget.transaction-group]
-            [finances.views.calibrate-start-balances
-             :as
-             views.calibrate-start-balances]
-            [finances.views.debts :as views.debts]
-            [finances.views.delete-category :as views.delete-category]
-            [finances.views.budget.manage-category :as views.budget.manage-category]
-            [finances.views.reports :as views.reports]
-            [finances.views.assets :as views.assets]
+            [finances.views.internal :as views]
             [hiccup.page :refer [html5]]
             [medley.core :refer [map-keys]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
@@ -50,61 +38,81 @@
 (defn- app-routes [{:keys [db] :as config}]
   (routes
    (GET "/" [all]
-        (views.budget/render {:config
-                              config
+        (views/render :budget
+                      {:config
+                       config
 
-                              :all?
-                              (some? all)
+                       :title
+                       "Budget"
 
-                              :generate-report-div
-                              (db/monthly-report-missing? db config)}
-                             (budget-db-data config db)))
-   (GET "/debts" [id]
-        (views.debts/render config {:debts (db/all db :debt)}))
+                       :all?
+                       (some? all)
+
+                       :generate-report-div
+                       (db/monthly-report-missing? db config)}
+                      (budget-db-data config db)))
+   (GET "/debts" []
+        (views/render :debts config {:title "Debts"
+                                     :debts (db/all db :debt)}))
    (GET "/reports" [id]
-        (views.reports/render config
-                              {:report (when id
-                                         (db/row db
-                                                 :report
-                                                 (util/parse-int id)))
-                               :reports (db/all db :report)}))
+        (views/render :reports
+                      config
+                      {:title "Reports"
+                       :report (when id
+                                 (db/row db
+                                         :report
+                                         (util/parse-int id)))
+                       :reports (db/all db :report)}))
    (GET "/stocks" []
-        (views.assets/render config
-                             {:assets
-                              (db/all db :asset)
-                              :transactions
-                              (db/get-asset-transactions db :stock)}))
+        (views/render :assets
+                      config
+                      {:title "Stocks"
+                       :assets
+                       (db/all db :asset)
+                       :transactions
+                       (db/get-asset-transactions db :stock)}))
    (GET "/funds" []
-        (views.assets/render config
-                             {:assets
-                              (db/all db :asset)
-                              :transactions
-                              (db/get-asset-transactions db :fund)}))
+        (views/render :assets
+                      config
+                      {:title "Funds"
+                       :assets
+                       (db/all db :asset)
+                       :transactions
+                       (db/get-asset-transactions db :fund)}))
    (GET "/budget/manage-category" [id]
-        (views.budget.manage-category/render config
-                                             (assoc (budget-db-data config db)
-                                                    :category
-                                                    (db/row db
-                                                            :category
-                                                            (util/parse-int id)))))
+        (views/render :manage-category
+                      config
+                      (assoc (budget-db-data config db)
+                             :category
+                             (db/row db
+                                     :category
+                                     (util/parse-int id))
+                             :title
+                             "Manage category")))
    (GET "/budget/transaction-group" [id]
-        (views.budget.transaction-group/render
-         config
-         {:transaction-group
-          (db/get-unreported-transactions db
-                                          config
-                                          (util/parse-int id))}))
+        (views/render :transaction-group
+                      config
+                      {:title
+                       "Transaction Group"
+
+                       :transaction-group
+                       (db/get-unreported-transactions db
+                                                       config
+                                                       (util/parse-int id))}))
    (GET "/delete-category" [id]
-        (views.delete-category/render id))
+        (views/render :delete-category config {:title "Warning"
+                                               :id id}))
    (POST "/calibrate-start-balances" []
-         (views.calibrate-start-balances/render
-          config
-          {:total-start-balance
-           (db/get-total-finances db)
-           :categories
-           (->> (db/all db :category)
-                (sort-by :label)
-                (filter (comp not :hidden)))}))
+         (views/render :calibrate
+                       config
+                       {:title
+                        "Calibrate"
+                        :total-start-balance
+                        (db/get-total-finances db)
+                        :categories
+                        (->> (db/all db :category)
+                             (sort-by :label)
+                             (filter (comp not :hidden)))}))
 
    (POST "/add-category" [label funds]
          (db/add-category db

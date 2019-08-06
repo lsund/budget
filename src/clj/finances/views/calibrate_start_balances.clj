@@ -2,6 +2,7 @@
   (:require [taoensso.timbre :as logging]
             [hiccup.form :refer [form-to]]
             [hiccup.page :refer [html5 include-css include-js]]
+            [finances.views.internal :refer [render layout]]
             [finances.util.core :as util]
             [finances.util.date :as util.date]
             [finances.html :as html]))
@@ -18,28 +19,25 @@
    [:td (:start_balance category)]
    [:td (util/category-diff category)]])
 
-(defn render [config db-data]
-  (html5
-   [:head [:title "Warning"]]
-   [:body.mui-container
-
-    [:p "Use this form to optionally calibrate the start balances of the different categories"]
-    (form-to [:post "/generate-report"]
-             [:table
-              [:thead
-               [:tr
-                [:th "Name"]
-                [:th "Start Balance"]
-                [:th "Last month set"]
-                [:th "Last month diff"]]]
-              [:tbody
-               (form-to [:post "/generate-report"] )
-               (let [cs (conj (:categories db-data) (:buffer db-data))]
-                 (for [c (:categories db-data)]
-                   (category-row c cs {})))
-               [:row
-                [:td "hello"]
-                [:td (:total-start-balance db-data)]]]]
-             [:button "Generate report"])
-
-    [:div#cljs-target]]))
+(defmethod render :calibrate [_ config db-data]
+  (layout config
+          db-data
+          [:div
+           [:p "Use this form to optionally calibrate the start balances of the different categories"]
+           (form-to [:post "/generate-report"]
+                    [:table
+                     [:thead
+                      [:tr
+                       [:th "Name"]
+                       [:th "Start Balance"]
+                       [:th "Last month set"]
+                       [:th "Last month diff"]]]
+                     [:tbody
+                      (form-to [:post "/generate-report"] )
+                      (let [cs (conj (:categories db-data) (:buffer db-data))]
+                        (for [c (:categories db-data)]
+                          (category-row c cs {})))
+                      [:row
+                       [:td "hello"]
+                       [:td (:total-start-balance db-data)]]]]
+                    [:button "Generate report"])]))

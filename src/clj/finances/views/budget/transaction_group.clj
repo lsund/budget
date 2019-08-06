@@ -1,6 +1,7 @@
 (ns finances.views.budget.transaction-group
   (:require [hiccup.page :refer [html5 include-css include-js]]
             [hiccup.form :refer [form-to]]
+            [finances.views.internal :refer [render layout]]
             [finances.util.date :as util.date]
             [finances.html :as html]))
 
@@ -17,23 +18,19 @@
                  [:input {:name "tx-id" :type :hidden :value (:id transaction)}]
                  [:button "X"])]])
 
-(defn render [config {:keys [transaction-group]}]
-  (html5
-   (html/navbar)
-   [:head [:title "Finances"]]
-   [:body.mui-container
-    [:h3 (str "Details for " (:label (first transaction-group)))]
-    [:table
-     [:thead
-      [:tr
-       [:th "Name"]
-       [:th "Amount"]
-       [:th "Date"]
-       [:th "Note"]
-       [:th "Remove"]]]
-     [:tbody
-      (for [transaction transaction-group]
-        (transaction-row transaction))]]
-    [:div#cljs-target]
-    (apply include-js (:javascripts config))
-    (apply include-css (:styles config))]))
+(defmethod render :transaction-group [_ config {:keys [transaction-group] :as db-data}]
+  (layout config
+          db-data
+          [:div
+           [:h3 (str "Details for " (:label (first transaction-group)))]
+           [:table
+            [:thead
+             [:tr
+              [:th "Name"]
+              [:th "Amount"]
+              [:th "Date"]
+              [:th "Note"]
+              [:th "Remove"]]]
+            [:tbody
+             (for [transaction transaction-group]
+               (transaction-row transaction))]]]))

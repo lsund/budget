@@ -1,6 +1,7 @@
 (ns finances.views.budget
   (:require [hiccup.form :refer [form-to]]
             [hiccup.page :refer [html5 include-css include-js]]
+            [finances.views.internal :refer [render layout]]
             [finances.util.date :as util.date]
             [finances.util.core :as util]
             [finances.html :as html]))
@@ -85,70 +86,69 @@
                  [:input {:type :hidden :name "id" :value id}]
                  [:button "D"])]])
 
-(defn render [{:keys [all? config generate-report-div]}
-              {:keys [total-spent total-remaining total-finances]
-               :as db-data}]
-  (html5
-   (html/navbar)
-   [:head [:title "Finances"]]
-   [:body.mui-container
-    (when generate-report-div
-      (do
-        [:div.generate-report-div
-         (form-to [:post "/calibrate-start-balances"]
-                  [:label "I don't see a report for last month.
+(defmethod render :budget [_
+                           {:keys [all? config generate-report-div] :as options}
+                           {:keys [total-spent total-remaining total-finances]
+                            :as db-data}]
+  (layout config
+          db-data
+          [:div
+           (when generate-report-div
+             (do
+               [:div.generate-report-div
+                (form-to [:post "/calibrate-start-balances"]
+                         [:label "I don't see a report for last month.
                            Generate one now?"]
-                  [:button "Yes"])]))
-    [:h2 "Spend"]
-    (form-to [:post "/spend"]
-             [:div
-              [:select {:name "id"}
-               (for [cat (:categories db-data)]
-                 [:option {:value (:id cat)} (:label cat)])]
-              [:input {:class "spend"
-                       :name "dec-amount"
-                       :type :number
-                       :placeholder "$"}]])
-    [:h2 "Budget: " (util.date/get-current-date-header (:salary-day config))]
-    [:a {:href "/?all=true"} "Show all"]
-    (budget-table {:simple? false :all? all?} db-data)
-    [:div
-     [:h2 "Latest transactions"]
-     [:table
-      [:thead
-       [:tr
-        [:th "Name"]
-        [:th "Amount"]
-        [:th "Date"]
-        [:th "Note"]
-        [:th "Remove"]]]
-      [:tbody
-       (for [transaction (->> db-data
-                              :monthly-transactions
-                              (sort-by :time)
-                              reverse
-                              (take 10))]
-         (transaction-row transaction))]]
-     [:h2 "Transaction summary"]
-     [:table
-      [:thead
-       [:tr
-        [:th "Name"]
-        [:th "Total"]
-        [:th "Details"]]]
-      [:tbody
-       (for [transaction-group (->> db-data
-                                    :monthly-transactions
-                                    (sort-by :time)
-                                    reverse
-                                    (group-by :categoryid))]
-         (transaction-group-row transaction-group))]]
-     [:p (str "Total: " (apply + (map :amount (:monthly-transactions db-data))))]]
-    [:div
-     [:h3 "Add New Spend Category"]
-     (form-to {:class "add-category"} [:post "/add-category"]
-              [:input
-               {:name "label" :type :text :placeholder "Category name"}]
-              [:input {:name "funds" :type :number :value 0}]
-              [:button.mui-btn "Add category"])]
-    (apply include-css (:styles config))]))
+                         [:button "Yes"])]))
+           [:h2 "Spend"]
+           (form-to [:post "/spend"]
+                    [:div
+                     [:select {:name "id"}
+                      (for [cat (:categories db-data)]
+                        [:option {:value (:id cat)} (:label cat)])]
+                     [:input {:class "spend"
+                              :name "dec-amount"
+                              :type :number
+                              :placeholder "$"}]])
+           [:h2 "Budget: " (util.date/get-current-date-header (:salary-day config))]
+           [:a {:href "/?all=true"} "Show all"]
+           (budget-table {:simple? false :all? all?} db-data)
+           [:div
+            [:h2 "Latest transactions"]
+            [:table
+             [:thead
+              [:tr
+               [:th "Name"]
+               [:th "Amount"]
+               [:th "Date"]
+               [:th "Note"]
+               [:th "Remove"]]]
+             [:tbody
+              (for [transaction (->> db-data
+                                     :monthly-transactions
+                                     (sort-by :time)
+                                     reverse
+                                     (take 10))]
+                (transaction-row transaction))]]
+            [:h2 "Transaction summary"]
+            [:table
+             [:thead
+              [:tr
+               [:th "Name"]
+               [:th "Total"]
+               [:th "Details"]]]
+             [:tbody
+              (for [transaction-group (->> db-data
+                                           :monthly-transactions
+                                           (sort-by :time)
+                                           reverse
+                                           (group-by :categoryid))]
+                (transaction-group-row transaction-group))]]
+            [:p (str "Total: " (apply + (map :amount (:monthly-transactions db-data))))]]
+           [:div
+            [:h3 "Add New Spend Category"]
+            (form-to {:class "add-category"} [:post "/add-category"]
+                     [:input
+                      {:name "label" :type :text :placeholder "Category name"}]
+                     [:input {:name "funds" :type :number :value 0}]
+                     [:button.mui-btn "Add category"])]]))
