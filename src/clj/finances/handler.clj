@@ -6,7 +6,20 @@
             [finances.db :as db]
             [finances.report :as report]
             [finances.util.core :as util]
+            [finances.util.date :as util.date]
+            [finances.views.budget :as views.budget]
+            [finances.views.budget.transaction-group
+             :as
+             views.budget.transaction-group]
+            [finances.views.calibrate-start-balances
+             :as
+             views.calibrate-start-balances]
             [finances.views.internal :as views]
+            [finances.views.debts :as views.debts]
+            [finances.views.delete-category :as views.delete-category]
+            [finances.views.budget.manage-category :as views.budget.manage-category]
+            [finances.views.reports :as views.reports]
+            [finances.views.assets :as views.assets]
             [hiccup.page :refer [html5]]
             [medley.core :refer [map-keys]]
             [ring.middleware.defaults :refer [site-defaults wrap-defaults]]
