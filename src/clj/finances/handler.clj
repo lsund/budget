@@ -102,7 +102,7 @@
                        {:title
                         "Calibrate"
                         :total-start-balance
-                        (db/get-total-finances db)
+                        (db/get-total db :start_balance)
                         :categories
                         (->> (db/all db :category)
                              (sort-by :label)

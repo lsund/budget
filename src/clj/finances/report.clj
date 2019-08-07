@@ -15,9 +15,9 @@
                                         (select-keys [:label :amount :time :note])
                                         (update :time (fn [t] (util.date/fmt-date t))))
                                    (db/get-unreported-transactions db config))
-                :summary {:was (db/get-total-finances db)
-                          :remaining (db/get-total-remaining db)
-                          :spent (db/get-total-spent db)}
+                :summary {:was (db/get-total db :start_balance)
+                          :remaining (db/get-total db :balance)
+                          :spent (db/get-total db :spent)}
                 :budget (map #(select-keys % [:label :start_balance :spent])
                              (db/all db :category))}]
     (db/add db :report {:file (str report)
