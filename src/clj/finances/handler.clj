@@ -121,13 +121,13 @@
                               (util/parse-int from)
                               (util/parse-int to)
                               (util/parse-int amount))
-         (redirect (str "/budget/transfer?id=" from)))
+         (redirect (str "/budget/manage-category?id=" from)))
    (POST "/transfer/start-balance" [from to amount]
          (db/transfer-start-balance db
                                     (util/parse-int from)
                                     (util/parse-int to)
                                     (util/parse-int amount))
-         (redirect (str "/budget/transfer?id=" from)))
+         (redirect (str "/budget/manage-category?id=" from)))
    (POST "/transfer/both" [from to amount]
          (jdbc/with-db-transaction [t-db db]
            (db/transfer-balance t-db
@@ -138,7 +138,7 @@
                                       (util/parse-int from)
                                       (util/parse-int to)
                                       (util/parse-int amount)))
-         (redirect (str "/budget/transfer?id=" from)))
+         (redirect (str "/budget/manage-category?id=" from)))
    (POST "/spend" [id dec-amount]
          (db/add-transaction db
                              (util/parse-int id)
