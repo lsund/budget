@@ -1,3 +1,3 @@
 # Finances
 
-Personal finances software.
+Personal finances software web app.
