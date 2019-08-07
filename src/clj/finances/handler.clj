@@ -55,15 +55,12 @@
                       {:config
                        config
 
-                       :title
-                       "Budget"
-
                        :all?
                        (some? all)
 
                        :generate-report-div
                        (db/monthly-report-missing? db config)}
-                      (budget-db-data config db)))
+                      (assoc (budget-db-data config db) :title "Budget")))
    (GET "/debts" []
         (views/render :debts config {:title "Debts"
                                      :debts (db/all db :debt)}))
