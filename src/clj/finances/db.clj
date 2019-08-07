@@ -71,16 +71,19 @@
 
 (defn all
   [db table]
-  (jdbc/query db [(str "select * from " (name table))]))
+  (jdbc/query db [(str "SELECT * FROM " (name table))]))
 
-(defn get-total-spent [db]
-  (-> (jdbc/query db ["select sum(spent) from category"]) first :sum))
+(defn category-ids->names [db]
+  (let [cats (all db :category)
+        ids (map :id cats)
+        ns  (map :label cats)]
+    (zipmap ids ns)))
 
-(defn get-total-finances [db]
-  (-> (jdbc/query db ["select sum(start_balance) from category"]) first :sum))
-
-(defn get-total-remaining [db]
-  (-> (jdbc/query db ["select sum(balance) from category"]) first :sum))
+(defn get-total [db col]
+  (->> [(str "SELECT sum(" (name col) ") FROM category")]
+       (jdbc/query db)
+       first
+       :sum))
 
 (defn- previous-month [current-month]
   (if (= current-month 1) 12 (dec current-month)))
@@ -113,11 +116,25 @@
                      last-report-day
                      id]))))
 
-(defn category-ids->names [db]
-  (let [cats (all db :category)
-        ids (map :id cats)
-        ns  (map :label cats)]
-    (zipmap ids ns)))
+(defn get-budget [db config]
+  {:total-finances (get-total db :start_balance)
+   :total-remaining (get-total db :balance)
+   :total-spent (get-total db :spent)
+   :categories (->> (all db :category)
+                    (remove #(= (:label %) "Buffer"))
+                    (filter (comp not :hidden))
+                    (sort-by :label))
+   :buffer (row db :category {:label "Buffer"})
+   :category-ids->names (category-ids->names db)
+   :monthly-transactions (get-unreported-transactions db config)})
+
+(defn get-asset-transactions [db type]
+  (jdbc/query db
+              ["SELECT AssetTransaction.*, asset.*
+                FROM assettransaction
+                INNER JOIN asset
+                ON assettransaction.assetid = asset.id AND asset.type=?"
+               (case type :stock 1 2)]))
 
 (defn monthly-report-missing?
   ([db config]
@@ -132,14 +149,6 @@
                           WHERE extract(month from day) = ?"
                          (previous-month month)])
          empty?))))
-
-(defn get-asset-transactions [db type]
-  (jdbc/query db
-              ["SELECT AssetTransaction.*, asset.*
-                FROM assettransaction
-                INNER JOIN asset
-                ON assettransaction.assetid = asset.id AND asset.type=?"
-               (case type :stock 1 2)]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modify

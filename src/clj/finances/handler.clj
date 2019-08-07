@@ -36,31 +36,17 @@
 
 (def not-found (html5 "not found"))
 
-(defn budget-db-data [config db]
-  {:total-finances (db/get-total-finances db)
-   :total-remaining (db/get-total-remaining db)
-   :total-spent (db/get-total-spent db)
-   :categories (->> (db/all db :category)
-                    (remove #(= (:label %) "Buffer"))
-                    (filter (comp not :hidden))
-                    (sort-by :label))
-   :buffer (db/row db :category {:label "Buffer"})
-   :category-ids->names (db/category-ids->names db)
-   :monthly-transactions (db/get-unreported-transactions db config)})
-
 (defn- app-routes [{:keys [db] :as config}]
   (routes
    (GET "/" [all]
         (views/render :budget
-                      {:config
-                       config
+                      {:config config
 
-                       :all?
-                       (some? all)
+                       :all?  (some? all)
 
-                       :generate-report-div
-                       (db/monthly-report-missing? db config)}
-                      (assoc (budget-db-data config db) :title "Budget")))
+                       :generate-report-div (db/monthly-report-missing? db
+                                                                        config)}
+                      (assoc (db/get-budget db config) :title "Budget")))
    (GET "/debts" []
         (views/render :debts config {:title "Debts"
                                      :debts (db/all db :debt)}))
@@ -92,11 +78,9 @@
    (GET "/budget/manage-category" [id]
         (views/render :manage-category
                       config
-                      (assoc (budget-db-data config db)
+                      (assoc (db/get-budget db config)
                              :category
-                             (db/row db
-                                     :category
-                                     (util/parse-int id))
+                             (db/row db :category (util/parse-int id))
                              :title
                              "Manage category")))
    (GET "/budget/transaction-group" [id]
@@ -110,8 +94,8 @@
                                                        config
                                                        (util/parse-int id))}))
    (GET "/delete-category" [id]
-        (views/render :delete-category config {:title "Warning"
-                                               :id id}))
+        (views/render :delete-category config {:title "Warning" :id
+                                               id}))
    (POST "/calibrate-start-balances" []
          (views/render :calibrate
                        config
