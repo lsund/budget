@@ -140,15 +140,20 @@
   ([db config]
    (monthly-report-missing? db config (.getValue (.getMonth (util.date/today)))))
   ([db config month]
-   (if (>= (.getDayOfMonth (util.date/today)) 25)
-     (-> (jdbc/query db ["SELECT id from report
-                          WHERE extract(month from day) = ?"
-                         month])
-         empty?)
-     (-> (jdbc/query db ["SELECT id from report
-                          WHERE extract(month from day) = ?"
-                         (previous-month month)])
-         empty?))))
+   (let [year (.getYear (util.date/today))]
+     (if (>= (.getDayOfMonth (util.date/today)) 25)
+       (-> (jdbc/query db ["SELECT id from report
+                          WHERE extract(month from day) = ?
+                          AND extract(year from day) = ?"
+                           month
+                           year])
+           empty?)
+       (-> (jdbc/query db ["SELECT id from report
+                          WHERE extract(month from day) = ?
+                          AND extract(year from day) = ?"
+                           (previous-month month)
+                           year])
+           empty?)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Modify
